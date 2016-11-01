@@ -25,7 +25,7 @@ class HelloControllerTestSpec extends Specification {
     @Autowired
     private WebApplicationContext context
 
-    MockMvc mvc;
+    MockMvc mvc
 
     @WithMockUser
     def "index should display greeting"() {
