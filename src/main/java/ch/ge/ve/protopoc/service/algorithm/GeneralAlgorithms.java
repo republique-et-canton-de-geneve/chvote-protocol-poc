@@ -120,4 +120,36 @@ public class GeneralAlgorithms {
         }
         return h;
     }
+
+    /**
+     * Algorithm 5.5: GetNIZKPChallenge
+     * @param v the public values vector (domain unspecified)
+     * @param t the commitments vector (domain unspecified)
+     * @param c_ub the upper-bound of the challenge
+     * @return the computed challenge
+     * @throws NoSuchProviderException
+     * @throws NoSuchAlgorithmException
+     */
+    public BigInteger getNIZKPChallenge(Object[] v, Object[] t, BigInteger c_ub) throws NoSuchProviderException, NoSuchAlgorithmException {
+        Preconditions.checkArgument(v.length == t.length, "The lengths of v and t should be identical");
+        return conversion.toInteger(hash.hash(v, t)).mod(c_ub);
+    }
+
+    /**
+     * Algorithm 5.6: GetPublicChallenges
+     * @param n the number of challenges requested
+     * @param v the public values vector (domain unspecified)
+     * @param c_ub the upper-bound of the challenge
+     * @return a list challenges, of length n
+     * @throws NoSuchProviderException
+     * @throws NoSuchAlgorithmException
+     */
+    public List<BigInteger> getPublicChallenges(int n, Object[] v, BigInteger c_ub) throws NoSuchProviderException, NoSuchAlgorithmException {
+        List<BigInteger> c = new ArrayList<>();
+        for (int i = 1; i <= n; i++) {
+            BigInteger c_i = conversion.toInteger(hash.hash(v, BigInteger.valueOf(i))).mod(c_ub);
+            c.add(c_i);
+        }
+        return c;
+    }
 }
