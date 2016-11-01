@@ -1,4 +1,4 @@
-package ch.ge.ve.protopoc.service.generic;
+package ch.ge.ve.protopoc.service.support;
 
 import java.math.BigInteger;
 

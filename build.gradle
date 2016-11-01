@@ -51,6 +51,7 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.spockframework:spock-spring')
     testCompile('org.springframework.security:spring-security-test')
+	testCompile('cglib:cglib:2.2')
 }
 
 dependencyManagement {
