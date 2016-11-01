@@ -2,16 +2,17 @@ package ch.ge.ve.protopoc.service.algorithm;
 
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.EncryptionGroup;
+import ch.ge.ve.protopoc.service.support.Conversion;
+import ch.ge.ve.protopoc.service.support.Hash;
 import ch.ge.ve.protopoc.service.support.JacobiSymbol;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Ordering;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -19,14 +20,19 @@ import java.util.stream.Collectors;
  */
 public class GeneralAlgorithms {
     private final JacobiSymbol jacobiSymbol;
+    private final Hash hash;
+    private final Conversion conversion;
 
     /**
      * Constructor, defines all collaborators
-     *
-     * @param jacobiSymbol the jacobiSymbol computing class
+     *  @param jacobiSymbol the jacobiSymbol computing class
+     * @param hash
+     * @param conversion
      */
-    public GeneralAlgorithms(JacobiSymbol jacobiSymbol) {
+    public GeneralAlgorithms(JacobiSymbol jacobiSymbol, Hash hash, Conversion conversion) {
         this.jacobiSymbol = jacobiSymbol;
+        this.hash = hash;
+        this.conversion = conversion;
     }
 
     /**
@@ -87,5 +93,31 @@ public class GeneralAlgorithms {
         }
 
         return selectedPrimes;
+    }
+
+    /**
+     * Algorithm 5.4: GetGenerators
+     * Create a number of independent generators for the encryption group given
+     *
+     * @param n number of generators to be computed
+     * @param eg the encryption group for which we want to create generators
+     * @return a list of independent generators
+     * @throws NoSuchProviderException
+     * @throws NoSuchAlgorithmException
+     */
+    public List<BigInteger> getGenerators(int n, EncryptionGroup eg) throws NoSuchProviderException, NoSuchAlgorithmException {
+        List<BigInteger> h = new ArrayList<>();
+        int i = 1;
+        while (h.size() < n) {
+            BigInteger h_i;
+            int x = 0;
+            do {
+                x++;
+                byte[] bytes = hash.hash("chVote", BigInteger.valueOf(i), BigInteger.valueOf(x));
+                h_i = conversion.toInteger(bytes).mod(eg.p);
+            } while (h_i.equals(BigInteger.ONE)); // Very unlikely, but needs to be avoided
+            h.add(h_i);
+        }
+        return h;
     }
 }

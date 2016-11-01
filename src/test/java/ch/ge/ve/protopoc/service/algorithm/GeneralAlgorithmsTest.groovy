@@ -2,6 +2,9 @@ package ch.ge.ve.protopoc.service.algorithm
 
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException
 import ch.ge.ve.protopoc.service.model.EncryptionGroup
+import ch.ge.ve.protopoc.service.support.BigIntegers
+import ch.ge.ve.protopoc.service.support.Conversion
+import ch.ge.ve.protopoc.service.support.Hash
 import ch.ge.ve.protopoc.service.support.JacobiSymbol
 import spock.lang.Specification
 
@@ -17,13 +20,15 @@ import static java.math.BigInteger.ONE
 class GeneralAlgorithmsTest extends Specification {
     def GeneralAlgorithms generalAlgorithms
     def JacobiSymbol jacobiSymbol = Mock()
+    def Hash hash = Mock()
+    def Conversion conversion = Mock()
 
     def static ELEVEN = BigInteger.valueOf(11L)
 
     def EncryptionGroup eg = new EncryptionGroup(ELEVEN, null, null, null)
 
     void setup() {
-        generalAlgorithms = new GeneralAlgorithms(jacobiSymbol)
+        generalAlgorithms = new GeneralAlgorithms(jacobiSymbol, hash, conversion)
     }
 
     def "isMember"() {
@@ -81,5 +86,15 @@ class GeneralAlgorithmsTest extends Specification {
         then:
         selectedPrimes.size() == 3;
         selectedPrimes.containsAll(TWO, THREE, SEVEN)
+    }
+
+    def "getGenerators"() {
+        when:
+        def generators = generalAlgorithms.getGenerators(3, eg)
+
+        then:
+        4 * conversion.toInteger(_) >>> [BigIntegers.FIVE, BigIntegers.THREE, BigInteger.ONE, BigIntegers.SEVEN]
+        4 * hash.hash(_ as Object[]) >> ([] as byte[])
+        generators.containsAll(FIVE, THREE, SEVEN)
     }
 }
