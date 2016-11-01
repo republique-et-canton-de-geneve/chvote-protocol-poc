@@ -1,10 +1,8 @@
 package ch.ge.ve.protopoc.model.entity;
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * This entity class holds information relevant to the user accounts, for authentication
@@ -18,7 +16,14 @@ public class Account {
     private String username;
     private String password;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "ACCOUNT_AUTHORITY",
+            joinColumns = {@JoinColumn(name = "ACCOUNT_ID", referencedColumnName = "ID")},
+            inverseJoinColumns = {@JoinColumn(name = "AUTHORITY_ID", referencedColumnName = "ID")})
+    private List<Authority> authorities;
+
     // Needed by JPA
+    @SuppressWarnings("unused")
     public Account(){}
 
     public Account(String username, String password) {
@@ -48,5 +53,13 @@ public class Account {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Authority> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(List<Authority> authorities) {
+        this.authorities = authorities;
     }
 }

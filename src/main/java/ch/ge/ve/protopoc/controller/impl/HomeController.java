@@ -1,6 +1,6 @@
 package ch.ge.ve.protopoc.controller.impl;
 
-import ch.ge.ve.protopoc.controller.api.HelloInterface;
+import ch.ge.ve.protopoc.controller.api.HomeInterface;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Security is handled at the interface level
  */
 @RestController
-public class HelloController implements HelloInterface {
+public class HomeController implements HomeInterface {
 
     @Override
     public String index() {

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * This sample interface serves as example of the routing and access restriction mechanisms
  */
-public interface HelloInterface {
+public interface HomeInterface {
     @RequestMapping("/")
     @PreAuthorize("authenticated")
     String index();

@@ -40,13 +40,13 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	compile('org.springframework.boot:spring-boot-starter-security')
-//	compile('org.springframework.session:spring-session')
 	compile('org.springframework.boot:spring-boot-starter-validation')
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-starter-websocket')
     compile "com.querydsl:querydsl-apt:$querydslVersion:jpa"
     compile "com.querydsl:querydsl-jpa:$querydslVersion"
 	compile('com.h2database:h2')
+    compile('io.jsonwebtoken:jjwt:0.7.0')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.spockframework:spock-spring')
