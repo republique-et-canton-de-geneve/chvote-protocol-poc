@@ -12,7 +12,7 @@ class ConversionTest extends Specification {
         conversion = new Conversion()
     }
 
-    def "toByteArray"() {
+    def "toByteArray(BigInteger)"() {
         expect:
         conversion.toByteArray(x) == bytes
 
@@ -40,5 +40,24 @@ class ConversionTest extends Specification {
         x << [BigInteger.ONE,
               BigInteger.valueOf(128),
               BigInteger.valueOf(12_938_765_425_438L)]
+    }
+
+    def "toByteArray(String)"() {
+        expect:
+        conversion.toByteArray(s) == bytes
+
+        where:
+        s       | bytes
+        "Hello" | [(byte) 0x48, (byte) 0x65, (byte) 0x6C, (byte) 0x6C, (byte) 0x6F]
+        "Voilà" | [(byte) 0x56, (byte) 0x6F, (byte) 0x69, (byte) 0x6C, (byte) 0xC3, (byte) 0xA0]
+    }
+
+    def "toString(byte[])"() {
+        expect:
+        conversion.toString(bytes as byte[]) == s
+
+        where:
+        bytes | s
+        [(byte) 0x48, (byte) 0x65, (byte) 0x6C, (byte) 0x6C, (byte) 0x6F] | "SGVsbG8="
     }
 }
