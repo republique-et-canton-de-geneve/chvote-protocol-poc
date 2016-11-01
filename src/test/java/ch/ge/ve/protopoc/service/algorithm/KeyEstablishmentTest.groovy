@@ -35,6 +35,17 @@ class KeyEstablishmentTest extends Specification {
         }
 
         (keyPair.private as EncryptionPrivateKey).privateKey == FIVE // 19 mod 7 = 5
-        (keyPair.public as EncryptionPublicKey).publicKey == BigInteger.valueOf(9L) // (3 ^ 5) mod 13
+        (keyPair.public as EncryptionPublicKey).publicKey == BigInteger.valueOf(9L) // 3 ^ 5 mod 13
+    }
+
+    def "getPublicKey"() {
+        def pubKeys = [new EncryptionPublicKey(SEVEN, encryptionGroup), new EncryptionPublicKey(THREE, encryptionGroup)] as EncryptionPublicKey[]
+
+        when:
+        def publicKey = keyEstablishment.getPublicKey(pubKeys)
+
+        then:
+        publicKey.encryptionGroup == encryptionGroup
+        publicKey.publicKey == EIGHT // 7 * 3 mod 8
     }
 }

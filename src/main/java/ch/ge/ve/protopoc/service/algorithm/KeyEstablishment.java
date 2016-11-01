@@ -4,6 +4,7 @@ import ch.ge.ve.protopoc.service.model.EncryptionGroup;
 import ch.ge.ve.protopoc.service.model.EncryptionPrivateKey;
 import ch.ge.ve.protopoc.service.model.EncryptionPublicKey;
 import ch.ge.ve.protopoc.service.support.Conversion;
+import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -34,5 +35,20 @@ public class KeyEstablishment {
         BigInteger pk = eg.g.modPow(sk, eg.p);
 
         return new KeyPair(new EncryptionPublicKey(pk, eg), new EncryptionPrivateKey(sk, eg));
+    }
+
+    /**
+     * Algorithm 5.8: GetPublicKey
+     * @param publicKeys the set of public key shares that should be combined
+     * @return the combined public key
+     */
+    public EncryptionPublicKey getPublicKey(EncryptionPublicKey... publicKeys) {
+        // check all encryption groups are equal
+        BigInteger publicKey = BigInteger.ONE;
+        EncryptionGroup eg = publicKeys[0].getEncryptionGroup();
+        for (EncryptionPublicKey key : publicKeys) {
+            publicKey = publicKey.multiply(key.getPublicKey()).mod(eg.p);
+        }
+        return new EncryptionPublicKey(publicKey, eg);
     }
 }
