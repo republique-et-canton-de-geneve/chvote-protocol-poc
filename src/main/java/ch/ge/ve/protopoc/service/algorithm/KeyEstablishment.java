@@ -27,7 +27,7 @@ public class KeyEstablishment {
      * @return a newly, randomly generated KeyPair
      */
     public KeyPair generateKeyPair(EncryptionGroup eg) {
-        int byteLength = eg.q.bitLength() / 8;
+        int byteLength = (int) Math.ceil(eg.q.bitLength() / 8.0);
         byte[] bytes = new byte[byteLength * 2]; // Can't achieve perfectly uniform distribution --> how to limit bias?
         secureRandom.nextBytes(bytes);
         BigInteger sk = conversion.toInteger(bytes).mod(eg.q);
