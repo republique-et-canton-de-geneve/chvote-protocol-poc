@@ -21,12 +21,12 @@ public class Hash {
 
         try {
             MessageDigest messageDigest = newMessageDigest();
-            if (messageDigest.getDigestLength()*8 != securityParameters.l) {
+            if (messageDigest.getDigestLength() * 8 != securityParameters.l) {
                 throw new IllegalArgumentException(
                         String.format(
                                 "The length of the message digest should match the expected output length. " +
                                         "Got %d expected %d",
-                                messageDigest.getDigestLength()*8,
+                                messageDigest.getDigestLength() * 8,
                                 securityParameters.l));
             }
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
@@ -52,6 +52,19 @@ public class Hash {
         }
     }
 
+    /**
+     * This method performs the necessary casts and conversions for the hashing to be compliant to the definition in
+     * section 2.3.
+     * <p>Tuples are represented as arrays of Objects and need to be cast afterwards. Diversity of inputs means that
+     * ensuring type-safety is much more complex.</p>
+     * <p>The <em>traditional</em> risks and downsides of casting and using the <tt>instanceof</tt> operator are
+     * mitigated by centralizing the calls and handling the case where no type matches.</p>
+     *
+     * @param object the element which needs to be cast
+     * @return
+     * @throws NoSuchProviderException
+     * @throws NoSuchAlgorithmException
+     */
     public byte[] hash(Object object) throws NoSuchProviderException, NoSuchAlgorithmException {
         if (object instanceof String) {
             return hash((String) object);
@@ -59,6 +72,8 @@ public class Hash {
             return hash((BigInteger) object);
         } else if (object instanceof byte[]) {
             return hash((byte[]) object);
+        } else if (object instanceof Hashable) {
+            return hash(((Hashable) object).elementsToHash());
         } else if (object instanceof Object[]) {
             return hash((Object[]) object);
         } else {
@@ -77,5 +92,18 @@ public class Hash {
 
     public byte[] hash(BigInteger integer) throws NoSuchProviderException, NoSuchAlgorithmException {
         return hash(conversion.toByteArray(integer));
+    }
+
+    /**
+     * This interface is used to facilitate hashing of objects representing tuples, so that the relevant elements can
+     * be included in the the hash, in a predictable and coherent order.
+     */
+    public interface Hashable {
+        /**
+         * Get this object as a vector (or array) of its properties
+         *
+         * @return the array of the properties to be included for hashing
+         */
+        Object[] elementsToHash();
     }
 }

@@ -100,11 +100,11 @@ public class Polynomial {
         }
 
         @Override
-        public byte[][] toByteArrays() {
-            byte[][] byteArrays = new byte[2][];
-            byteArrays[0] = x.toByteArray();
-            byteArrays[1] = y.toByteArray();
-            return byteArrays;
+        public Object[] elementsToHash() {
+            BigInteger[] elementsToHash = new BigInteger[2];
+            elementsToHash[0] = x;
+            elementsToHash[1] = y;
+            return elementsToHash;
         }
     }
 
