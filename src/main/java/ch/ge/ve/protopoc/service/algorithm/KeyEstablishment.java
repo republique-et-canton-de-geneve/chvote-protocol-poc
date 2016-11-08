@@ -4,6 +4,7 @@ import ch.ge.ve.protopoc.service.model.EncryptionGroup;
 import ch.ge.ve.protopoc.service.model.EncryptionPrivateKey;
 import ch.ge.ve.protopoc.service.model.EncryptionPublicKey;
 import ch.ge.ve.protopoc.service.support.Conversion;
+import ch.ge.ve.protopoc.service.support.RandomGenerator;
 import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
@@ -15,10 +16,12 @@ import java.security.SecureRandom;
  */
 public class KeyEstablishment {
     private final SecureRandom secureRandom;
+    private final RandomGenerator randomGenerator;
     private transient final Conversion conversion = new Conversion();
 
     public KeyEstablishment(SecureRandom secureRandom) {
         this.secureRandom = secureRandom;
+        randomGenerator = new RandomGenerator(secureRandom);
     }
 
     /**
@@ -28,10 +31,7 @@ public class KeyEstablishment {
      * @return a newly, randomly generated KeyPair
      */
     public KeyPair generateKeyPair(EncryptionGroup eg) {
-        int byteLength = (int) Math.ceil(eg.q.bitLength() / 8.0);
-        byte[] bytes = new byte[byteLength * 2]; // Can't achieve perfectly uniform distribution --> how to limit bias?
-        secureRandom.nextBytes(bytes);
-        BigInteger sk = conversion.toInteger(bytes).mod(eg.q);
+        BigInteger sk = randomGenerator.randomBigInteger(eg.q);
         BigInteger pk = eg.g.modPow(sk, eg.p);
 
         return new KeyPair(new EncryptionPublicKey(pk, eg), new EncryptionPrivateKey(sk, eg));
