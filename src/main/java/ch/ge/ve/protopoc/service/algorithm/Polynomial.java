@@ -10,10 +10,7 @@ import com.google.common.collect.Lists;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class holds the parameters and the methods / algorithms applicable to polynomials
@@ -64,8 +61,12 @@ public class Polynomial {
      */
     public List<BigInteger> genPolynomial(int d) {
         List<BigInteger> coefficients = new ArrayList<>();
-        for (int i = 0; i < d; i++) {
-            coefficients.add(randomGenerator.randomBigInteger(primeField.p_prime));
+        if (d == -1) {
+            coefficients.add(BigInteger.ZERO);
+        } else {
+            for (int i = 0; i <= d; i++) {
+                coefficients.add(randomGenerator.randomBigInteger(primeField.p_prime));
+            }
         }
         return coefficients;
     }
@@ -78,19 +79,19 @@ public class Polynomial {
      * @return the computed value y
      */
     public BigInteger getYValue(BigInteger x, List<BigInteger> a) {
-        Preconditions.checkArgument(a.size() >= 0);
+        Preconditions.checkArgument(a.size() >= 1);
         if (x.equals(BigInteger.ZERO)) {
-            return a.get(0); // what if d = -1?
+            return a.get(0);
         } else {
             BigInteger y = BigInteger.ZERO;
             for (BigInteger a_i : Lists.reverse(a)) {
-                y = a_i.add(x.multiply(y).mod(primeField.p_prime));
+                y = a_i.add(x.multiply(y).mod(primeField.p_prime)).mod(primeField.p_prime);
             }
             return y;
         }
     }
 
-    public class Point implements Hash.Hashable {
+    public static class Point implements Hash.Hashable {
         public final BigInteger x;
         public final BigInteger y;
 
@@ -106,9 +107,23 @@ public class Polynomial {
             elementsToHash[1] = y;
             return elementsToHash;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Point point = (Point) o;
+            return Objects.equals(x, point.x) &&
+                    Objects.equals(y, point.y);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
+        }
     }
 
-    public class PointsAndZeroImages {
+    public static class PointsAndZeroImages {
         private final List<Point> points;
         private final List<BigInteger> y0s;
 
@@ -123,6 +138,20 @@ public class Polynomial {
 
         public List<BigInteger> getY0s() {
             return ImmutableList.copyOf(y0s);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PointsAndZeroImages that = (PointsAndZeroImages) o;
+            return Objects.equals(points, that.points) &&
+                    Objects.equals(y0s, that.y0s);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(points, y0s);
         }
     }
 }
