@@ -31,7 +31,7 @@ class KeyEstablishmentTest extends Specification {
         then:
         1 * secureRandom.nextBytes(_) >> { args ->
             def bytes = args[0] as byte[]
-            bytes[bytes.length - 1] = 0x13
+            bytes[bytes.length - 1] = 0x05
         }
 
         (keyPair.private as EncryptionPrivateKey).privateKey == FIVE // 19 mod 7 = 5

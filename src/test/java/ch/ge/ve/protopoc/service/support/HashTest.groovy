@@ -16,9 +16,7 @@ class HashTest extends Specification {
     def Conversion conversion = Mock()
 
     void setup() {
-        securityParameters = new SecurityParameters(lambda, mu, l, epsilon)
-        securityParameters.l = 512
-
+        securityParameters = new SecurityParameters(80, 80, 512, 0.999)
         hash = new Hash("SHA-512", "SUN", securityParameters, conversion)
     }
 

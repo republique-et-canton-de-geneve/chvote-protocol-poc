@@ -26,7 +26,7 @@ class GeneralAlgorithmsTest extends Specification {
 
     def static ELEVEN = BigInteger.valueOf(11L)
 
-    def EncryptionGroup eg = new EncryptionGroup(ELEVEN, null, null, null)
+    def EncryptionGroup eg = new EncryptionGroup(ELEVEN, SEVEN, THREE, FIVE)
 
     void setup() {
         generalAlgorithms = new GeneralAlgorithms(jacobiSymbol, hash, conversion)
