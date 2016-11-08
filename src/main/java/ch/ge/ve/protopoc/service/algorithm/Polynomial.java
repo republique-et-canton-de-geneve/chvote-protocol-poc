@@ -1,8 +1,8 @@
 package ch.ge.ve.protopoc.service.algorithm;
 
-import ch.ge.ve.protopoc.service.model.Candidate;
 import ch.ge.ve.protopoc.service.model.Election;
 import ch.ge.ve.protopoc.service.model.PrimeField;
+import ch.ge.ve.protopoc.service.support.Hash;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -34,20 +34,22 @@ public class Polynomial {
      * @return a list of <i>n</i> random points picked from <i>t</i> different polynomials, along with the image of 0 for each polynomial
      */
     public PointsAndZeroImages genPoints(List<Election> elections) {
-        Set<BigInteger> xValues = new HashSet<>();
         List<Point> points = new ArrayList<>();
         List<BigInteger> y0s = new ArrayList<>();
-        int i = 1;
+        // i = 0 (used as subscript for x_i, y_i)
+        // loop on election: index j (hence the a_j symbol)
         for (Election election : elections) {
+            Set<BigInteger> xValues = new HashSet<>();
             List<BigInteger> a_j = genPolynomial(election.getNumberOfSelections() - 1);
             for (int l = 0; l < election.getNumberOfCandidates(); l++) {
                 BigInteger x_i;
                 do {
                     x_i = randomGenerator.randomBigInteger(primeField.p_prime);
                 } while (x_i.compareTo(BigInteger.ZERO) == 0 || xValues.contains(x_i));
+                xValues.add(x_i);
                 BigInteger y_i = getYValue(x_i, a_j);
                 points.add(new Point(x_i, y_i));
-                i++;
+                // i++
             }
             y0s.add(getYValue(BigInteger.ZERO, a_j));
         }
@@ -88,13 +90,21 @@ public class Polynomial {
         }
     }
 
-    public class Point {
+    public class Point implements Hash.Hashable {
         public final BigInteger x;
         public final BigInteger y;
 
         public Point(BigInteger x, BigInteger y) {
             this.x = x;
             this.y = y;
+        }
+
+        @Override
+        public byte[][] toByteArrays() {
+            byte[][] byteArrays = new byte[2][];
+            byteArrays[0] = x.toByteArray();
+            byteArrays[1] = y.toByteArray();
+            return byteArrays;
         }
     }
 
