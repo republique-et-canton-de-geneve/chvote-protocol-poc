@@ -170,4 +170,31 @@ class ElectionPreparationTest extends Specification {
         THREE | TWO | [FIVE, FOUR] | [0x13] as byte[]       || new Polynomial.Point(SIX, ONE) // x_circ = 3^3 % 7 = 6; y = (2 + 19) % 3 = 0 --> y_circ = 3^0 mod 7 = 1
         SIX   | ONE | [TWO, THREE] | [0x10, 0x30] as byte[] || new Polynomial.Point(ONE, TWO) // x_circ = 3^6 % 7 = 1; y = 1 + 0x1030 % 3 = 2 --> y_circ = 2^2 mod 7 = 2
     }
+
+    def "getPublicCredentials should combine the public data from the different authorities"() {
+        given:
+        def D_circ = [
+                [ // authority 1
+                  new Polynomial.Point(THREE, FOUR),
+                  new Polynomial.Point(ONE, TWO)
+                ], [ // authority 2
+                     new Polynomial.Point(FIVE, ONE),
+                     new Polynomial.Point(ONE, TWO)
+                ], [ // authority 3
+                     new Polynomial.Point(THREE, FIVE),
+                     new Polynomial.Point(ONE, TWO)
+                ], [ // authority 4
+                     new Polynomial.Point(FOUR, TWO),
+                     new Polynomial.Point(ONE, TWO)
+                ]]
+
+        when:
+        def credentials = electionPreparation.getPublicCredentials(D_circ)
+
+        then:
+        credentials == [
+                new Polynomial.Point(FIVE, FIVE),
+                new Polynomial.Point(ONE, TWO)
+        ]
+    }
 }
