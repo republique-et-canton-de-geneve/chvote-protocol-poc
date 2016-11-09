@@ -1,53 +1,38 @@
 package ch.ge.ve.protopoc.service.algorithm
 
-import ch.ge.ve.protopoc.service.model.Election
 import ch.ge.ve.protopoc.service.model.PrimeField
 import ch.ge.ve.protopoc.service.support.BigIntegers
+import ch.ge.ve.protopoc.service.support.RandomGenerator
 import spock.lang.Specification
-
-import java.security.SecureRandom
 
 /**
  * Unit tests for the Polynomial class
  */
 class PolynomialTest extends Specification {
-    def SecureRandom secureRandom = Mock()
+    def RandomGenerator randomGenerator = Mock()
     def PrimeField primeField
 
     def Polynomial polynomial
 
     void setup() {
         primeField = new PrimeField(BigIntegers.SEVEN)
-        polynomial = new Polynomial(secureRandom, primeField)
+        polynomial = new Polynomial(randomGenerator, primeField)
     }
 
     def "genPoints should generate a random polynomial by election and compute its value at random points, as well as the image of 0"() {
-        given: "a single election with a 1-out-of-3 choice (typical referendum setting)"
-        def election = new Election(3, 1, null)
-
-        when: "generating points for an election"
-        def pointsAndZeroes = polynomial.genPoints([election])
+        when: "generating points for an election with a 1-out-of-3 choice (typical referendum setting)"
+        def pointsAndZeroes = polynomial.genPoints([3], [1])
 
         then: "the proper number of random elements are created"
-        secureRandom.nextBytes(_) >> {
-            def bytes = it[0] as byte[]
-            bytes[0] = 3 // called by genPolynomial
-        } >> {
-            def bytes = it[0] as byte[]
-            bytes[0] = 2 // called by randomBigInteger (first candidate)
-        } >> {
-            def bytes = it[0] as byte[]
-            bytes[0] = 0 // called by randomBigInteger (second candidate) --> discarded, is 0
-        } >> {
-            def bytes = it[0] as byte[]
-            bytes[0] = 4 // called by randomBigInteger (second candidate)
-        } >> {
-            def bytes = it[0] as byte[]
-            bytes[0] = 4 // called by randomBigInteger (third candidate) --> discarded, already in existing set
-        } >> {
-            def bytes = it[0] as byte[]
-            bytes[0] = 5 // called by randomBigInteger (third and last candidate)
-        }
+        randomGenerator.randomBigInteger(_) >>>
+                [BigIntegers.THREE, // called by genPolynomial
+                 BigIntegers.TWO, // called by randomBigInteger (first candidate)
+                 BigInteger.ZERO, // called by randomBigInteger (second candidate) --> discarded, is 0
+                 BigIntegers.FOUR, // called by randomBigInteger (second candidate)
+                 BigIntegers.FOUR, // called by randomBigInteger (third candidate) --> discarded, already in existing set
+                 BigIntegers.FIVE // called by randomBigInteger (third and last candidate)
+                ]
+
         and: "the candidate points match the expected elements"
         def pointCand1 = new Polynomial.Point(BigIntegers.TWO, BigIntegers.THREE);
         def pointCand2 = new Polynomial.Point(BigIntegers.FOUR, BigIntegers.THREE);
@@ -64,34 +49,18 @@ class PolynomialTest extends Specification {
     }
 
     def "genPolynomial should generate a polynomial of the requested size"() {
-        // With d = -1
-        expect: "genPolynomial(-1) should return an array with the 0 constant"
-        polynomial.genPolynomial(-1) == [BigInteger.ZERO]
+        given:
+        randomGenerator.randomBigInteger(_) >>> randomValues
 
-        // Test with d = 0
-        when: "genPolynomial(0) should"
-        def poly0 = polynomial.genPolynomial(0)
-        then: "generate a random BigInteger"
-        1 * secureRandom.nextBytes(_) >> {
-            def bytes = it[0] as byte[]
-            bytes[0] = 5
-        }
-        and: "return it as constant"
-        poly0 == [BigIntegers.FIVE]
+        expect:
+        a == polynomial.genPolynomial(d)
 
-        // With d = 1
-        when: "genPolynomial(1) should"
-        def poly1 = polynomial.genPolynomial(1)
-        then: "generate two random BigIntegers"
-        secureRandom.nextBytes(_) >> {
-            def bytes = it[0] as byte[]
-            bytes[0] = 3
-        } >> {
-            def bytes = it[0] as byte[]
-            bytes[0] = 2
-        }
-        and: "return them as coefficients"
-        poly1 == [BigIntegers.THREE, BigIntegers.TWO]
+        where:
+        d  | randomValues                         || a
+        -1 | []                                   || [BigInteger.ZERO]
+        0  | [BigIntegers.FIVE]                   || [BigIntegers.FIVE]
+        1  | [BigIntegers.TWO, BigIntegers.THREE] || [BigIntegers.TWO, BigIntegers.THREE]
+
     }
 
     def "getYValue should compute image of value x"() {

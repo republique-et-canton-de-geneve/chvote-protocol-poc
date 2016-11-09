@@ -11,6 +11,8 @@ import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * This class holds the parameters and the methods / algorithms applicable to polynomials
@@ -19,26 +21,34 @@ public class Polynomial {
     private final RandomGenerator randomGenerator;
     private final PrimeField primeField;
 
-    public Polynomial(SecureRandom secureRandom, PrimeField primeField) {
-        randomGenerator = new RandomGenerator(secureRandom);
+    public Polynomial(RandomGenerator randomGenerator, PrimeField primeField) {
+        this.randomGenerator = randomGenerator;
         this.primeField = primeField;
     }
 
     /**
      * Algorithm 5.12: GenPoints
      *
-     * @param elections the list of the elections that should be considered (contains both <b>n</b> and <b>k</b>)
+     *
+     * @param n
+     * @param k
      * @return a list of <i>n</i> random points picked from <i>t</i> different polynomials, along with the image of 0 for each polynomial
      */
-    public PointsAndZeroImages genPoints(List<Election> elections) {
+    public PointsAndZeroImages genPoints(List<Integer> n, List<Integer> k) {
+        Preconditions.checkArgument(n.size() == k.size(),
+                "The number of candidates vector and number of selections vector should have the same length");
+        for (int i = 0; i < n.size(); i++) {
+            Preconditions.checkArgument(n.get(i) > k.get(i),
+                    "The number of selections must always be smaller than the number of candidates");
+        }
         List<Point> points = new ArrayList<>();
         List<BigInteger> y0s = new ArrayList<>();
         // i = 0 (used as subscript for x_i, y_i)
         // loop on election: index j (hence the a_j symbol)
-        for (Election election : elections) {
+        for (int i = 0; i < n.size(); i++) {
             Set<BigInteger> xValues = new HashSet<>();
-            List<BigInteger> a_j = genPolynomial(election.getNumberOfSelections() - 1);
-            for (int l = 0; l < election.getNumberOfCandidates(); l++) {
+            List<BigInteger> a_j = genPolynomial(k.get(i) - 1);
+            for (int l = 0; l < n.get(i); l++) {
                 BigInteger x_i;
                 do {
                     x_i = randomGenerator.randomBigInteger(primeField.p_prime);
