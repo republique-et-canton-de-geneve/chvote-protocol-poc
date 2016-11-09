@@ -32,10 +32,10 @@ public class Polynomial {
      */
     public PointsAndZeroImages genPoints(List<Integer> n, List<Integer> k) {
         Preconditions.checkArgument(n.size() == k.size(),
-                "The number of candidates vector and number of selections vector should have the same length");
+                String.format("|n| [%d] != |k| [%d]", n.size(), k.size()));
         for (int i = 0; i < n.size(); i++) {
             Preconditions.checkArgument(n.get(i) > k.get(i),
-                    "The number of selections must always be smaller than the number of candidates");
+                    String.format("n_%1$d [%2$d] <= k_%1$d [%3$d]", i, n.get(i), k.get(i)));
         }
         List<Point> points = new ArrayList<>();
         List<BigInteger> y0s = new ArrayList<>();
@@ -66,6 +66,7 @@ public class Polynomial {
      * @return the list of coefficients of a random polynomial p(X) = \sum(i=1,d){a_i*X^i mod p'}
      */
     public List<BigInteger> genPolynomial(int d) {
+        Preconditions.checkArgument(d >= -1, String.format("Value of d should be greater or equal to -1 (it is [%d]", d));
         List<BigInteger> coefficients = new ArrayList<>();
         if (d == -1) {
             coefficients.add(BigInteger.ZERO);
@@ -85,7 +86,8 @@ public class Polynomial {
      * @return the computed value y
      */
     public BigInteger getYValue(BigInteger x, List<BigInteger> a) {
-        Preconditions.checkArgument(a.size() >= 1);
+        Preconditions.checkArgument(a.size() >= 1,
+                String.format("The size of a should always be larger or equal to 1 (it is [%d]", a.size()));
         if (x.equals(BigInteger.ZERO)) {
             return a.get(0);
         } else {
