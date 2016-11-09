@@ -1,18 +1,15 @@
 package ch.ge.ve.protopoc.service.algorithm;
 
-import ch.ge.ve.protopoc.service.model.Election;
 import ch.ge.ve.protopoc.service.model.PrimeField;
 import ch.ge.ve.protopoc.service.support.Hash;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.*;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * This class holds the parameters and the methods / algorithms applicable to polynomials
@@ -29,9 +26,8 @@ public class Polynomial {
     /**
      * Algorithm 5.12: GenPoints
      *
-     *
-     * @param n
-     * @param k
+     * @param n the vector containing the number of candidates per election
+     * @param k the vector containing the number of allowed selections per election
      * @return a list of <i>n</i> random points picked from <i>t</i> different polynomials, along with the image of 0 for each polynomial
      */
     public PointsAndZeroImages genPoints(List<Integer> n, List<Integer> k) {
@@ -51,7 +47,7 @@ public class Polynomial {
             for (int l = 0; l < n.get(i); l++) {
                 BigInteger x_i;
                 do {
-                    x_i = randomGenerator.randomBigInteger(primeField.p_prime);
+                    x_i = randomGenerator.randomBigInteger(primeField.getP_prime());
                 } while (x_i.compareTo(BigInteger.ZERO) == 0 || xValues.contains(x_i));
                 xValues.add(x_i);
                 BigInteger y_i = getYValue(x_i, a_j);
@@ -75,7 +71,7 @@ public class Polynomial {
             coefficients.add(BigInteger.ZERO);
         } else {
             for (int i = 0; i <= d; i++) {
-                coefficients.add(randomGenerator.randomBigInteger(primeField.p_prime));
+                coefficients.add(randomGenerator.randomBigInteger(primeField.getP_prime()));
             }
         }
         return coefficients;
@@ -95,7 +91,7 @@ public class Polynomial {
         } else {
             BigInteger y = BigInteger.ZERO;
             for (BigInteger a_i : Lists.reverse(a)) {
-                y = a_i.add(x.multiply(y).mod(primeField.p_prime)).mod(primeField.p_prime);
+                y = a_i.add(x.multiply(y).mod(primeField.getP_prime())).mod(primeField.getP_prime());
             }
             return y;
         }
@@ -130,6 +126,14 @@ public class Polynomial {
         @Override
         public int hashCode() {
             return Objects.hash(x, y);
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                    .add("x", x)
+                    .add("y", y)
+                    .toString();
         }
     }
 

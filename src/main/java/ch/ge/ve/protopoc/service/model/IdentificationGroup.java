@@ -8,9 +8,9 @@ import java.math.BigInteger;
  * Missing javadoc!
  */
 public class IdentificationGroup {
-    public final BigInteger p_circ;
-    public final BigInteger q_circ;
-    public final BigInteger g_circ;
+    private final BigInteger p_circ;
+    private final BigInteger q_circ;
+    private final BigInteger g_circ;
 
     public IdentificationGroup(BigInteger p_circ, BigInteger q_circ, BigInteger g_circ) {
         Preconditions.checkArgument(q_circ.bitLength() <= p_circ.bitLength());
@@ -18,5 +18,17 @@ public class IdentificationGroup {
         this.p_circ = p_circ;
         this.q_circ = q_circ;
         this.g_circ = g_circ;
+    }
+
+    public BigInteger getP_circ() {
+        return p_circ;
+    }
+
+    public BigInteger getQ_circ() {
+        return q_circ;
+    }
+
+    public BigInteger getG_circ() {
+        return g_circ;
     }
 }
