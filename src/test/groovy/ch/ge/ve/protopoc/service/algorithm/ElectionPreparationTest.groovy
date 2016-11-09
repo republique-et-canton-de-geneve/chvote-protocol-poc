@@ -163,7 +163,7 @@ class ElectionPreparationTest extends Specification {
         hash.hash(yList.toArray()) >> hashed
 
         expect:
-        electionPreparation.genPublicVoterData(x, y, yList) == point
+        electionPreparation.getPublicVoterData(x, y, yList) == point
 
         where:
         x     | y   | yList        | hashed                 || point

@@ -62,7 +62,7 @@ public class ElectionPreparation {
             Polynomial.PointsAndZeroImages pointsAndZeroImages = polynomial.genPoints(n, k_i);
             SecretVoterData d_i = genSecretVoterData(pointsAndZeroImages.getPoints());
             secretVoterDataList.add(d_i);
-            publicVoterDataList.add(genPublicVoterData(d_i.x, d_i.y, pointsAndZeroImages.getY0s()));
+            publicVoterDataList.add(getPublicVoterData(d_i.x, d_i.y, pointsAndZeroImages.getY0s()));
             randomPoints.add(pointsAndZeroImages.getPoints());
             allowedSelections.add(k_i);
         }
@@ -92,7 +92,7 @@ public class ElectionPreparation {
     }
 
     /**
-     * Algorithm 5.11: GenPublicVoterData
+     * Algorithm 5.11: GetPublicVoterData
      *
      * @param x     secret voting credential x &isin; &integers;_q_circ
      * @param y     secret confirmation credential y &isin; &integers;_q_circ
@@ -101,7 +101,7 @@ public class ElectionPreparation {
      * @throws NoSuchProviderException
      * @throws NoSuchAlgorithmException
      */
-    public Polynomial.Point genPublicVoterData(BigInteger x, BigInteger y, List<BigInteger> yList) throws NoSuchProviderException, NoSuchAlgorithmException {
+    public Polynomial.Point getPublicVoterData(BigInteger x, BigInteger y, List<BigInteger> yList) throws NoSuchProviderException, NoSuchAlgorithmException {
         BigInteger local_y = y.add(conversion.toInteger(hash.hash(yList.toArray()))).mod(identificationGroup.getQ_circ());
         BigInteger x_circ = identificationGroup.getG_circ().modPow(x, identificationGroup.getP_circ());
         BigInteger y_circ = identificationGroup.getG_circ().modPow(local_y, identificationGroup.getP_circ());
