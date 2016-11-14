@@ -5,7 +5,6 @@ import ch.ge.ve.protopoc.service.model.EncryptionPrivateKey;
 import ch.ge.ve.protopoc.service.model.EncryptionPublicKey;
 import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
-import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -31,8 +30,8 @@ public class KeyEstablishment {
      * @return a newly, randomly generated KeyPair
      */
     public KeyPair generateKeyPair(EncryptionGroup eg) {
-        BigInteger sk = randomGenerator.randomBigInteger(eg.q);
-        BigInteger pk = eg.g.modPow(sk, eg.p);
+        BigInteger sk = randomGenerator.randomBigInteger(eg.getQ());
+        BigInteger pk = eg.getG().modPow(sk, eg.getP());
 
         return new KeyPair(new EncryptionPublicKey(pk, eg), new EncryptionPrivateKey(sk, eg));
     }
@@ -47,7 +46,7 @@ public class KeyEstablishment {
         BigInteger publicKey = BigInteger.ONE;
         EncryptionGroup eg = publicKeys[0].getEncryptionGroup();
         for (EncryptionPublicKey key : publicKeys) {
-            publicKey = publicKey.multiply(key.getPublicKey()).mod(eg.p);
+            publicKey = publicKey.multiply(key.getPublicKey()).mod(eg.getP());
         }
         return new EncryptionPublicKey(publicKey, eg);
     }

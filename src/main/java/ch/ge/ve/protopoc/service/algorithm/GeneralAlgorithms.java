@@ -44,8 +44,8 @@ public class GeneralAlgorithms {
      */
     public boolean isMember(BigInteger x, EncryptionGroup eg) {
         if (x.compareTo(BigInteger.ONE) >= 0 &&
-                x.compareTo(eg.p) <= -1) {
-            return jacobiSymbol.computeJacobiSymbol(x, eg.p) == 1;
+                x.compareTo(eg.getP()) <= -1) {
+            return jacobiSymbol.computeJacobiSymbol(x, eg.getP()) == 1;
         } else {
             return false;
         }
@@ -65,7 +65,7 @@ public class GeneralAlgorithms {
             do {
                 // Performance improvement over +1 / +2 defined in algorithm
                 x = x.nextProbablePrime();
-                if (x.compareTo(eg.p) >= 0)
+                if (x.compareTo(eg.getP()) >= 0)
                     throw new NotEnoughPrimesInGroupException(String.format("Only found %d primes (%s) in group %s", primes.size(), Joiner.on(",").join(primes.stream().limit(4).collect(Collectors.toList())), eg));
             } while (!x.isProbablePrime(100) || !isMember(x, eg));
             primes.add(x);
@@ -114,7 +114,7 @@ public class GeneralAlgorithms {
             do {
                 x++;
                 byte[] bytes = hash.hash("chVote", BigInteger.valueOf(i), BigInteger.valueOf(x));
-                h_i = conversion.toInteger(bytes).mod(eg.p);
+                h_i = conversion.toInteger(bytes).mod(eg.getP());
             } while (h_i.equals(BigInteger.ONE)); // Very unlikely, but needs to be avoided
             h.add(h_i);
         }

@@ -50,9 +50,10 @@ public class PublicParameters {
                             int s) {
         // All tests that only impact properties of a given element are performed locally at the constructor level
         // Preconditions tested here are those that impact a combination of the properties of the lower level elements
-        Preconditions.checkArgument(identificationGroup.getQ_circ().compareTo(encryptionGroup.p.subtract(BigInteger.ONE).divide(encryptionGroup.h)) == 0,
+        Preconditions.checkArgument(identificationGroup.getQ_circ()
+                        .compareTo(encryptionGroup.getP().subtract(BigInteger.ONE).divide(encryptionGroup.getH())) == 0,
                 "q_circ must equal (p - 1)/h");
-        Preconditions.checkArgument(encryptionGroup.h.compareTo(BigIntegers.TWO) >= 0,
+        Preconditions.checkArgument(encryptionGroup.getH().compareTo(BigIntegers.TWO) >= 0,
                 "");
         Preconditions.checkArgument(2 * securityParameters.mu <= identificationGroup.getQ_circ().bitLength());
         Preconditions.checkArgument(l_x % 8 == 0, "l_x needs to be a multiple of 8");

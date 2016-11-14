@@ -15,13 +15,16 @@ import static ch.ge.ve.protopoc.service.support.BigIntegers.*
 class KeyEstablishmentTest extends Specification {
     public static final BigInteger THIRTEEN = BigInteger.valueOf(13)
     def SecureRandom secureRandom = Mock()
-    def EncryptionGroup encryptionGroup
+    def EncryptionGroup encryptionGroup = Mock()
 
     def KeyEstablishment keyEstablishment
 
     void setup() {
         keyEstablishment = new KeyEstablishment(secureRandom)
-        encryptionGroup = new EncryptionGroup(THIRTEEN, SEVEN, THREE, FIVE)
+        encryptionGroup.p >> THIRTEEN
+        encryptionGroup.q >> SEVEN
+        encryptionGroup.g >> THREE
+        encryptionGroup.h >> FIVE
     }
 
     def "generateKeyPair"() {

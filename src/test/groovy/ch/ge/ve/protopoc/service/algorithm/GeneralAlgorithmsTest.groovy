@@ -2,16 +2,12 @@ package ch.ge.ve.protopoc.service.algorithm
 
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException
 import ch.ge.ve.protopoc.service.model.EncryptionGroup
-import ch.ge.ve.protopoc.service.support.BigIntegers
 import ch.ge.ve.protopoc.service.support.Conversion
 import ch.ge.ve.protopoc.service.support.Hash
 import ch.ge.ve.protopoc.service.support.JacobiSymbol
 import spock.lang.Specification
 
-import static ch.ge.ve.protopoc.service.support.BigIntegers.FIVE
-import static ch.ge.ve.protopoc.service.support.BigIntegers.SEVEN
-import static ch.ge.ve.protopoc.service.support.BigIntegers.THREE
-import static ch.ge.ve.protopoc.service.support.BigIntegers.TWO
+import static ch.ge.ve.protopoc.service.support.BigIntegers.*
 import static java.math.BigInteger.ONE
 import static java.math.BigInteger.TEN
 
@@ -26,10 +22,15 @@ class GeneralAlgorithmsTest extends Specification {
 
     def static ELEVEN = BigInteger.valueOf(11L)
 
-    def EncryptionGroup eg = new EncryptionGroup(ELEVEN, SEVEN, THREE, FIVE)
+    def EncryptionGroup eg = Mock()
 
     void setup() {
         generalAlgorithms = new GeneralAlgorithms(jacobiSymbol, hash, conversion)
+
+        eg.p >> ELEVEN
+        eg.q >> SEVEN
+        eg.g >> THREE
+        eg.h >> FIVE
     }
 
     def "isMember"() {
