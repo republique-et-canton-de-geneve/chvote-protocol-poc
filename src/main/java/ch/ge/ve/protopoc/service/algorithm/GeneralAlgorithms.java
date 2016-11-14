@@ -87,12 +87,10 @@ public class GeneralAlgorithms {
                 "The elements are not sorted!");
         Integer s_k = selections.get(selections.size() - 1);
         List<BigInteger> primes = getPrimes(s_k, eg);
-        List<BigInteger> selectedPrimes = new ArrayList<>();
-        for (Integer s_i : selections) {
-            selectedPrimes.add(primes.get(s_i - 1));
-        }
 
-        return selectedPrimes;
+        return selections.stream()
+                .map(s_i -> primes.get(s_i - 1))
+                .collect(Collectors.toList());
     }
 
     /**

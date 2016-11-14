@@ -3,24 +3,19 @@ package ch.ge.ve.protopoc.service.algorithm;
 import ch.ge.ve.protopoc.service.model.EncryptionGroup;
 import ch.ge.ve.protopoc.service.model.EncryptionPrivateKey;
 import ch.ge.ve.protopoc.service.model.EncryptionPublicKey;
-import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
-import java.security.SecureRandom;
 
 /**
  * Missing javadoc!
  */
 public class KeyEstablishment {
-    private final SecureRandom secureRandom;
     private final RandomGenerator randomGenerator;
-    private transient final Conversion conversion = new Conversion();
 
-    public KeyEstablishment(SecureRandom secureRandom) {
-        this.secureRandom = secureRandom;
-        randomGenerator = new RandomGenerator(secureRandom);
+    public KeyEstablishment(RandomGenerator randomGenerator) {
+        this.randomGenerator = randomGenerator;
     }
 
     /**
