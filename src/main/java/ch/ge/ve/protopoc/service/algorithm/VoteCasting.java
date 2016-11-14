@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Missing javadoc!
+ * Algorithms related to the vote casting phase
  */
 public class VoteCasting {
     private final PublicParameters publicParameters;
@@ -79,7 +79,7 @@ public class VoteCasting {
         int i = 0; // 0 based indices in java, as opposed to the 1-based specification
         for (int j = 0; j < bold_k.size(); j++) {
             for (int l = 0; l < bold_k.get(j); l++) {
-                byte[] M_i = ByteArrayUtils.xor(c[bold_s.get(i)], hash.hash(b.get(i).multiply(d.get(j).modPow(bold_r.get(j).negate(), p))));
+                byte[] M_i = ByteArrayUtils.xor(c[bold_s.get(i)], hash.hash(b.get(i).multiply(d.get(j).modPow(bold_r.get(j).negate(), p)).mod(p)));
                 BigInteger x_i = conversion.toInteger(Arrays.copyOfRange(M_i, 0, L_m / 2 + 1));
                 BigInteger y_i = conversion.toInteger(Arrays.copyOfRange(M_i, L_m / 2 + 1, M_i.length));
                 if (x_i.compareTo(p_prime) >= 0 || y_i.compareTo(p_prime) >= 0) {
