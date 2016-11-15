@@ -31,7 +31,7 @@ class KeyEstablishmentTest extends Specification {
         def keyPair = keyEstablishment.generateKeyPair(encryptionGroup)
 
         then:
-        1 * randomGenerator.randomBigInteger(_) >> FIVE
+        1 * randomGenerator.randomInZq(_) >> FIVE
 
         (keyPair.private as EncryptionPrivateKey).privateKey == FIVE // 19 mod 7 = 5
         (keyPair.public as EncryptionPublicKey).publicKey == BigInteger.valueOf(9L) // 3 ^ 5 mod 13

@@ -25,7 +25,7 @@ public class KeyEstablishment {
      * @return a newly, randomly generated KeyPair
      */
     public KeyPair generateKeyPair(EncryptionGroup eg) {
-        BigInteger sk = randomGenerator.randomBigInteger(eg.getQ());
+        BigInteger sk = randomGenerator.randomInZq(eg.getQ());
         BigInteger pk = eg.getG().modPow(sk, eg.getP());
 
         return new KeyPair(new EncryptionPublicKey(pk, eg), new EncryptionPrivateKey(sk, eg));

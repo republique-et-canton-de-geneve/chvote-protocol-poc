@@ -47,7 +47,7 @@ public class Polynomial {
             for (int l = 0; l < n.get(i); l++) {
                 BigInteger x_i;
                 do {
-                    x_i = randomGenerator.randomBigInteger(primeField.getP_prime());
+                    x_i = randomGenerator.randomInZq(primeField.getP_prime());
                 } while (x_i.compareTo(BigInteger.ZERO) == 0 || xValues.contains(x_i));
                 xValues.add(x_i);
                 BigInteger y_i = getYValue(x_i, a_j);
@@ -71,9 +71,15 @@ public class Polynomial {
         if (d == -1) {
             coefficients.add(BigInteger.ZERO);
         } else {
-            for (int i = 0; i <= d; i++) {
-                coefficients.add(randomGenerator.randomBigInteger(primeField.getP_prime()));
+            for (int i = 0; i <= d - 1; i++) {
+                coefficients.add(randomGenerator.randomInZq(primeField.getP_prime()));
             }
+            // a_d \isin Z_p_prime \ {0}
+            coefficients.add(randomGenerator.
+                    // random in range 0 - p'-2
+                            randomInZq(primeField.getP_prime().subtract(BigInteger.ONE))
+                    // --> random in range 1 - p'-1
+                    .add(BigInteger.ONE));
         }
         return coefficients;
     }

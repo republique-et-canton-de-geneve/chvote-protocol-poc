@@ -79,12 +79,10 @@ public class ElectionPreparation {
      *
      * @param points a list of points, p_i \in Z^2_{p'}
      * @return the secret data for a single voter
-     * @throws NoSuchProviderException
-     * @throws NoSuchAlgorithmException
      */
     public SecretVoterData genSecretVoterData(List<Polynomial.Point> points) {
-        BigInteger x = randomGenerator.randomBigInteger(q_x);
-        BigInteger y = randomGenerator.randomBigInteger(q_y);
+        BigInteger x = randomGenerator.randomInZq(q_x);
+        BigInteger y = randomGenerator.randomInZq(q_y);
         byte[] F = hash.hash(points.toArray());
         byte[][] rc = new byte[points.size()][];
 

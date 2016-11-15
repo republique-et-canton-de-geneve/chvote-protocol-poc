@@ -5,6 +5,7 @@ import ch.ge.ve.protopoc.service.model.ObliviousTransferResponse
 import ch.ge.ve.protopoc.service.model.PrimeField
 import ch.ge.ve.protopoc.service.model.PublicParameters
 import ch.ge.ve.protopoc.service.support.Hash
+import ch.ge.ve.protopoc.service.support.RandomGenerator
 import spock.lang.Specification
 
 import static ch.ge.ve.protopoc.service.support.BigIntegers.*
@@ -19,6 +20,8 @@ class VoteCastingClientTest extends Specification {
     def PublicParameters publicParameters = Mock()
     def EncryptionGroup encryptionGroup = Mock()
     def PrimeField primeField = Mock()
+    def RandomGenerator randomGenerator = Mock()
+    def GeneralAlgorithms generalAlgorithms = Mock()
 
     def VoteCastingClient voteCasting
 

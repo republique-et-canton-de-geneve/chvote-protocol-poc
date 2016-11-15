@@ -62,20 +62,20 @@ class ElectionPreparationTest extends Specification {
         election2.numberOfSelections >> 2
 
         and: "the following pre-established 'random' values"
-        randomGenerator.randomBigInteger(_) >>> [
-                THREE, // GenPolynomial for voter 1, election 1, first and only coeff (k_1_1 = 1)
+        randomGenerator.randomInZq(_) >>> [
+                TWO, // GenPolynomial for voter 1, election 1, first and only coeff (k_1_1 = 1)
                 SIX, //  GenPoint for voter 1, election 1, first candidate
                 ONE, //  GenPoint for voter 1, election 1, second candidate
                 TWO, //  GenPoint for voter 1, election 1, third candidate
                 ONE, //  GenPolynomial for voter 1, election 2, first coeff (k_1_2 = 2)
-                FOUR, //  GenPolynomial for voter 1, election 2, first coeff (k_1_2 = 2)
+                THREE, //  GenPolynomial for voter 1, election 2, second coeff (k_1_2 = 2)
                 TWO, //  GenPoint for voter 1, election 2, first candidate
                 FIVE, //  GenPoint for voter 1, election 2, second candidate
                 ONE, //  GenPoint for voter 1, election 2, third candidate
                 FOUR, //  GenPoint for voter 1, election 2, fourth candidate
                 THREE, // GenSecretVoterData for voter 1, x
                 TWO, // GenSecretVoterData for voter 1, y
-                FOUR, // GenPolynomial for voter 2, election 1, first and only coeff (k_1_1 = 1)
+                THREE, // GenPolynomial for voter 2, election 1, first and only coeff (k_1_1 = 1)
                 FIVE, //  GenPoint for voter 2, election 1, first candidate
                 FOUR, //  GenPoint for voter 2, election 1, second candidate
                 THREE, //  GenPoint for voter 2, election 1, third candidate
@@ -146,7 +146,7 @@ class ElectionPreparationTest extends Specification {
         hash.hash([point1, point2] as Object[]) >> ([0x03] as byte[])
         hash.hash(point1) >> ([0x05] as byte[])
         hash.hash(point2) >> ([0x07] as byte[])
-        randomGenerator.randomBigInteger(_) >>> [FIVE, THREE]
+        randomGenerator.randomInZq(_) >>> [FIVE, THREE]
 
         when:
         def secretData = electionPreparation.genSecretVoterData([point1, point2])

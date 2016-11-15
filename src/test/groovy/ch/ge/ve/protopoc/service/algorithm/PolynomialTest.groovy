@@ -24,8 +24,8 @@ class PolynomialTest extends Specification {
         def pointsAndZeroes = polynomial.genPoints([3], [1])
 
         then: "the proper number of random elements are created"
-        randomGenerator.randomBigInteger(_) >>>
-                [BigIntegers.THREE, // called by genPolynomial
+        randomGenerator.randomInZq(_) >>>
+                [BigIntegers.TWO, // called by genPolynomial
                  BigIntegers.TWO, // called by randomBigInteger (first candidate)
                  BigInteger.ZERO, // called by randomBigInteger (second candidate) --> discarded, is 0
                  BigIntegers.FOUR, // called by randomBigInteger (second candidate)
@@ -50,16 +50,16 @@ class PolynomialTest extends Specification {
 
     def "genPolynomial should generate a polynomial of the requested size"() {
         given:
-        randomGenerator.randomBigInteger(_) >>> randomValues
+        randomGenerator.randomInZq(_) >>> randomValues
 
         expect:
         a == polynomial.genPolynomial(d)
 
         where:
-        d  | randomValues                         || a
-        -1 | []                                   || [BigInteger.ZERO]
-        0  | [BigIntegers.FIVE]                   || [BigIntegers.FIVE]
-        1  | [BigIntegers.TWO, BigIntegers.THREE] || [BigIntegers.TWO, BigIntegers.THREE]
+        d  | randomValues                       || a
+        -1 | []                                 || [BigInteger.ZERO]
+        0  | [BigIntegers.FOUR]                 || [BigIntegers.FIVE]
+        1  | [BigIntegers.TWO, BigIntegers.TWO] || [BigIntegers.TWO, BigIntegers.THREE]
 
     }
 
