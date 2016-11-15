@@ -82,7 +82,7 @@ public class ElectionPreparation {
      * @throws NoSuchProviderException
      * @throws NoSuchAlgorithmException
      */
-    public SecretVoterData genSecretVoterData(List<Polynomial.Point> points) throws NoSuchProviderException, NoSuchAlgorithmException {
+    public SecretVoterData genSecretVoterData(List<Polynomial.Point> points) {
         BigInteger x = randomGenerator.randomBigInteger(q_x);
         BigInteger y = randomGenerator.randomBigInteger(q_y);
         byte[] F = hash.hash(points.toArray());
@@ -105,7 +105,7 @@ public class ElectionPreparation {
      * @throws NoSuchProviderException
      * @throws NoSuchAlgorithmException
      */
-    public Polynomial.Point getPublicVoterData(BigInteger x, BigInteger y, List<BigInteger> yList) throws NoSuchProviderException, NoSuchAlgorithmException {
+    public Polynomial.Point getPublicVoterData(BigInteger x, BigInteger y, List<BigInteger> yList) {
         BigInteger local_y = y.add(conversion.toInteger(hash.hash(yList.toArray()))).mod(identificationGroup.getQ_circ());
         BigInteger x_circ = identificationGroup.getG_circ().modPow(x, identificationGroup.getP_circ());
         BigInteger y_circ = identificationGroup.getG_circ().modPow(local_y, identificationGroup.getP_circ());

@@ -25,7 +25,7 @@ class GeneralAlgorithmsTest extends Specification {
     def EncryptionGroup eg = Mock()
 
     void setup() {
-        generalAlgorithms = new GeneralAlgorithms(jacobiSymbol, hash, conversion)
+        generalAlgorithms = new GeneralAlgorithms(jacobiSymbol, hash, conversion, eg)
 
         eg.p >> ELEVEN
         eg.q >> SEVEN
@@ -38,7 +38,7 @@ class GeneralAlgorithmsTest extends Specification {
         jacobiSymbol.computeJacobiSymbol(ONE, ELEVEN) >> 1
 
         then:
-        generalAlgorithms.isMember(x, eg) == result
+        generalAlgorithms.isMember(x) == result
 
         where:
         x      | result
@@ -54,7 +54,7 @@ class GeneralAlgorithmsTest extends Specification {
         jacobiSymbol.computeJacobiSymbol(SEVEN, ELEVEN) >> 1
 
         when:
-        def primes = generalAlgorithms.getPrimes(4, eg)
+        def primes = generalAlgorithms.getPrimes(4)
 
         then:
         primes.size() == 4
@@ -69,7 +69,7 @@ class GeneralAlgorithmsTest extends Specification {
         jacobiSymbol.computeJacobiSymbol(SEVEN, ELEVEN) >> 1
 
         when:
-        generalAlgorithms.getPrimes(5, eg)
+        generalAlgorithms.getPrimes(5)
 
         then:
         thrown(NotEnoughPrimesInGroupException)
@@ -83,7 +83,7 @@ class GeneralAlgorithmsTest extends Specification {
         jacobiSymbol.computeJacobiSymbol(SEVEN, ELEVEN) >> 1
 
         when:
-        def selectedPrimes = generalAlgorithms.getSelectedPrimes(Arrays.asList(1, 2, 4), eg)
+        def selectedPrimes = generalAlgorithms.getSelectedPrimes(Arrays.asList(1, 2, 4))
 
         then:
         selectedPrimes.size() == 3;
@@ -92,7 +92,7 @@ class GeneralAlgorithmsTest extends Specification {
 
     def "getGenerators"() {
         when:
-        def generators = generalAlgorithms.getGenerators(3, eg)
+        def generators = generalAlgorithms.getGenerators(3)
 
         then:
         4 * conversion.toInteger(_) >>> [FIVE, THREE, ONE, SEVEN]

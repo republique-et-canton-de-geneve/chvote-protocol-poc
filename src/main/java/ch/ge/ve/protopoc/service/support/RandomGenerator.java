@@ -1,5 +1,7 @@
 package ch.ge.ve.protopoc.service.support;
 
+import ch.ge.ve.protopoc.service.model.EncryptionGroup;
+
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
@@ -15,7 +17,6 @@ public class RandomGenerator {
     }
 
     /**
-     *
      * @param upperbound exclusive upperbound
      * @return a random BigInteger in range [0, upperbound)
      */
@@ -29,5 +30,26 @@ public class RandomGenerator {
 
         // If we fail to get a value within range for MAX_ITERATIONS, get a value with lower bitCount
         return new BigInteger(upperbound.bitLength() - 1, secureRandom);
+    }
+
+    /**
+     * Draw at random from Z_q
+     *
+     * @param q the exclusive upperbound to draw from
+     * @return an element picked at random from a uniform distribution of Z_q
+     */
+    public BigInteger randomInZq(BigInteger q) {
+        return randomBigInteger(q.subtract(BigInteger.ONE));
+    }
+
+    /**
+     * Draw an element at random from the group G_q
+     *
+     * @param encryptionGroup the encryption group to draw from
+     * @return an element picked at random
+     */
+    public BigInteger randomInGq(EncryptionGroup encryptionGroup) {
+        BigInteger x = randomInZq(encryptionGroup.getQ());
+        return encryptionGroup.getG().modPow(x, encryptionGroup.getP());
     }
 }

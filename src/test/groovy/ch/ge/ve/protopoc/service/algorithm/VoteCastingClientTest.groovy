@@ -14,13 +14,13 @@ import static java.math.BigInteger.ZERO
 /**
  * Tests for the Vote Casting algorithms
  */
-class VoteCastingTest extends Specification {
+class VoteCastingClientTest extends Specification {
     def Hash hash = Mock()
-    def PublicParameters publicParameters = Mock();
+    def PublicParameters publicParameters = Mock()
     def EncryptionGroup encryptionGroup = Mock()
     def PrimeField primeField = Mock()
 
-    def VoteCasting voteCasting
+    def VoteCastingClient voteCasting
 
     void setup() {
         publicParameters.encryptionGroup >> encryptionGroup
@@ -31,7 +31,7 @@ class VoteCastingTest extends Specification {
         publicParameters.l_r >> 16
         publicParameters.s >> 2
 
-        voteCasting = new VoteCasting(publicParameters, hash)
+        voteCasting = new VoteCastingClient(publicParameters, hash, randomGenerator, generalAlgorithms)
     }
 
     def "getPointMatrix should compute the point matrix according to spec"() {
