@@ -62,7 +62,7 @@ public class VoteCastingClient {
         BigInteger a = query.getBold_a().stream().reduce(BigInteger::multiply)
                 .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"))
                 .mod(p);
-        BigInteger r = query.getBold_r().stream().reduce(BigInteger::multiply)
+        BigInteger r = query.getBold_r().stream().reduce(BigInteger::add)
                 .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"))
                 .mod(p);
         BigInteger b = g.modPow(r, p);
