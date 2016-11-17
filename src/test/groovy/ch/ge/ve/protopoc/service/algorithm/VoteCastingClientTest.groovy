@@ -1,9 +1,6 @@
 package ch.ge.ve.protopoc.service.algorithm
 
-import ch.ge.ve.protopoc.service.model.EncryptionGroup
-import ch.ge.ve.protopoc.service.model.ObliviousTransferResponse
-import ch.ge.ve.protopoc.service.model.PrimeField
-import ch.ge.ve.protopoc.service.model.PublicParameters
+import ch.ge.ve.protopoc.service.model.*
 import ch.ge.ve.protopoc.service.support.Hash
 import ch.ge.ve.protopoc.service.support.RandomGenerator
 import spock.lang.Specification
@@ -19,22 +16,58 @@ class VoteCastingClientTest extends Specification {
     def Hash hash = Mock()
     def PublicParameters publicParameters = Mock()
     def EncryptionGroup encryptionGroup = Mock()
+    def IdentificationGroup identificationGroup = Mock()
     def PrimeField primeField = Mock()
     def RandomGenerator randomGenerator = Mock()
     def GeneralAlgorithms generalAlgorithms = Mock()
 
-    def VoteCastingClient voteCasting
+    def VoteCastingClient voteCastingClient
 
     void setup() {
         publicParameters.encryptionGroup >> encryptionGroup
         encryptionGroup.p >> SEVEN
+        encryptionGroup.q >> THREE
+        encryptionGroup.g >> TWO
+        publicParameters.identificationGroup >> identificationGroup
+        identificationGroup.p_circ >> ELEVEN
+        identificationGroup.q_circ >> FIVE
+        identificationGroup.g_circ >> THREE
         publicParameters.primeField >> primeField
         primeField.p_prime >> FIVE
         publicParameters.l_m >> 16
         publicParameters.l_r >> 16
         publicParameters.s >> 2
 
-        voteCasting = new VoteCastingClient(publicParameters, hash, randomGenerator, generalAlgorithms)
+        voteCastingClient = new VoteCastingClient(publicParameters, hash, randomGenerator, generalAlgorithms)
+    }
+
+    def "genBallotNIZKP should generate a valid proof of knowledge of the ballot"() {
+        given: "some known randomness"
+        randomGenerator.randomInZq(_) >> THREE >> ONE // omega_1 and omega_3
+        randomGenerator.randomInGq(encryptionGroup) >> TWO // omega_2
+
+        and: "some arbitrary values for the NIZKP challenge"
+        // t_1 = g_circ ^ omega_1 mod p_circ = 3^3 mod 11 = 5
+        // t_2 = omega_2 * pk ^ omega_3 mod p = 2 * 3 ^ 1 mod 7 = 6
+        // t_3 = g ^ omega_3 mod p = 2 ^ 1 mod 7 = 2
+        generalAlgorithms.getNIZKPChallenge(
+                [TWO, FOUR, FIVE] as BigInteger[], // x_circ, a, b
+                [FIVE, SIX, TWO] as BigInteger[],  // t_1, t_2, t_3
+                THREE // min(q, q_circ)
+        ) >> FIVE // c
+
+        when: "generating a ballot ZKP"
+        def pi = voteCastingClient.genBallotNIZKP(ONE, SIX, THREE, TWO, FOUR, FIVE, new EncryptionPublicKey(THREE, encryptionGroup))
+
+        then:
+        // for values of t_1 to t_3 see above
+        // s_1 = omega_1 + c * x mod q_circ = 3 + 5 * 1 mod 5 = 3
+        // s_2 = omega_2 * u ^ c mod p = 2 * 6 ^ 5 mod p = 5
+        // s_3 = omega_3 + c * r mod q = 1 + 5 * 3 mod 3 = 1
+        pi == new NonInteractiveZKP(
+                [FIVE, SIX, TWO],
+                [THREE, FIVE, ONE]
+        )
     }
 
     def "getPointMatrix should compute the point matrix according to spec"() {
@@ -51,14 +84,13 @@ class VoteCastingClientTest extends Specification {
         beta_2.d >> [FOUR]
         hash.hash(ONE) >> ([0xA0, 0xB3, 0xC0, 0xD0] as byte[]) // b_i * d_j^{-r_i} mod p = 2 * 4^-5 mod 7 = 1
 
-
         when:
-        def pointMatrix = voteCasting.getPointMatrix([beta_1, beta_2], [1], [2], [FIVE])
+        def pointMatrix = voteCastingClient.getPointMatrix([beta_1, beta_2], [1], [2], [FIVE])
 
         then:
         pointMatrix == [
                 [new Polynomial.Point(FOUR, ONE)], // Authority 1
-                [new Polynomial.Point(THREE, ZERO)]
+                [new Polynomial.Point(THREE, ZERO)] // Authority 2
         ]
     }
 
@@ -71,7 +103,7 @@ class VoteCastingClientTest extends Specification {
         hash.hash(THREE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 7 = 3
 
         when:
-        def points = voteCasting.getPoints(beta, [1], [2], [FIVE])
+        def points = voteCastingClient.getPoints(beta, [1], [2], [FIVE])
 
         then:
         points == [new Polynomial.Point(FOUR, ONE)]
@@ -93,7 +125,7 @@ class VoteCastingClientTest extends Specification {
         hash.hash(point21) >> ([0xD1, 0xCF] as byte[])
 
         when:
-        def rc = voteCasting.getReturnCodes(pointMatrix)
+        def rc = voteCastingClient.getReturnCodes(pointMatrix)
 
         then:
         rc.length == 1

@@ -13,4 +13,5 @@ public class BigIntegers {
     public static final BigInteger SIX = BigInteger.valueOf(6L);
     public static final BigInteger SEVEN = BigInteger.valueOf(7L);
     public static final BigInteger EIGHT = BigInteger.valueOf(8L);
+    public static final BigInteger ELEVEN = BigInteger.valueOf(11L);
 }

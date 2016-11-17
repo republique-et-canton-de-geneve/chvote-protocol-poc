@@ -130,14 +130,14 @@ public class VoteCastingClient {
         BigInteger omega_3 = randomGenerator.randomInZq(q);
 
         BigInteger t_1 = g_circ.modPow(omega_1, p_circ);
-        BigInteger t_2 = omega_2.add(pk.getPublicKey().modPow(omega_3, p).mod(p));
+        BigInteger t_2 = omega_2.multiply(pk.getPublicKey().modPow(omega_3, p).mod(p));
         BigInteger t_3 = g.modPow(omega_3, p);
 
         BigInteger[] v = new BigInteger[]{x_circ, a, b};
         BigInteger[] t = new BigInteger[]{t_1, t_2, t_3};
         BigInteger c = generalAlgorithms.getNIZKPChallenge(v, t, q.min(q_circ));
 
-        BigInteger s_1 = omega_1.add(x).mod(q_circ);
+        BigInteger s_1 = omega_1.add(c.multiply(x)).mod(q_circ);
         BigInteger s_2 = omega_2.multiply(u.modPow(c, p)).mod(p);
         BigInteger s_3 = omega_3.add(c.multiply(r)).mod(q);
         List<BigInteger> s = Arrays.asList(s_1, s_2, s_3);
