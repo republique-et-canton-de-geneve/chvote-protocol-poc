@@ -7,4 +7,8 @@ public class IncompatibleParametersException extends Exception {
     public IncompatibleParametersException(String s) {
         super(s);
     }
+
+    public IncompatibleParametersException(Throwable cause) {
+        super(cause);
+    }
 }

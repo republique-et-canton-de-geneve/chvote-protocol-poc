@@ -16,6 +16,14 @@ public class NonInteractiveZKP {
         this.s = s;
     }
 
+    public List<BigInteger> getT() {
+        return t;
+    }
+
+    public List<BigInteger> getS() {
+        return s;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

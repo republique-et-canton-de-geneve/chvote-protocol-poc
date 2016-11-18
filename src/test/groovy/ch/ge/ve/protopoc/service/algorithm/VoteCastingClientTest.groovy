@@ -110,30 +110,30 @@ class VoteCastingClientTest extends Specification {
 
     def "genBallotNIZKP should generate a valid proof of knowledge of the ballot"() {
         given: "some known randomness"
-        randomGenerator.randomInZq(_) >> THREE >> ONE // omega_1 and omega_3
+        randomGenerator.randomInZq(_) >> TWO >> ONE // omega_1 and omega_3
         randomGenerator.randomInGq(encryptionGroup) >> TWO // omega_2
 
         and: "some arbitrary values for the NIZKP challenge"
-        // t_1 = g_circ ^ omega_1 mod p_circ = 3^3 mod 11 = 5
+        // t_1 = g_circ ^ omega_1 mod p_circ = 3^2 mod 11 = 9
         // t_2 = omega_2 * pk ^ omega_3 mod p = 2 * 3 ^ 1 mod 7 = 6
         // t_3 = g ^ omega_3 mod p = 2 ^ 1 mod 7 = 2
         generalAlgorithms.getNIZKPChallenge(
-                [TWO, FOUR, FIVE] as BigInteger[], // x_circ, a, b
-                [FIVE, SIX, TWO] as BigInteger[],  // t_1, t_2, t_3
+                [THREE, FOUR, FOUR] as BigInteger[], // x_circ, a, b
+                [NINE, SIX, TWO] as BigInteger[],  // t_1, t_2, t_3
                 THREE // min(q, q_circ)
         ) >> FIVE // c
 
         when: "generating a ballot ZKP"
-        def pi = voteCastingClient.genBallotNIZKP(ONE, SIX, THREE, TWO, FOUR, FIVE, new EncryptionPublicKey(THREE, encryptionGroup))
+        def pi = voteCastingClient.genBallotNIZKP(ONE, SIX, TWO, THREE, FOUR, FOUR, new EncryptionPublicKey(THREE, encryptionGroup))
 
         then:
         // for values of t_1 to t_3 see above
-        // s_1 = omega_1 + c * x mod q_circ = 3 + 5 * 1 mod 5 = 3
+        // s_1 = omega_1 + c * x mod q_circ = 2 + 5 * 1 mod 5 = 2
         // s_2 = omega_2 * u ^ c mod p = 2 * 6 ^ 5 mod p = 5
-        // s_3 = omega_3 + c * r mod q = 1 + 5 * 3 mod 3 = 1
+        // s_3 = omega_3 + c * r mod q = 1 + 5 * 2 mod 3 = 2
         pi == new NonInteractiveZKP(
-                [FIVE, SIX, TWO],
-                [THREE, FIVE, ONE]
+                [NINE, SIX, TWO],
+                [TWO, FIVE, TWO]
         )
     }
 
