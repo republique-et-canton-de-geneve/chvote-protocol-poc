@@ -3,6 +3,7 @@ package ch.ge.ve.protopoc.service.algorithm;
 import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException;
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.*;
+import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import ch.ge.ve.protopoc.service.support.ByteArrayUtils;
 import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
@@ -139,7 +140,7 @@ public class VoteCastingAuthority {
     public ObliviousTransferResponseAndRand genResponse(Integer i, List<BigInteger> bold_a, EncryptionPublicKey pk,
                                                         List<Integer> bold_n,
                                                         List<List<Integer>> bold_K,
-                                                        List<List<Polynomial.Point>> bold_P) throws IncompatibleParametersException {
+                                                        List<List<Point>> bold_P) throws IncompatibleParametersException {
         Preconditions.checkArgument(bold_K.size() > 0);
         final int t = bold_K.get(0).size();
         Preconditions.checkArgument(bold_K.stream().allMatch(bold_k_i -> bold_k_i.size() == t));
@@ -183,7 +184,7 @@ public class VoteCastingAuthority {
             Integer n_j = bold_n.get(j);
             for (int l = 0; l < n_j; l++) {
                 int y = n_offset + l;
-                Polynomial.Point point = bold_P.get(i).get(y);
+                Point point = bold_P.get(i).get(y);
                 byte[] M_y = Arrays.concatenate(
                         conversion.toByteArray(point.x, upper_l_m / 2),
                         conversion.toByteArray(point.y, upper_l_m / 2)

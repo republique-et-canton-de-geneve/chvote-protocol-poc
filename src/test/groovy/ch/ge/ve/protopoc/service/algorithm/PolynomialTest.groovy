@@ -1,6 +1,8 @@
 package ch.ge.ve.protopoc.service.algorithm
 
 import ch.ge.ve.protopoc.service.model.PrimeField
+import ch.ge.ve.protopoc.service.model.polynomial.Point
+import ch.ge.ve.protopoc.service.model.polynomial.PointsAndZeroImages
 import ch.ge.ve.protopoc.service.support.BigIntegers
 import ch.ge.ve.protopoc.service.support.RandomGenerator
 import spock.lang.Specification
@@ -34,9 +36,9 @@ class PolynomialTest extends Specification {
                 ]
 
         and: "the candidate points match the expected elements"
-        def pointCand1 = new Polynomial.Point(BigIntegers.TWO, BigIntegers.THREE);
-        def pointCand2 = new Polynomial.Point(BigIntegers.FOUR, BigIntegers.THREE);
-        def pointCand3 = new Polynomial.Point(BigIntegers.FIVE, BigIntegers.THREE);
+        def pointCand1 = new Point(BigIntegers.TWO, BigIntegers.THREE);
+        def pointCand2 = new Point(BigIntegers.FOUR, BigIntegers.THREE);
+        def pointCand3 = new Point(BigIntegers.FIVE, BigIntegers.THREE);
         pointsAndZeroes.getPoints().size() == 3
         pointsAndZeroes.getPoints().containsAll([pointCand1, pointCand2, pointCand3])
 
@@ -45,7 +47,7 @@ class PolynomialTest extends Specification {
         pointsAndZeroes.getY0s().contains(BigIntegers.THREE)
 
         and: "the equality method works"
-        pointsAndZeroes == new Polynomial.PointsAndZeroImages([pointCand1, pointCand2, pointCand3], [BigIntegers.THREE])
+        pointsAndZeroes == new PointsAndZeroImages([pointCand1, pointCand2, pointCand3], [BigIntegers.THREE])
     }
 
     def "genPolynomial should generate a polynomial of the requested size"() {

@@ -1,6 +1,7 @@
 package ch.ge.ve.protopoc.service.algorithm
 
 import ch.ge.ve.protopoc.service.model.*
+import ch.ge.ve.protopoc.service.model.polynomial.Point
 import ch.ge.ve.protopoc.service.support.Hash
 import ch.ge.ve.protopoc.service.support.RandomGenerator
 import spock.lang.Specification
@@ -95,12 +96,12 @@ class ElectionPreparationTest extends Specification {
 
         then: "the result should have one set of secret voter data per voter"
         electorateData.d == [
-                new ElectionPreparation.SecretVoterData(
+                new SecretVoterData(
                         THREE,
                         TWO,
                         [0x0C] as byte[],
                         [[0x0C], [0x0C], [0x0C], [0x0C], [0x0C], [0x0C], [0x0C]] as byte[][]), // voter 1
-                new ElectionPreparation.SecretVoterData(
+                new SecretVoterData(
                         ONE,
                         ONE,
                         [0x0C] as byte[],
@@ -109,29 +110,29 @@ class ElectionPreparationTest extends Specification {
 
         and: "one set of public voter data per voter"
         electorateData.d_circ == [
-                new Polynomial.Point(SIX, TWO), // voter 1 -- x = 3^3 % 7 = 6; y = (2 + 0x0C) % 3 = 2; y_circ = 3^2 % 7 = 2
-                new Polynomial.Point(THREE, THREE) // voter 2 -- x = 3^1 % 7 = 3; y = (1 + 0x0C) % 3 = 1; y_circ = 3^1 % 7 = 3
+                new Point(SIX, TWO), // voter 1 -- x = 3^3 % 7 = 6; y = (2 + 0x0C) % 3 = 2; y_circ = 3^2 % 7 = 2
+                new Point(THREE, THREE) // voter 2 -- x = 3^1 % 7 = 3; y = (1 + 0x0C) % 3 = 1; y_circ = 3^1 % 7 = 3
         ]
 
         and: "one set of points per voter"
         electorateData.p == [
                 [ // voter 1
-                  new Polynomial.Point(SIX, THREE), // election 1, candidate 1
-                  new Polynomial.Point(ONE, THREE), // election 1, candidate 2
-                  new Polynomial.Point(TWO, THREE), // election 1, candidate 3
-                  new Polynomial.Point(TWO, TWO), // election 2, candidate 1 (y = 1 + 4 * 2 mod 7 = 2)
-                  new Polynomial.Point(FIVE, ZERO), // election 2, candidate 2 (y = 1 + 4 * 5 mod 7 = 0)
-                  new Polynomial.Point(ONE, FIVE), // election 2, candidate 3 (y = 1 + 4 * 1 mod 7 = 5)
-                  new Polynomial.Point(FOUR, THREE) // election 2, candidate 4 (y = 1 + 4 * 4 mod 7 = 3)
+                  new Point(SIX, THREE), // election 1, candidate 1
+                  new Point(ONE, THREE), // election 1, candidate 2
+                  new Point(TWO, THREE), // election 1, candidate 3
+                  new Point(TWO, TWO), // election 2, candidate 1 (y = 1 + 4 * 2 mod 7 = 2)
+                  new Point(FIVE, ZERO), // election 2, candidate 2 (y = 1 + 4 * 5 mod 7 = 0)
+                  new Point(ONE, FIVE), // election 2, candidate 3 (y = 1 + 4 * 1 mod 7 = 5)
+                  new Point(FOUR, THREE) // election 2, candidate 4 (y = 1 + 4 * 4 mod 7 = 3)
                 ],
                 [ // voter 2
-                  new Polynomial.Point(FIVE, FOUR), // election 1, candidate 1
-                  new Polynomial.Point(FOUR, FOUR), // election 1, candidate 2
-                  new Polynomial.Point(THREE, FOUR), // election 1, candidate 3
-                  new Polynomial.Point(TWO, ZERO), // election 2, candidate 1
-                  new Polynomial.Point(ONE, ZERO), // election 2, candidate 2
-                  new Polynomial.Point(SIX, ZERO), // election 2, candidate 3
-                  new Polynomial.Point(FIVE, ZERO) // election 2, candidate 4
+                  new Point(FIVE, FOUR), // election 1, candidate 1
+                  new Point(FOUR, FOUR), // election 1, candidate 2
+                  new Point(THREE, FOUR), // election 1, candidate 3
+                  new Point(TWO, ZERO), // election 2, candidate 1
+                  new Point(ONE, ZERO), // election 2, candidate 2
+                  new Point(SIX, ZERO), // election 2, candidate 3
+                  new Point(FIVE, ZERO) // election 2, candidate 4
                 ]
         ]
 
@@ -141,8 +142,8 @@ class ElectionPreparationTest extends Specification {
 
     def "genSecretVoterData should generate the expected private voter data"() {
         given:
-        def Polynomial.Point point1 = Mock()
-        def Polynomial.Point point2 = Mock()
+        def Point point1 = Mock()
+        def Point point2 = Mock()
         hash.hash([point1, point2] as Object[]) >> ([0x03] as byte[])
         hash.hash(point1) >> ([0x05] as byte[])
         hash.hash(point2) >> ([0x07] as byte[])
@@ -167,25 +168,25 @@ class ElectionPreparationTest extends Specification {
 
         where:
         x     | y   | yList        | hashed                 || point
-        THREE | TWO | [FIVE, FOUR] | [0x13] as byte[]       || new Polynomial.Point(SIX, ONE) // x_circ = 3^3 % 7 = 6; y = (2 + 19) % 3 = 0 --> y_circ = 3^0 mod 7 = 1
-        SIX   | ONE | [TWO, THREE] | [0x10, 0x30] as byte[] || new Polynomial.Point(ONE, TWO) // x_circ = 3^6 % 7 = 1; y = 1 + 0x1030 % 3 = 2 --> y_circ = 2^2 mod 7 = 2
+        THREE | TWO | [FIVE, FOUR] | [0x13] as byte[]       || new Point(SIX, ONE) // x_circ = 3^3 % 7 = 6; y = (2 + 19) % 3 = 0 --> y_circ = 3^0 mod 7 = 1
+        SIX   | ONE | [TWO, THREE] | [0x10, 0x30] as byte[] || new Point(ONE, TWO) // x_circ = 3^6 % 7 = 1; y = 1 + 0x1030 % 3 = 2 --> y_circ = 2^2 mod 7 = 2
     }
 
     def "getPublicCredentials should combine the public data from the different authorities"() {
         given:
         def D_circ = [
                 [ // authority 1
-                  new Polynomial.Point(THREE, FOUR),
-                  new Polynomial.Point(ONE, TWO)
+                  new Point(THREE, FOUR),
+                  new Point(ONE, TWO)
                 ], [ // authority 2
-                     new Polynomial.Point(FIVE, ONE),
-                     new Polynomial.Point(ONE, TWO)
+                     new Point(FIVE, ONE),
+                     new Point(ONE, TWO)
                 ], [ // authority 3
-                     new Polynomial.Point(THREE, FIVE),
-                     new Polynomial.Point(ONE, TWO)
+                     new Point(THREE, FIVE),
+                     new Point(ONE, TWO)
                 ], [ // authority 4
-                     new Polynomial.Point(FOUR, TWO),
-                     new Polynomial.Point(ONE, TWO)
+                     new Point(FOUR, TWO),
+                     new Point(ONE, TWO)
                 ]]
 
         when:
@@ -193,8 +194,8 @@ class ElectionPreparationTest extends Specification {
 
         then:
         credentials == [
-                new Polynomial.Point(FIVE, FIVE),
-                new Polynomial.Point(ONE, TWO)
+                new Point(FIVE, FIVE),
+                new Point(ONE, TWO)
         ]
     }
 }

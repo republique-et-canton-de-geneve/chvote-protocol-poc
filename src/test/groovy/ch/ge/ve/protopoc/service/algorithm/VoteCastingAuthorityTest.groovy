@@ -3,6 +3,7 @@ package ch.ge.ve.protopoc.service.algorithm
 import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException
 import ch.ge.ve.protopoc.service.model.*
+import ch.ge.ve.protopoc.service.model.polynomial.Point
 import ch.ge.ve.protopoc.service.support.Hash
 import ch.ge.ve.protopoc.service.support.RandomGenerator
 import spock.lang.Specification
@@ -110,16 +111,16 @@ class VoteCastingAuthorityTest extends Specification {
         def encryptionKey = new EncryptionPublicKey(ONE, encryptionGroup)
         def List<Integer> candidatesNumberVector = [3]
         def List<List<Integer>> selectionsMatrix = [[1], [1]]
-        def List<List<Polynomial.Point>> pointMatrix = [
+        def List<List<Point>> pointMatrix = [
                 [   // voter1
-                    new Polynomial.Point(ONE, SIX),
-                    new Polynomial.Point(FOUR, SIX),
-                    new Polynomial.Point(THREE, SIX)
+                    new Point(ONE, SIX),
+                    new Point(FOUR, SIX),
+                    new Point(THREE, SIX)
                 ],
                 [   // voter2
-                    new Polynomial.Point(TWO, THREE),
-                    new Polynomial.Point(FIVE, THREE),
-                    new Polynomial.Point(ONE, THREE)
+                    new Point(TWO, THREE),
+                    new Point(FIVE, THREE),
+                    new Point(ONE, THREE)
                 ]
         ]
         and: "some known randomess"
@@ -152,16 +153,16 @@ class VoteCastingAuthorityTest extends Specification {
         def pk = new EncryptionPublicKey(ONE, encryptionGroup)
         def List<Integer> candidatesNumberVector = [3]
         def List<List<Integer>> selectionsMatrix = [[1], [1]]
-        def List<List<Polynomial.Point>> pointMatrix = [
+        def List<List<Point>> pointMatrix = [
                 [   // voter1
-                    new Polynomial.Point(ONE, SIX),
-                    new Polynomial.Point(FOUR, SIX),
-                    new Polynomial.Point(THREE, SIX)
+                    new Point(ONE, SIX),
+                    new Point(FOUR, SIX),
+                    new Point(THREE, SIX)
                 ],
                 [   // voter2
-                    new Polynomial.Point(TWO, THREE),
-                    new Polynomial.Point(FIVE, THREE),
-                    new Polynomial.Point(ONE, THREE)
+                    new Point(TWO, THREE),
+                    new Point(FIVE, THREE),
+                    new Point(ONE, THREE)
                 ]
         ]
         and: "failure to get enough primes"

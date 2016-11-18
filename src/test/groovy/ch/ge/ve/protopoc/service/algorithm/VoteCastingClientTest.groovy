@@ -1,6 +1,7 @@
 package ch.ge.ve.protopoc.service.algorithm
 
 import ch.ge.ve.protopoc.service.model.*
+import ch.ge.ve.protopoc.service.model.polynomial.Point
 import ch.ge.ve.protopoc.service.support.Hash
 import ch.ge.ve.protopoc.service.support.RandomGenerator
 import spock.lang.Specification
@@ -156,8 +157,8 @@ class VoteCastingClientTest extends Specification {
 
         then:
         pointMatrix == [
-                [new Polynomial.Point(FOUR, ONE)], // Authority 1
-                [new Polynomial.Point(THREE, ZERO)] // Authority 2
+                [new Point(FOUR, ONE)], // Authority 1
+                [new Point(THREE, ZERO)] // Authority 2
         ]
     }
 
@@ -173,13 +174,13 @@ class VoteCastingClientTest extends Specification {
         def points = voteCastingClient.getPoints(beta, [1], [2], [FIVE])
 
         then:
-        points == [new Polynomial.Point(FOUR, ONE)]
+        points == [new Point(FOUR, ONE)]
     }
 
     def "getReturnCodes should combine the given point matrix into the return codes for the voter"() {
         given:
-        def point11 = new Polynomial.Point(ONE, FOUR)
-        def point21 = new Polynomial.Point(FIVE, THREE)
+        def point11 = new Point(ONE, FOUR)
+        def point21 = new Point(FIVE, THREE)
         def pointMatrix = [
                 [ // authority 1
                   point11 // choice 1

@@ -1,6 +1,5 @@
 package ch.ge.ve.protopoc.service.algorithm
 
-import ch.ge.ve.protopoc.service.algorithm.ElectionPreparation.SecretVoterData
 import ch.ge.ve.protopoc.service.model.*
 import spock.lang.Specification
 

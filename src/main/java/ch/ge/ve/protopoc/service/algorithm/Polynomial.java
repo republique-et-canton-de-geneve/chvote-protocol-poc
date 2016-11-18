@@ -1,15 +1,17 @@
 package ch.ge.ve.protopoc.service.algorithm;
 
 import ch.ge.ve.protopoc.service.model.PrimeField;
-import ch.ge.ve.protopoc.service.support.Hash;
+import ch.ge.ve.protopoc.service.model.polynomial.Point;
+import ch.ge.ve.protopoc.service.model.polynomial.PointsAndZeroImages;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class holds the parameters and the methods / algorithms applicable to polynomials
@@ -105,75 +107,4 @@ public class Polynomial {
         }
     }
 
-    public static class Point implements Hash.Hashable {
-        public final BigInteger x;
-        public final BigInteger y;
-
-        public Point(BigInteger x, BigInteger y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public Object[] elementsToHash() {
-            BigInteger[] elementsToHash = new BigInteger[2];
-            elementsToHash[0] = x;
-            elementsToHash[1] = y;
-            return elementsToHash;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Point point = (Point) o;
-            return Objects.equals(x, point.x) &&
-                    Objects.equals(y, point.y);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y);
-        }
-
-        @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this)
-                    .add("x", x)
-                    .add("y", y)
-                    .toString();
-        }
-    }
-
-    public static class PointsAndZeroImages {
-        private final List<Point> points;
-        private final List<BigInteger> y0s;
-
-        public PointsAndZeroImages(List<Point> points, List<BigInteger> y0s) {
-            this.points = ImmutableList.copyOf(points);
-            this.y0s = ImmutableList.copyOf(y0s);
-        }
-
-        public List<Point> getPoints() {
-            return ImmutableList.copyOf(points);
-        }
-
-        public List<BigInteger> getY0s() {
-            return ImmutableList.copyOf(y0s);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PointsAndZeroImages that = (PointsAndZeroImages) o;
-            return Objects.equals(points, that.points) &&
-                    Objects.equals(y0s, that.y0s);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(points, y0s);
-        }
-    }
 }

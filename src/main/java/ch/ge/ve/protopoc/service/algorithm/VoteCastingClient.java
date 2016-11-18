@@ -4,6 +4,7 @@ import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException;
 import ch.ge.ve.protopoc.service.exception.InvalidObliviousTransferResponse;
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.*;
+import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import ch.ge.ve.protopoc.service.support.ByteArrayUtils;
 import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
@@ -155,12 +156,12 @@ public class VoteCastingClient {
      * @return the point matrix corresponding to the replies of the s authorities for the k selections
      * @throws InvalidObliviousTransferResponse
      */
-    public List<List<Polynomial.Point>> getPointMatrix(
+    public List<List<Point>> getPointMatrix(
             List<ObliviousTransferResponse> bold_beta,
             List<Integer> bold_k,
             List<Integer> bold_s,
             List<BigInteger> bold_r) throws InvalidObliviousTransferResponse {
-        List<List<Polynomial.Point>> bold_P = new ArrayList<>();
+        List<List<Point>> bold_P = new ArrayList<>();
 
         for (ObliviousTransferResponse beta_j : bold_beta) {
             bold_P.add(getPoints(beta_j, bold_k, bold_s, bold_r));
@@ -178,12 +179,12 @@ public class VoteCastingClient {
      * @param bold_r the vector of randomizations used for the OT query
      * @return the points corresponding to the authority's reply for the k selections
      */
-    public List<Polynomial.Point> getPoints(
+    public List<Point> getPoints(
             ObliviousTransferResponse beta,
             List<Integer> bold_k,
             List<Integer> bold_s,
             List<BigInteger> bold_r) throws InvalidObliviousTransferResponse {
-        List<Polynomial.Point> bold_p = new ArrayList<>();
+        List<Point> bold_p = new ArrayList<>();
         List<BigInteger> b = beta.getB();
         byte[][] c = beta.getC();
         List<BigInteger> d = beta.getD();
@@ -200,7 +201,7 @@ public class VoteCastingClient {
                 if (x_i.compareTo(p_prime) >= 0 || y_i.compareTo(p_prime) >= 0) {
                     throw new InvalidObliviousTransferResponse("x_i >= p' or y_i >= p'");
                 }
-                bold_p.add(new Polynomial.Point(x_i, y_i));
+                bold_p.add(new Point(x_i, y_i));
                 i++;
             }
         }
@@ -214,7 +215,7 @@ public class VoteCastingClient {
      * @param bold_P the point matrix containing the responses for each of the authorities
      * @return the return codes corresponding to the point matrix
      */
-    public byte[][] getReturnCodes(List<List<Polynomial.Point>> bold_P) {
+    public byte[][] getReturnCodes(List<List<Point>> bold_P) {
         Preconditions.checkArgument(bold_P.size() == publicParameters.getS());
         int length = bold_P.get(0).size();
         Preconditions.checkArgument(bold_P.stream().allMatch(l -> l.size() == length));
