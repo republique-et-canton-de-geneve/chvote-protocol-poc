@@ -45,6 +45,7 @@ public class VoteCastingClient {
      */
     public BallotQueryAndRand genBallot(byte[] X, List<Integer> bold_s, EncryptionPublicKey pk) throws IncompatibleParametersException {
         Preconditions.checkArgument(bold_s.size() > 0);
+
         BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
         BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
@@ -53,29 +54,47 @@ public class VoteCastingClient {
         BigInteger x = conversion.toInteger(X);
         BigInteger x_circ = g_circ.modPow(x, p_circ);
 
+        List<BigInteger> bold_u = computeBoldU(bold_s);
+        BigInteger u = computeU(p, bold_u);
+        ObliviousTransferQuery query = genQuery(bold_u, pk);
+        BigInteger a = computeA(p, query);
+        BigInteger r = computeR(p, query);
+        BigInteger b = g.modPow(r, p);
+        NonInteractiveZKP pi = genBallotNIZKP(x, u, r, x_circ, a, b, pk);
+        BallotAndQuery alpha = new BallotAndQuery(x_circ, query.getBold_a(), b, pi);
+
+        return new BallotQueryAndRand(alpha, query.getBold_r());
+    }
+
+    private List<BigInteger> computeBoldU(List<Integer> bold_s) throws IncompatibleParametersException {
         List<BigInteger> bold_u;
         try {
             bold_u = generalAlgorithms.getSelectedPrimes(bold_s);
         } catch (NotEnoughPrimesInGroupException e) {
             throw new IncompatibleParametersException("Encryption Group too small for selection");
         }
+        return bold_u;
+    }
+
+    private BigInteger computeU(BigInteger p, List<BigInteger> bold_u) throws IncompatibleParametersException {
         BigInteger u = bold_u.stream().reduce(BigInteger::multiply)
                 .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"));
         if (u.compareTo(p) >= 0) {
             throw new IncompatibleParametersException("(k,n) is incompatible with p");
         }
-        ObliviousTransferQuery query = genQuery(bold_u, pk);
-        BigInteger a = query.getBold_a().stream().reduce(BigInteger::multiply)
-                .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"))
-                .mod(p);
-        BigInteger r = query.getBold_r().stream().reduce(BigInteger::add)
-                .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"))
-                .mod(p);
-        BigInteger b = g.modPow(r, p);
-        NonInteractiveZKP pi = genBallotNIZKP(x, u, r, x_circ, a, b, pk);
-        BallotAndQuery alpha = new BallotAndQuery(x_circ, query.getBold_a(), b, pi);
+        return u;
+    }
 
-        return new BallotQueryAndRand(alpha, query.getBold_r());
+    private BigInteger computeA(BigInteger p, ObliviousTransferQuery query) {
+        return query.getBold_a().stream().reduce(BigInteger::multiply)
+                .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"))
+                .mod(p);
+    }
+
+    private BigInteger computeR(BigInteger p, ObliviousTransferQuery query) {
+        return query.getBold_r().stream().reduce(BigInteger::add)
+                .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"))
+                .mod(p);
     }
 
     /**
