@@ -43,7 +43,7 @@ public class VoteCastingClient {
      * @throws NotEnoughPrimesInGroupException
      * @throws IncompatibleParametersException
      */
-    public BallotQueryAndRand genBallot(byte[] X, List<Integer> bold_s, EncryptionPublicKey pk) throws NotEnoughPrimesInGroupException, IncompatibleParametersException {
+    public BallotQueryAndRand genBallot(byte[] X, List<Integer> bold_s, EncryptionPublicKey pk) throws IncompatibleParametersException {
         Preconditions.checkArgument(bold_s.size() > 0);
         BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
         BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
@@ -53,7 +53,12 @@ public class VoteCastingClient {
         BigInteger x = conversion.toInteger(X);
         BigInteger x_circ = g_circ.modPow(x, p_circ);
 
-        List<BigInteger> bold_u = generalAlgorithms.getSelectedPrimes(bold_s);
+        List<BigInteger> bold_u;
+        try {
+            bold_u = generalAlgorithms.getSelectedPrimes(bold_s);
+        } catch (NotEnoughPrimesInGroupException e) {
+            throw new IncompatibleParametersException("Encryption Group too small for selection");
+        }
         BigInteger u = bold_u.stream().reduce(BigInteger::multiply)
                 .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"));
         if (u.compareTo(p) >= 0) {
