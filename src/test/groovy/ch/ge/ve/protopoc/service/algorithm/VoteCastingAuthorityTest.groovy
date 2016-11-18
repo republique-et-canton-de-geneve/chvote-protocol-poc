@@ -1,5 +1,7 @@
 package ch.ge.ve.protopoc.service.algorithm
 
+import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException
+import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException
 import ch.ge.ve.protopoc.service.model.*
 import ch.ge.ve.protopoc.service.support.Hash
 import ch.ge.ve.protopoc.service.support.RandomGenerator
@@ -143,5 +145,34 @@ class VoteCastingAuthorityTest extends Specification {
         i | bold_a | r     | bold_b | bold_c                                     | bold_d | bold_r
         0 | [TWO]  | THREE | [ONE]  | [[0x01, 0x16], [0x24, 0x36], [0x43, 0x56]] | [ONE]  | [THREE]
         1 | [FIVE] | TWO   | [FOUR] | [[0x02, 0x13], [0x25, 0x33], [0x41, 0x53]] | [ONE]  | [TWO]
+    }
+
+    def "genResponse should fail if the group is too small"() {
+        given: "a fixed encryption key and challenge"
+        def pk = new EncryptionPublicKey(ONE, encryptionGroup)
+        def List<Integer> candidatesNumberVector = [3]
+        def List<List<Integer>> selectionsMatrix = [[1], [1]]
+        def List<List<Polynomial.Point>> pointMatrix = [
+                [   // voter1
+                    new Polynomial.Point(ONE, SIX),
+                    new Polynomial.Point(FOUR, SIX),
+                    new Polynomial.Point(THREE, SIX)
+                ],
+                [   // voter2
+                    new Polynomial.Point(TWO, THREE),
+                    new Polynomial.Point(FIVE, THREE),
+                    new Polynomial.Point(ONE, THREE)
+                ]
+        ]
+        and: "failure to get enough primes"
+        generalAlgorithms.getPrimes(3) >> {
+            args -> throw new NotEnoughPrimesInGroupException("not enough of them")
+        }
+
+        when: "an attempt is made at generating a response"
+        voteCastingAuthority.genResponse(1, [ONE], pk, candidatesNumberVector, selectionsMatrix, pointMatrix)
+
+        then:
+        thrown(IncompatibleParametersException)
     }
 }
