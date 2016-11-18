@@ -37,19 +37,17 @@ public class VoteCastingAuthority {
      * @param i           the voter index
      * @param alpha       the submitted ballot, including the oblivious transfer query
      * @param pk          the encryption public key
-     * @param bold_K      the matrix of number of selections per voter per election
      * @param bold_x_circ the vector of public voter credentials
      * @param B           the current ballot list
      * @return
      */
-    public boolean checkBallot(Integer i, BallotAndQuery alpha, EncryptionPublicKey pk, List<List<Integer>> bold_K,
+    public boolean checkBallot(Integer i, BallotAndQuery alpha, EncryptionPublicKey pk,
                                List<BigInteger> bold_x_circ, List<BallotEntry> B) {
         Preconditions.checkNotNull(i);
         Preconditions.checkNotNull(alpha);
         Preconditions.checkNotNull(alpha.getBold_a());
         Preconditions.checkArgument(alpha.getBold_a().size() > 0);
         Preconditions.checkNotNull(pk);
-        Preconditions.checkNotNull(bold_K);
         Preconditions.checkNotNull(bold_x_circ);
         Preconditions.checkElementIndex(i, bold_x_circ.size());
         Preconditions.checkNotNull(B);
@@ -73,6 +71,9 @@ public class VoteCastingAuthority {
      * @return true if any ballot in the list matches the given voter index, false otherwise
      */
     public boolean hasBallot(Integer i, List<BallotEntry> B) {
+        Preconditions.checkNotNull(i);
+        Preconditions.checkNotNull(B);
+
         return B.stream().anyMatch(b_j -> b_j.getI().equals(i));
     }
 
@@ -86,7 +87,18 @@ public class VoteCastingAuthority {
      * @param pk     the encryption public key
      * @return true if the proof is valid, false otherwise
      */
-    public boolean checkBallotNIZKP(NonInteractiveZKP pi, BigInteger x_circ, BigInteger a, BigInteger b, EncryptionPublicKey pk) {
+    public boolean checkBallotNIZKP(NonInteractiveZKP pi, BigInteger x_circ, BigInteger a, BigInteger b,
+                                    EncryptionPublicKey pk) {
+        Preconditions.checkNotNull(pi);
+        Preconditions.checkNotNull(pi.getT());
+        Preconditions.checkNotNull(pi.getS());
+        Preconditions.checkNotNull(x_circ);
+        Preconditions.checkNotNull(a);
+        Preconditions.checkNotNull(b);
+        Preconditions.checkNotNull(pk);
+        Preconditions.checkNotNull(pk.getPublicKey());
+        Preconditions.checkArgument(pk.getEncryptionGroup() == publicParameters.getEncryptionGroup());
+
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
@@ -122,7 +134,7 @@ public class VoteCastingAuthority {
      * @param bold_K the matrix of number of selections per voter per election
      * @param bold_P the matrix of points per voter per candidate
      * @return the OT response, along with the randomness used
-     * @throws IncompatibleParametersException
+     * @throws IncompatibleParametersException if not enough primes exist in the encryption group for the number of candidates
      */
     public ObliviousTransferResponseAndRand genResponse(Integer i, List<BigInteger> bold_a, EncryptionPublicKey pk,
                                                         List<Integer> bold_n,
@@ -132,8 +144,8 @@ public class VoteCastingAuthority {
         final int t = bold_K.get(0).size();
         Preconditions.checkArgument(bold_K.stream().allMatch(bold_k_i -> bold_k_i.size() == t));
 
+        final int n = bold_n.stream().reduce((a, b) -> a + b).orElse(0);
         Preconditions.checkArgument(bold_P.size() > 0);
-        final int n = bold_P.get(0).size();
         Preconditions.checkArgument(bold_P.stream().allMatch(bold_p_i -> bold_p_i.size() == n));
 
         final int k = bold_K.get(i).stream().reduce((a, b) -> a + b).orElse(0);
@@ -144,7 +156,7 @@ public class VoteCastingAuthority {
         int upper_l_m = publicParameters.getL_m() / 8;
 
         List<BigInteger> bold_b = new ArrayList<>();
-        byte[][] bold_c = new byte[k][];
+        byte[][] bold_c = new byte[n][];
         List<BigInteger> bold_d = new ArrayList<>();
         List<BigInteger> bold_r = new ArrayList<>();
 
@@ -171,7 +183,7 @@ public class VoteCastingAuthority {
             Integer n_j = bold_n.get(j);
             for (int l = 0; l < n_j; l++) {
                 int y = n_offset + l;
-                Polynomial.Point point = bold_P.get(i).get(j);
+                Polynomial.Point point = bold_P.get(i).get(y);
                 byte[] M_y = Arrays.concatenate(
                         conversion.toByteArray(point.x, upper_l_m / 2),
                         conversion.toByteArray(point.y, upper_l_m / 2)

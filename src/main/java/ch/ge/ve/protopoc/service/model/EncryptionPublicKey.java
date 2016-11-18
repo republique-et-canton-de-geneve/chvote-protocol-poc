@@ -31,7 +31,7 @@ public class EncryptionPublicKey implements PublicKey {
 
     @Override
     public byte[] getEncoded() {
-        return new byte[0];
+        return conversion.toByteArray(publicKey);
     }
 
     public BigInteger getPublicKey() {
