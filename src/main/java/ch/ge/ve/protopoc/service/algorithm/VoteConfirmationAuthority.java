@@ -1,0 +1,108 @@
+package ch.ge.ve.protopoc.service.algorithm;
+
+import ch.ge.ve.protopoc.service.exception.BallotNotFoundException;
+import ch.ge.ve.protopoc.service.model.*;
+import ch.ge.ve.protopoc.service.model.polynomial.Point;
+import ch.ge.ve.protopoc.service.support.Hash;
+import com.google.common.base.Preconditions;
+
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Algorithms for the vote confirmation phase, on the authorities side
+ */
+public class VoteConfirmationAuthority {
+    private final PublicParameters publicParameters;
+    private final GeneralAlgorithms generalAlgorithms;
+    private final VoteCastingAuthority voteCastingAuthority;
+    private final Hash hash;
+
+    public VoteConfirmationAuthority(PublicParameters publicParameters, GeneralAlgorithms generalAlgorithms,
+                                     VoteCastingAuthority voteCastingAuthority, Hash hash) {
+        this.publicParameters = publicParameters;
+        this.generalAlgorithms = generalAlgorithms;
+        this.voteCastingAuthority = voteCastingAuthority;
+        this.hash = hash;
+    }
+
+    /**
+     * Algorithm 5.36: CheckConfirmation
+     *
+     * @param i           the voter index
+     * @param gamma       the voter's confirmation, including public confirmation credential and NIZKP of knowledge of
+     *                    the private confirmation credential
+     * @param bold_y_circ the list of public confirmation credentials, as generated during the preparation phase
+     * @param B           the current list of ballots
+     * @param C           the current list of confirmations
+     * @return true if the confirmation is allowed (ballot present, confirmation not present, credentials match) and the
+     * proof is valid
+     */
+    public boolean checkConfirmation(Integer i, Confirmation gamma, List<BigInteger> bold_y_circ,
+                                     List<BallotEntry> B, List<ConfirmationEntry> C) {
+        return voteCastingAuthority.hasBallot(i, B) &&
+                !hasConfirmation(i, C) &&
+                bold_y_circ.get(i).compareTo(gamma.getY_circ()) == 0 &&
+                checkConfirmationNIZKP(gamma.getPi(), gamma.getY_circ());
+    }
+
+    /**
+     * Algorithm 5.37: HasConfirmation
+     *
+     * @param i the voter index
+     * @param C the list of confirmations
+     * @return true if the list of confirmation contains a confirmation for the given voter index, false otherwise
+     */
+    public boolean hasConfirmation(Integer i, List<ConfirmationEntry> C) {
+        return C.stream().anyMatch(c -> c.getI().equals(i));
+    }
+
+    /**
+     * Algorithm 5.38: CheckConfirmationNIZKP
+     *
+     * @param pi     the proof of knowledge of private confirmation credential y, provided by the voting client
+     * @param y_circ the public confirmation credential corresponding to the private credential y
+     * @return true if the proof of knowledge is valid, false otherwise
+     */
+    public boolean checkConfirmationNIZKP(NonInteractiveZKP pi, BigInteger y_circ) {
+        Preconditions.checkNotNull(pi);
+        Preconditions.checkNotNull(pi.getT());
+        Preconditions.checkNotNull(pi.getS());
+        Preconditions.checkNotNull(y_circ);
+        Preconditions.checkArgument(pi.getT().size() == 1);
+        Preconditions.checkArgument(pi.getS().size() == 1);
+
+        BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
+        BigInteger q_circ = publicParameters.getIdentificationGroup().getQ_circ();
+        BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
+
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(new BigInteger[]{y_circ}, pi.getT().toArray(), q_circ);
+        BigInteger t = pi.getT().get(0);
+        BigInteger s = pi.getS().get(0);
+        BigInteger t_prime = g_circ.modPow(s, p_circ).multiply(y_circ.modPow(c.negate(), p_circ)).mod(p_circ);
+
+        return t.compareTo(t_prime) == 0;
+    }
+
+    /**
+     * Algorithm 5.39: GetFinalization
+     *
+     * @param i      the voter index
+     * @param bold_P the point matrix, one point per voter per candidate
+     * @param B      the current ballot list
+     * @return this authority's part of the finalization code
+     */
+    public FinalizationCodePart getFinalization(Integer i, List<List<Point>> bold_P, List<BallotEntry> B) {
+        Preconditions.checkArgument(voteCastingAuthority.hasBallot(i, B));
+
+        Object[] bold_p_i = bold_P.get(i).toArray();
+        byte[] F = hash.hash(bold_p_i);
+
+        BallotEntry ballotEntry = B.stream().filter(b -> Objects.equals(b.getI(), i)).findFirst().orElseThrow(
+                () -> new BallotNotFoundException(String.format("Couldn't find any ballot for voter %d", i))
+        );
+
+        return new FinalizationCodePart(F, ballotEntry.getBold_r());
+    }
+}

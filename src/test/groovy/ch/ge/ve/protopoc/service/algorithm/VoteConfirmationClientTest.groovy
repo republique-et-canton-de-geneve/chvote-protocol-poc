@@ -20,7 +20,6 @@ class VoteConfirmationClientTest extends Specification {
     def RandomGenerator randomGenerator = Mock()
     def GeneralAlgorithms generalAlgorithms = Mock()
     def Hash hash = Mock()
-
     def PrimeField primeField = Mock()
 
     def VoteConfirmationClient voteConfirmationClient

@@ -1,7 +1,9 @@
 package ch.ge.ve.protopoc.service.model;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Missing javadoc!
@@ -21,5 +23,19 @@ public class FinalizationCodePart {
 
     public List<BigInteger> getBold_r() {
         return bold_r;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FinalizationCodePart that = (FinalizationCodePart) o;
+        return Arrays.equals(F, that.F) &&
+                Objects.equals(bold_r, that.bold_r);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(F, bold_r);
     }
 }

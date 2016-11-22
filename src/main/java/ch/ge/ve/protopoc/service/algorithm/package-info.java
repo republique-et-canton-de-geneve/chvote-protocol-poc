@@ -12,6 +12,7 @@
  * <li>Algorithms 5.25-5.28 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteCastingAuthority}</li>
  * <li>Algorithms 5.29-5.30 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationVoter}</li>
  * <li>Algorithms 5.31-5.35 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationClient}</li>
+ * <li>Algorithms 5.36-5.39 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationAuthority}</li>
  * </ul>
  */
 package ch.ge.ve.protopoc.service.algorithm;
