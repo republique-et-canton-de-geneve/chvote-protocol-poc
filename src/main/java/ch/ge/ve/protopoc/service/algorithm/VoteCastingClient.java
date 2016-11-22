@@ -40,8 +40,7 @@ public class VoteCastingClient {
      * @param bold_s voters selection (indices)
      * @param pk     the public encryption key
      * @return the combined ballot, OT query and random elements used
-     * @throws NotEnoughPrimesInGroupException
-     * @throws IncompatibleParametersException
+     * @throws IncompatibleParametersException when there is an issue with the public parameters
      */
     public BallotQueryAndRand genBallot(byte[] X, List<Integer> bold_s, EncryptionPublicKey pk) throws IncompatibleParametersException {
         Preconditions.checkArgument(bold_s.size() > 0);
@@ -178,7 +177,7 @@ public class VoteCastingClient {
      * @param bold_s    the vector of selected primes
      * @param bold_r    the vector of randomizations used for the OT query
      * @return the point matrix corresponding to the replies of the s authorities for the k selections
-     * @throws InvalidObliviousTransferResponse
+     * @throws InvalidObliviousTransferResponse when one of the points would be outside the defined space
      */
     public List<List<Point>> getPointMatrix(
             List<ObliviousTransferResponse> bold_beta,
@@ -202,6 +201,7 @@ public class VoteCastingClient {
      * @param bold_s the vector of selected primes
      * @param bold_r the vector of randomizations used for the OT query
      * @return the points corresponding to the authority's reply for the k selections
+     * @throws InvalidObliviousTransferResponse when one of the points would be outside the defined space
      */
     public List<Point> getPoints(
             ObliviousTransferResponse beta,
