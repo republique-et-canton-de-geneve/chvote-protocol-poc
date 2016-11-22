@@ -1,5 +1,6 @@
 package ch.ge.ve.protopoc.service.algorithm
 
+import ch.ge.ve.protopoc.service.exception.BallotNotFoundException
 import ch.ge.ve.protopoc.service.model.*
 import ch.ge.ve.protopoc.service.model.polynomial.Point
 import ch.ge.ve.protopoc.service.support.Hash
@@ -39,6 +40,61 @@ class VoteConfirmationAuthorityTest extends Specification {
 
         voteConfirmationAuthority =
                 new VoteConfirmationAuthority(publicParameters, generalAlgorithms, voteCastingAuthority, hash)
+    }
+
+    def "checkConfirmation should verify if a given confirmation is valid"() {
+        given: "a list of public credentials"
+        def bold_y_circ = [THREE, ONE, TWO, FOUR]
+        and: "a mocked ballot list"
+        def List<BallotEntry> ballotList = Mock()
+        and: "a confirmation list"
+        def confirmationList = [
+                new ConfirmationEntry(2, null)
+        ]
+        and: "some ballot presence verifications"
+        voteCastingAuthority.hasBallot(0, ballotList) >> false
+        voteCastingAuthority.hasBallot(1, ballotList) >> true
+        voteCastingAuthority.hasBallot(2, ballotList) >> true
+        voteCastingAuthority.hasBallot(3, ballotList) >> true
+        and: "the following NIZKP challenges"
+        generalAlgorithms.getNIZKPChallenge([y_circ] as BigInteger[], t as BigInteger[], FIVE) >> THREE
+
+        and: "the following constructed parameters"
+        def pi = new NonInteractiveZKP(t, s)
+        def gamma = new Confirmation(y_circ, pi)
+
+        expect:
+        voteConfirmationAuthority.checkConfirmation(i, gamma, bold_y_circ, ballotList, confirmationList) == result
+
+        where:
+        i | y_circ | t       | s       || result
+        0 | THREE  | [THREE] | [TWO]   || false // hasBallot(0, B) is false
+        1 | ONE    | [FIVE]  | [THREE] || true // everything should be ok
+        2 | TWO    | [THREE] | [FIVE]  || false // hasConfirmation(2, C) is true -->
+        3 | FOUR   | [FIVE]  | [THREE] || false // the proof is not valid
+    }
+
+    def "hasConfirmation should find matching confirmations from the list"() {
+        given: "a list of confirmations"
+        def C = [
+                new ConfirmationEntry(0, null),
+                new ConfirmationEntry(2, null),
+                new ConfirmationEntry(10, null)
+        ]
+
+        expect:
+        voteConfirmationAuthority.hasConfirmation(i, C) == result
+
+        where:
+        i   || result
+        0   || true
+        1   || false
+        2   || true
+        3   || false
+        9   || false
+        10  || true
+        11  || false
+        100 || false
     }
 
     def "checkConfirmationNIZKP should correctly validate the confirmation NIZKP"() {
@@ -112,6 +168,6 @@ class VoteConfirmationAuthorityTest extends Specification {
         voteConfirmationAuthority.getFinalization(2, pointMatrix, ballotList)
 
         then: "an exception should be thrown"
-        thrown(IllegalArgumentException)
+        thrown(BallotNotFoundException)
     }
 }

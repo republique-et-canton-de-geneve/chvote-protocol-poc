@@ -95,8 +95,6 @@ public class VoteConfirmationAuthority {
      * @return this authority's part of the finalization code
      */
     public FinalizationCodePart getFinalization(Integer i, List<List<Point>> bold_P, List<BallotEntry> B) {
-        Preconditions.checkArgument(voteCastingAuthority.hasBallot(i, B));
-
         Object[] bold_p_i = bold_P.get(i).toArray();
         byte[] F = hash.hash(bold_p_i);
 
