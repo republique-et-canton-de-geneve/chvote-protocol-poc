@@ -77,9 +77,10 @@ public class VoteConfirmationAuthority {
         BigInteger q_circ = publicParameters.getIdentificationGroup().getQ_circ();
         BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
 
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(new BigInteger[]{y_circ}, pi.getT().toArray(), q_circ);
         BigInteger t = pi.getT().get(0);
         BigInteger s = pi.getS().get(0);
+
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(new BigInteger[]{y_circ}, new BigInteger[]{t}, q_circ);
         BigInteger t_prime = g_circ.modPow(s, p_circ).multiply(y_circ.modPow(c.negate(), p_circ)).mod(p_circ);
 
         return t.compareTo(t_prime) == 0;

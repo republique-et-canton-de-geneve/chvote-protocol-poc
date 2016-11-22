@@ -41,6 +41,21 @@ class VoteConfirmationAuthorityTest extends Specification {
                 new VoteConfirmationAuthority(publicParameters, generalAlgorithms, voteCastingAuthority, hash)
     }
 
+    def "checkConfirmationNIZKP should correctly validate the confirmation NIZKP"() {
+        given:
+        generalAlgorithms.getNIZKPChallenge([y_circ] as BigInteger[], t as BigInteger[], FIVE) >> THREE
+
+        expect:
+        voteConfirmationAuthority.checkConfirmationNIZKP(new NonInteractiveZKP(t, s), y_circ) == result
+
+        where:
+        t      | s       | y_circ || result
+        [FIVE] | [THREE] | ONE    || true
+        [FOUR] | [THREE] | ONE    || false
+        [FIVE] | [TWO]   | ONE    || false
+        [FIVE] | [THREE] | TWO    || false
+    }
+
     def "getFinalization should hash the correct points and return the adequate values"() {
         given: "a set of parameters"
         def pointMatrix = [
@@ -75,27 +90,20 @@ class VoteConfirmationAuthorityTest extends Specification {
 
     def "getFinalization should fail when the ballot is missing from the ballot list"() {
         given: "a set of parameters"
-        def pointsVoter0 = new Point(ONE, THREE)
-        def pointsVoter1 = new Point(TWO, ONE)
-        def pointsVoter2 = new Point(FIVE, SIX)
-
         def pointMatrix = [
                 [   // voter 0
-                    pointsVoter0
+                    new Point(ONE, THREE)
                 ],
                 [   // voter 1
-                    pointsVoter1
+                    new Point(TWO, ONE)
                 ],
                 [   // voter 2
-                    pointsVoter2
+                    new Point(FIVE, SIX)
                 ]
         ]
-        def bold_r_voter0 = [THREE, TWO]
-        def bold_r_voter1 = [ZERO, ONE]
-
         def ballotList = [
-                new BallotEntry(0, null, bold_r_voter0),
-                new BallotEntry(1, null, bold_r_voter1)
+                new BallotEntry(0, null, [THREE, TWO]),
+                new BallotEntry(1, null, [ZERO, ONE])
         ]
         and: "ballots that are not found in the ballot list"
         voteCastingAuthority.hasBallot(2, ballotList) >> false

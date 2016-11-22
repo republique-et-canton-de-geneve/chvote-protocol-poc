@@ -60,12 +60,12 @@ class VoteConfirmationClientTest extends Specification {
                 [0x78] as byte[]  // j = 4 --> y_4 = 120 mod 5 = 0
         ]
         randomGenerator.randomInZq(FIVE) >> THREE // called by GenConfirmationNIZKP - omega
-        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], _ as BigInteger[], _ as BigInteger) >> FIVE // c
+        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], _ as BigInteger[], _ as BigInteger) >> THREE // c
 
         // y = 154 + 3 + 2 + 1 + 0 mod 5 = 0
         // y_circ = g_circ ^ y mod p_circ = 3 ^ 0 mod 11 = 1
         // t = g_circ ^ omega mod p_circ = 3 ^ 3 mod 11 = 5
-        // s = omega + c * y mod q_circ = 3 + 5 * 0 mod 11 = 3
+        // s = omega + c * y mod q_circ = 3 + 3 * 0 mod 11 = 3
         expect:
         voteConfirmationClient.genConfirmation(voterIndex, confirmationCode, bold_P, bold_k) ==
                 new Confirmation(ONE, new NonInteractiveZKP([FIVE], [THREE]))
