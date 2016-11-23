@@ -5,11 +5,11 @@ import spock.lang.Specification
 /**
  * Missing javadoc!
  */
-class VoteConfirmationVoterTest extends Specification {
-    def VoteConfirmationVoter voteConfirmationVoter
+class VoteConfirmationVoterAlgorithmsTest extends Specification {
+    VoteConfirmationVoterAlgorithms voteConfirmationVoter
 
     void setup() {
-        voteConfirmationVoter = new VoteConfirmationVoter()
+        voteConfirmationVoter = new VoteConfirmationVoterAlgorithms()
     }
 
     def "checkReturnCodes should verify return codes"() {

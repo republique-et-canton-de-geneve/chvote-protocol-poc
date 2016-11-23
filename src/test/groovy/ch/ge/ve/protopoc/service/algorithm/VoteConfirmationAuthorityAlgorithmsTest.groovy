@@ -13,16 +13,16 @@ import static java.math.BigInteger.ZERO
 /**
  * Tests on the vote confirmation algorithms performed by the authorities
  */
-class VoteConfirmationAuthorityTest extends Specification {
-    def PublicParameters publicParameters = Mock()
-    def EncryptionGroup encryptionGroup = Mock()
-    def IdentificationGroup identificationGroup = Mock()
-    def GeneralAlgorithms generalAlgorithms = Mock()
-    def VoteCastingAuthority voteCastingAuthority = Mock()
-    def Hash hash = Mock()
-    def PrimeField primeField = Mock()
+class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
+    PublicParameters publicParameters = Mock()
+    EncryptionGroup encryptionGroup = Mock()
+    IdentificationGroup identificationGroup = Mock()
+    GeneralAlgorithms generalAlgorithms = Mock()
+    VoteCastingAuthorityAlgorithms voteCastingAuthority = Mock()
+    Hash hash = Mock()
+    PrimeField primeField = Mock()
 
-    def VoteConfirmationAuthority voteConfirmationAuthority
+    VoteConfirmationAuthorityAlgorithms voteConfirmationAuthority
 
 
     void setup() {
@@ -39,14 +39,14 @@ class VoteConfirmationAuthorityTest extends Specification {
         publicParameters.s >> 4
 
         voteConfirmationAuthority =
-                new VoteConfirmationAuthority(publicParameters, generalAlgorithms, voteCastingAuthority, hash)
+                new VoteConfirmationAuthorityAlgorithms(publicParameters, generalAlgorithms, voteCastingAuthority, hash)
     }
 
     def "checkConfirmation should verify if a given confirmation is valid"() {
         given: "a list of public credentials"
         def bold_y_circ = [THREE, ONE, TWO, FOUR]
         and: "a mocked ballot list"
-        def List<BallotEntry> ballotList = Mock()
+        List<BallotEntry> ballotList = Mock()
         and: "a confirmation list"
         def confirmationList = [
                 new ConfirmationEntry(2, null)

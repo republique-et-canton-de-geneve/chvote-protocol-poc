@@ -3,9 +3,10 @@ package ch.ge.ve.protopoc.service.model;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Missing javadoc!
+ * Model class containing the definition of a set of elections
  */
 public class ElectionSet {
     private final List<Voter> voters;
@@ -20,6 +21,10 @@ public class ElectionSet {
 
     public boolean isEligible(Voter voter, Election election) {
         return voter.getAllowedDomainsOfInfluence().contains(election.getApplicableDomainofInfluence());
+    }
+
+    public List<Integer> getBold_n() {
+        return elections.stream().map(Election::getNumberOfCandidates).collect(Collectors.toList());
     }
 
     public List<Voter> getVoters() {

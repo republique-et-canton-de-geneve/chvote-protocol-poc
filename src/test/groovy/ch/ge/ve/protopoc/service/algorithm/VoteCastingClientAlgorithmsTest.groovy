@@ -13,16 +13,16 @@ import static java.math.BigInteger.ZERO
 /**
  * Tests for the Vote Casting algorithms
  */
-class VoteCastingClientTest extends Specification {
-    def Hash hash = Mock()
-    def PublicParameters publicParameters = Mock()
-    def EncryptionGroup encryptionGroup = Mock()
-    def IdentificationGroup identificationGroup = Mock()
-    def PrimeField primeField = Mock()
-    def RandomGenerator randomGenerator = Mock()
-    def GeneralAlgorithms generalAlgorithms = Mock()
+class VoteCastingClientAlgorithmsTest extends Specification {
+    Hash hash = Mock()
+    PublicParameters publicParameters = Mock()
+    EncryptionGroup encryptionGroup = Mock()
+    IdentificationGroup identificationGroup = Mock()
+    PrimeField primeField = Mock()
+    RandomGenerator randomGenerator = Mock()
+    GeneralAlgorithms generalAlgorithms = Mock()
 
-    def VoteCastingClient voteCastingClient
+    VoteCastingClientAlgorithms voteCastingClient
 
     void setup() {
         publicParameters.encryptionGroup >> encryptionGroup
@@ -39,7 +39,7 @@ class VoteCastingClientTest extends Specification {
         publicParameters.l_r >> 16
         publicParameters.s >> 2
 
-        voteCastingClient = new VoteCastingClient(publicParameters, hash, randomGenerator, generalAlgorithms)
+        voteCastingClient = new VoteCastingClientAlgorithms(publicParameters, hash, randomGenerator, generalAlgorithms)
     }
 
     def "genBallot should generate a valid ballot (incl. OT query and used randomness)"() {
@@ -140,13 +140,13 @@ class VoteCastingClientTest extends Specification {
 
     def "getPointMatrix should compute the point matrix according to spec"() {
         given:
-        def ObliviousTransferResponse beta_1 = Mock()
+        ObliviousTransferResponse beta_1 = Mock()
         beta_1.b >> [ONE]
         beta_1.c >> [[0x01, 0x02, 0x03, 0x04], [0x05, 0x06, 0x07, 0x08], [0x0A, 0x0B, 0x0C, 0x0D]]
         beta_1.d >> [THREE]
         hash.hash(THREE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 7 = 3
 
-        def ObliviousTransferResponse beta_2 = Mock()
+        ObliviousTransferResponse beta_2 = Mock()
         beta_2.b >> [TWO]
         beta_2.c >> [[0x10, 0x20, 0x30, 0x40], [0x50, 0x60, 0x70, 0x80], [0xA0, 0xB0, 0xC0, 0xD0]]
         beta_2.d >> [FOUR]
@@ -164,7 +164,7 @@ class VoteCastingClientTest extends Specification {
 
     def "getPoints should compute the points correctly from the authority's reply"() {
         given:
-        def ObliviousTransferResponse beta = Mock()
+        ObliviousTransferResponse beta = Mock()
         beta.b >> [ONE]
         beta.c >> [[0x01, 0x02, 0x03, 0x04], [0x05, 0x06, 0x07, 0x08], [0x0A, 0x0B, 0x0C, 0x0D]]
         beta.d >> [THREE]

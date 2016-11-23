@@ -13,16 +13,16 @@ import static java.math.BigInteger.ZERO
 /**
  * Tests on the vote confirmation algorithms performed by the voting client
  */
-class VoteConfirmationClientTest extends Specification {
-    def PublicParameters publicParameters = Mock()
-    def EncryptionGroup encryptionGroup = Mock()
-    def IdentificationGroup identificationGroup = Mock()
-    def RandomGenerator randomGenerator = Mock()
-    def GeneralAlgorithms generalAlgorithms = Mock()
-    def Hash hash = Mock()
-    def PrimeField primeField = Mock()
+class VoteConfirmationClientAlgorithmsTest extends Specification {
+    PublicParameters publicParameters = Mock()
+    EncryptionGroup encryptionGroup = Mock()
+    IdentificationGroup identificationGroup = Mock()
+    RandomGenerator randomGenerator = Mock()
+    GeneralAlgorithms generalAlgorithms = Mock()
+    Hash hash = Mock()
+    PrimeField primeField = Mock()
 
-    def VoteConfirmationClient voteConfirmationClient
+    VoteConfirmationClientAlgorithms voteConfirmationClient
 
     void setup() {
         publicParameters.encryptionGroup >> encryptionGroup
@@ -37,7 +37,7 @@ class VoteConfirmationClientTest extends Specification {
         primeField.p_prime >> SEVEN
         publicParameters.s >> 4
 
-        voteConfirmationClient = new VoteConfirmationClient(publicParameters, randomGenerator, generalAlgorithms, hash)
+        voteConfirmationClient = new VoteConfirmationClientAlgorithms(publicParameters, randomGenerator, generalAlgorithms, hash)
     }
 
     def "genConfirmation should generate the expected confirmation"() {

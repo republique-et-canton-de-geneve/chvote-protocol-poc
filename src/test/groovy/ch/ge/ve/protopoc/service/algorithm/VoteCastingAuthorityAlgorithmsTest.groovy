@@ -14,15 +14,15 @@ import static java.math.BigInteger.ONE
 /**
  * Tests on the vote casting algorithms on the authority side
  */
-class VoteCastingAuthorityTest extends Specification {
-    def PublicParameters publicParameters = Mock()
-    def EncryptionGroup encryptionGroup = Mock()
-    def IdentificationGroup identificationGroup = Mock()
-    def GeneralAlgorithms generalAlgorithms = Mock()
-    def RandomGenerator randomGenerator = Mock()
-    def Hash hash = Mock()
+class VoteCastingAuthorityAlgorithmsTest extends Specification {
+    PublicParameters publicParameters = Mock()
+    EncryptionGroup encryptionGroup = Mock()
+    IdentificationGroup identificationGroup = Mock()
+    GeneralAlgorithms generalAlgorithms = Mock()
+    RandomGenerator randomGenerator = Mock()
+    Hash hash = Mock()
 
-    def VoteCastingAuthority voteCastingAuthority
+    VoteCastingAuthorityAlgorithms voteCastingAuthority
 
     void setup() {
         publicParameters.encryptionGroup >> encryptionGroup
@@ -35,7 +35,7 @@ class VoteCastingAuthorityTest extends Specification {
         identificationGroup.g_circ >> THREE
         publicParameters.l_m >> 16
 
-        voteCastingAuthority = new VoteCastingAuthority(publicParameters, generalAlgorithms, randomGenerator, hash)
+        voteCastingAuthority = new VoteCastingAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
     }
 
     def "checkBallot should correctly check the ballot"() {
@@ -45,7 +45,7 @@ class VoteCastingAuthorityTest extends Specification {
                 new BallotEntry(3, null, null),
                 new BallotEntry(1, null, null)
         ]
-        def List<BigInteger> publicCredentials = [THREE, FOUR, ONE, TWO]
+        List<BigInteger> publicCredentials = [THREE, FOUR, ONE, TWO]
         generalAlgorithms.getNIZKPChallenge([x_circ, a, b] as BigInteger[], t as BigInteger[], THREE) >> c
 
         expect:
@@ -109,9 +109,9 @@ class VoteCastingAuthorityTest extends Specification {
     def "genResponse should generate a valid response to an OT query"() {
         given: "a fixed encryption key and challenge"
         def encryptionKey = new EncryptionPublicKey(ONE, encryptionGroup)
-        def List<Integer> candidatesNumberVector = [3]
-        def List<List<Integer>> selectionsMatrix = [[1], [1]]
-        def List<List<Point>> pointMatrix = [
+        List<Integer> candidatesNumberVector = [3]
+        List<List<Integer>> selectionsMatrix = [[1], [1]]
+        List<List<Point>> pointMatrix = [
                 [   // voter1
                     new Point(ONE, SIX),
                     new Point(FOUR, SIX),
@@ -151,9 +151,9 @@ class VoteCastingAuthorityTest extends Specification {
     def "genResponse should fail if the group is too small"() {
         given: "a fixed encryption key and challenge"
         def pk = new EncryptionPublicKey(ONE, encryptionGroup)
-        def List<Integer> candidatesNumberVector = [3]
-        def List<List<Integer>> selectionsMatrix = [[1], [1]]
-        def List<List<Point>> pointMatrix = [
+        List<Integer> candidatesNumberVector = [3]
+        List<List<Integer>> selectionsMatrix = [[1], [1]]
+        List<List<Point>> pointMatrix = [
                 [   // voter1
                     new Point(ONE, SIX),
                     new Point(FOUR, SIX),

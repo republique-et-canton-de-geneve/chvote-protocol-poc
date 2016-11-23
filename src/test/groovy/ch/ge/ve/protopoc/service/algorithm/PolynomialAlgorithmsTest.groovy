@@ -8,17 +8,17 @@ import ch.ge.ve.protopoc.service.support.RandomGenerator
 import spock.lang.Specification
 
 /**
- * Unit tests for the Polynomial class
+ * Unit tests for the PolynomialAlgorithms class
  */
-class PolynomialTest extends Specification {
-    def RandomGenerator randomGenerator = Mock()
-    def PrimeField primeField
+class PolynomialAlgorithmsTest extends Specification {
+    RandomGenerator randomGenerator = Mock()
+    PrimeField primeField
 
-    def Polynomial polynomial
+    PolynomialAlgorithms polynomial
 
     void setup() {
         primeField = new PrimeField(BigIntegers.SEVEN)
-        polynomial = new Polynomial(randomGenerator, primeField)
+        polynomial = new PolynomialAlgorithms(randomGenerator, primeField)
     }
 
     def "genPoints should generate a random polynomial by election and compute its value at random points, as well as the image of 0"() {
@@ -36,9 +36,9 @@ class PolynomialTest extends Specification {
                 ]
 
         and: "the candidate points match the expected elements"
-        def pointCand1 = new Point(BigIntegers.TWO, BigIntegers.THREE);
-        def pointCand2 = new Point(BigIntegers.FOUR, BigIntegers.THREE);
-        def pointCand3 = new Point(BigIntegers.FIVE, BigIntegers.THREE);
+        def pointCand1 = new Point(BigIntegers.TWO, BigIntegers.THREE)
+        def pointCand2 = new Point(BigIntegers.FOUR, BigIntegers.THREE)
+        def pointCand3 = new Point(BigIntegers.FIVE, BigIntegers.THREE)
         pointsAndZeroes.getPoints().size() == 3
         pointsAndZeroes.getPoints().containsAll([pointCand1, pointCand2, pointCand3])
 

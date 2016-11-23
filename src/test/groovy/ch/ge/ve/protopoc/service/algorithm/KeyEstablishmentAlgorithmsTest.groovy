@@ -9,17 +9,17 @@ import spock.lang.Specification
 import static ch.ge.ve.protopoc.service.support.BigIntegers.*
 
 /**
- * Tests for the KeyEstablishment algorithms
+ * Tests on the algorithms used during key establishment
  */
-class KeyEstablishmentTest extends Specification {
+class KeyEstablishmentAlgorithmsTest extends Specification {
     public static final BigInteger THIRTEEN = BigInteger.valueOf(13)
-    def RandomGenerator randomGenerator = Mock()
-    def EncryptionGroup encryptionGroup = Mock()
+    RandomGenerator randomGenerator = Mock()
+    EncryptionGroup encryptionGroup = Mock()
 
-    def KeyEstablishment keyEstablishment
+    KeyEstablishmentAlgorithms keyEstablishment
 
     void setup() {
-        keyEstablishment = new KeyEstablishment(randomGenerator)
+        keyEstablishment = new KeyEstablishmentAlgorithms(randomGenerator)
         encryptionGroup.p >> THIRTEEN
         encryptionGroup.q >> SEVEN
         encryptionGroup.g >> THREE

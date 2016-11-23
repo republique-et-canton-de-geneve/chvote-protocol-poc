@@ -9,10 +9,10 @@ import static java.math.BigInteger.ONE
 /**
  * Tests for the algorithms related to the code sheets preparation
  */
-class CodeSheetPreparationTest extends Specification {
-    def PublicParameters publicParameters = Mock()
+class CodeSheetPreparationAlgorithmsTest extends Specification {
+    PublicParameters publicParameters = Mock()
 
-    def CodeSheetPreparation codeSheetPreparation
+    CodeSheetPreparationAlgorithms codeSheetPreparation
 
     void setup() {
         publicParameters.s >> 2 // For the sake of simplifying the examples
@@ -21,25 +21,25 @@ class CodeSheetPreparationTest extends Specification {
         publicParameters.l_f >> 16
         publicParameters.l_r >> 16
 
-        codeSheetPreparation = new CodeSheetPreparation(publicParameters)
+        codeSheetPreparation = new CodeSheetPreparationAlgorithms(publicParameters)
 
     }
 
     def "getCodeSheets should combine the secret voter data in the expected manner"() {
         given:
-        def ElectionSet electionSet = Mock()
-        def Voter voter1 = Mock()
-        def Voter voter2 = Mock()
-        def Election election1 = Mock()
-        def Election election2 = Mock()
-        def Candidate candidate1 = Mock()
-        def Candidate candidate2 = Mock()
-        def Candidate candidate3 = Mock()
-        def Candidate candidate4 = Mock()
-        def SecretVoterData voter1Authority1 = Mock()
-        def SecretVoterData voter1Authority2 = Mock()
-        def SecretVoterData voter2Authority1 = Mock()
-        def SecretVoterData voter2Authority2 = Mock()
+        ElectionSet electionSet = Mock()
+        Voter voter1 = Mock()
+        Voter voter2 = Mock()
+        Election election1 = Mock()
+        Election election2 = Mock()
+        Candidate candidate1 = Mock()
+        Candidate candidate2 = Mock()
+        Candidate candidate3 = Mock()
+        Candidate candidate4 = Mock()
+        SecretVoterData voter1Authority1 = Mock()
+        SecretVoterData voter1Authority2 = Mock()
+        SecretVoterData voter2Authority1 = Mock()
+        SecretVoterData voter2Authority2 = Mock()
 
         electionSet.voters >> [voter1, voter2]
         electionSet.elections >> [election1, election2]

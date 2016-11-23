@@ -11,17 +11,17 @@ import static java.math.BigInteger.ONE
 import static java.math.BigInteger.ZERO
 
 /**
- * Tests on the ElectionPreparation algorithms
+ * Tests on the algorithms performed during election preparation
  */
-class ElectionPreparationTest extends Specification {
+class ElectionPreparationAlgorithmsTest extends Specification {
     // Mocks
-    def Hash hash = Mock()
-    def RandomGenerator randomGenerator = Mock()
-    def PublicParameters publicParameters = Mock()
-    def IdentificationGroup identificationGroup = Mock()
-    def PrimeField primeField = Mock()
+    Hash hash = Mock()
+    RandomGenerator randomGenerator = Mock()
+    PublicParameters publicParameters = Mock()
+    IdentificationGroup identificationGroup = Mock()
+    PrimeField primeField = Mock()
 
-    def ElectionPreparation electionPreparation
+    ElectionPreparationAlgorithms electionPreparation
 
     void setup() {
         publicParameters.getS() >> 4
@@ -34,16 +34,16 @@ class ElectionPreparationTest extends Specification {
 
         primeField.p_prime >> SEVEN
 
-        electionPreparation = new ElectionPreparation(hash, randomGenerator, publicParameters)
+        electionPreparation = new ElectionPreparationAlgorithms(hash, randomGenerator, publicParameters)
     }
 
     def "genElectorateData should generate the expected electorate data"() {
         given: "an election set with two elections and two voters"
-        def ElectionSet electionSet = Mock()
-        def Voter voter1 = Mock()
-        def Voter voter2 = Mock()
-        def Election election1 = Mock()
-        def Election election2 = Mock()
+        ElectionSet electionSet = Mock()
+        Voter voter1 = Mock()
+        Voter voter2 = Mock()
+        Election election1 = Mock()
+        Election election2 = Mock()
         electionSet.voters >> [voter1, voter2]
         electionSet.elections >> [election1, election2]
 
@@ -142,8 +142,8 @@ class ElectionPreparationTest extends Specification {
 
     def "genSecretVoterData should generate the expected private voter data"() {
         given:
-        def Point point1 = Mock()
-        def Point point2 = Mock()
+        Point point1 = Mock()
+        Point point2 = Mock()
         hash.hash([point1, point2] as Object[]) >> ([0x03] as byte[])
         hash.hash(point1) >> ([0x05] as byte[])
         hash.hash(point2) >> ([0x07] as byte[])
