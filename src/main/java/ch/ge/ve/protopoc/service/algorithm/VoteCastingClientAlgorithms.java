@@ -19,14 +19,14 @@ import java.util.List;
 /**
  * Algorithms related to the vote casting phase
  */
-public class VoteCastingClient {
+public class VoteCastingClientAlgorithms {
     private final PublicParameters publicParameters;
     private final Hash hash;
     private final RandomGenerator randomGenerator;
     private final GeneralAlgorithms generalAlgorithms;
     private final Conversion conversion = new Conversion();
 
-    public VoteCastingClient(PublicParameters publicParameters, Hash hash, RandomGenerator randomGenerator, GeneralAlgorithms generalAlgorithms) {
+    public VoteCastingClientAlgorithms(PublicParameters publicParameters, Hash hash, RandomGenerator randomGenerator, GeneralAlgorithms generalAlgorithms) {
         this.publicParameters = publicParameters;
         this.hash = hash;
         this.randomGenerator = randomGenerator;

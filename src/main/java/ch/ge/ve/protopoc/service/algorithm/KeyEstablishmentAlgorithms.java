@@ -9,12 +9,12 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 
 /**
- * Missing javadoc!
+ * Algorithms used during the key establishment part of the election preparation phase
  */
-public class KeyEstablishment {
+public class KeyEstablishmentAlgorithms {
     private final RandomGenerator randomGenerator;
 
-    public KeyEstablishment(RandomGenerator randomGenerator) {
+    public KeyEstablishmentAlgorithms(RandomGenerator randomGenerator) {
         this.randomGenerator = randomGenerator;
     }
 

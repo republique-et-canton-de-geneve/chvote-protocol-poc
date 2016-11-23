@@ -16,11 +16,11 @@ import java.util.Set;
 /**
  * This class holds the parameters and the methods / algorithms applicable to polynomials
  */
-public class Polynomial {
+public class PolynomialAlgorithms {
     private final RandomGenerator randomGenerator;
     private final PrimeField primeField;
 
-    public Polynomial(RandomGenerator randomGenerator, PrimeField primeField) {
+    public PolynomialAlgorithms(RandomGenerator randomGenerator, PrimeField primeField) {
         this.randomGenerator = randomGenerator;
         this.primeField = primeField;
     }

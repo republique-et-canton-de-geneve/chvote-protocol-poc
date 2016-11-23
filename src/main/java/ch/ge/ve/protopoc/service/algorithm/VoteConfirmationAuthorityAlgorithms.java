@@ -13,17 +13,17 @@ import java.util.Objects;
 /**
  * Algorithms for the vote confirmation phase, on the authorities side
  */
-public class VoteConfirmationAuthority {
+public class VoteConfirmationAuthorityAlgorithms {
     private final PublicParameters publicParameters;
     private final GeneralAlgorithms generalAlgorithms;
-    private final VoteCastingAuthority voteCastingAuthority;
+    private final VoteCastingAuthorityAlgorithms voteCastingAuthorityAlgorithms;
     private final Hash hash;
 
-    public VoteConfirmationAuthority(PublicParameters publicParameters, GeneralAlgorithms generalAlgorithms,
-                                     VoteCastingAuthority voteCastingAuthority, Hash hash) {
+    public VoteConfirmationAuthorityAlgorithms(PublicParameters publicParameters, GeneralAlgorithms generalAlgorithms,
+                                               VoteCastingAuthorityAlgorithms voteCastingAuthorityAlgorithms, Hash hash) {
         this.publicParameters = publicParameters;
         this.generalAlgorithms = generalAlgorithms;
-        this.voteCastingAuthority = voteCastingAuthority;
+        this.voteCastingAuthorityAlgorithms = voteCastingAuthorityAlgorithms;
         this.hash = hash;
     }
 
@@ -41,7 +41,7 @@ public class VoteConfirmationAuthority {
      */
     public boolean checkConfirmation(Integer i, Confirmation gamma, List<BigInteger> bold_y_circ,
                                      List<BallotEntry> B, List<ConfirmationEntry> C) {
-        return voteCastingAuthority.hasBallot(i, B) &&
+        return voteCastingAuthorityAlgorithms.hasBallot(i, B) &&
                 !hasConfirmation(i, C) &&
                 bold_y_circ.get(i).compareTo(gamma.getY_circ()) == 0 &&
                 checkConfirmationNIZKP(gamma.getPi(), gamma.getY_circ());

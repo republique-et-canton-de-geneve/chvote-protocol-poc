@@ -18,14 +18,14 @@ import java.util.List;
 /**
  * Algorithms related to the vote casting phase, performed by the authorities
  */
-public class VoteCastingAuthority {
+public class VoteCastingAuthorityAlgorithms {
     private final PublicParameters publicParameters;
     private final GeneralAlgorithms generalAlgorithms;
     private final RandomGenerator randomGenerator;
     private final Hash hash;
     private final Conversion conversion = new Conversion();
 
-    public VoteCastingAuthority(PublicParameters publicParameters, GeneralAlgorithms generalAlgorithms, RandomGenerator randomGenerator, Hash hash) {
+    public VoteCastingAuthorityAlgorithms(PublicParameters publicParameters, GeneralAlgorithms generalAlgorithms, RandomGenerator randomGenerator, Hash hash) {
         this.publicParameters = publicParameters;
         this.generalAlgorithms = generalAlgorithms;
         this.randomGenerator = randomGenerator;

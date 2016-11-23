@@ -8,7 +8,7 @@ import java.util.List;
  * <p>
  * These will be performed by humans in the real system, and are only implemented to facilitate complete simulations.
  */
-public class VoteConfirmationVoter {
+public class VoteConfirmationVoterAlgorithms {
     /**
      * Algorithm 5.29: CheckReturnCodes
      *

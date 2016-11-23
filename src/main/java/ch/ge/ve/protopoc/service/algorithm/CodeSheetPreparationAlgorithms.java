@@ -14,12 +14,12 @@ import java.util.stream.IntStream;
 /**
  * Algorithms related to the preparation of code sheets
  */
-public class CodeSheetPreparation {
+public class CodeSheetPreparationAlgorithms {
     private final Conversion conversion = new Conversion();
     private final PublicParameters publicParameters;
     private final int s;
 
-    public CodeSheetPreparation(PublicParameters publicParameters) {
+    public CodeSheetPreparationAlgorithms(PublicParameters publicParameters) {
         this.publicParameters = publicParameters;
         s = publicParameters.getS();
     }

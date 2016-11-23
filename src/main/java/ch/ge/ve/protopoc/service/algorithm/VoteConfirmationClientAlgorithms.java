@@ -20,14 +20,14 @@ import static java.util.Collections.singletonList;
 /**
  * Algorithms for the vote confirmation phase, on the voting client's side
  */
-public class VoteConfirmationClient {
+public class VoteConfirmationClientAlgorithms {
     private final PublicParameters publicParameters;
     private final RandomGenerator randomGenerator;
     private final GeneralAlgorithms generalAlgorithms;
     private final Hash hash;
     private final Conversion conversion = new Conversion();
 
-    public VoteConfirmationClient(PublicParameters publicParameters, RandomGenerator randomGenerator, GeneralAlgorithms generalAlgorithms, Hash hash) {
+    public VoteConfirmationClientAlgorithms(PublicParameters publicParameters, RandomGenerator randomGenerator, GeneralAlgorithms generalAlgorithms, Hash hash) {
         this.publicParameters = publicParameters;
         this.randomGenerator = randomGenerator;
         this.generalAlgorithms = generalAlgorithms;

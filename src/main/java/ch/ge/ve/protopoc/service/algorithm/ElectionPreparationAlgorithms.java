@@ -10,8 +10,6 @@ import ch.ge.ve.protopoc.service.support.RandomGenerator;
 import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,23 +18,23 @@ import java.util.stream.IntStream;
 /**
  * Algorithms relevant to the election preparation
  */
-public class ElectionPreparation {
+public class ElectionPreparationAlgorithms {
     private final Hash hash;
     private final RandomGenerator randomGenerator;
     private final BigInteger q_x;
     private final BigInteger q_y;
     private final IdentificationGroup identificationGroup;
     private final Conversion conversion = new Conversion();
-    private final Polynomial polynomial;
+    private final PolynomialAlgorithms polynomialAlgorithms;
     private final int s;
 
-    public ElectionPreparation(Hash hash, RandomGenerator randomGenerator, PublicParameters publicParameters) {
+    public ElectionPreparationAlgorithms(Hash hash, RandomGenerator randomGenerator, PublicParameters publicParameters) {
         this.hash = hash;
         this.randomGenerator = randomGenerator;
         q_x = BigIntegers.TWO.pow(publicParameters.getL_x()).divide(BigInteger.valueOf(publicParameters.getS()));
         q_y = BigIntegers.TWO.pow(publicParameters.getL_y()).divide(BigInteger.valueOf(publicParameters.getS()));
         identificationGroup = publicParameters.getIdentificationGroup();
-        polynomial = new Polynomial(randomGenerator, publicParameters.getPrimeField());
+        polynomialAlgorithms = new PolynomialAlgorithms(randomGenerator, publicParameters.getPrimeField());
         s = publicParameters.getS();
     }
 
@@ -46,7 +44,7 @@ public class ElectionPreparation {
      * @param electionSet contains all three of <b>n</b>, <b>k</b> and <b>E</b>
      * @return the generated electorate data, including private and public voter data
      */
-    public ElectorateData genElectorateData(ElectionSet electionSet) throws NoSuchProviderException, NoSuchAlgorithmException {
+    public ElectorateData genElectorateData(ElectionSet electionSet) {
         List<SecretVoterData> secretVoterDataList = new ArrayList<>();
         List<Point> publicVoterDataList = new ArrayList<>();
         List<List<Point>> randomPoints = new ArrayList<>();
@@ -62,7 +60,7 @@ public class ElectionPreparation {
             List<Integer> k_i = elections.stream()
                     .map(e -> electionSet.isEligible(voter, e) ? e.getNumberOfSelections() : 0)
                     .collect(Collectors.toList());
-            PointsAndZeroImages pointsAndZeroImages = polynomial.genPoints(n, k_i);
+            PointsAndZeroImages pointsAndZeroImages = polynomialAlgorithms.genPoints(n, k_i);
             SecretVoterData d_i = genSecretVoterData(pointsAndZeroImages.getPoints());
             secretVoterDataList.add(d_i);
             publicVoterDataList.add(getPublicVoterData(d_i.getX(), d_i.getY(), pointsAndZeroImages.getY0s()));
