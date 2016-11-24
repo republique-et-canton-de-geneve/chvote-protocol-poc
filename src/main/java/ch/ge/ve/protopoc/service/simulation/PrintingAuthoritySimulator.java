@@ -18,6 +18,7 @@ import java.util.List;
 public class PrintingAuthoritySimulator {
     private final BulletinBoardService bulletinBoardService;
     private final List<AuthorityService> authorities = new ArrayList<>();
+    private final List<VoterSimulator> voterSimulators = new ArrayList<>();
     private final CodeSheetPreparationAlgorithms codeSheetPreparationAlgorithms;
 
     public PrintingAuthoritySimulator(BulletinBoardService bulletinBoardService, CodeSheetPreparationAlgorithms codeSheetPreparationAlgorithms) {
@@ -31,11 +32,20 @@ public class PrintingAuthoritySimulator {
         this.authorities.addAll(authorities);
     }
 
+    public void setVoterSimulators(List<VoterSimulator> voterSimulators) {
+        Preconditions.checkState(this.voterSimulators.isEmpty(),
+                "The voter simulators may not be updated once set");
+        this.voterSimulators.addAll(voterSimulators);
+    }
+
     public void startPrinting() {
         PublicParameters publicParameters = bulletinBoardService.getPublicParameters();
         Preconditions.checkState(authorities.size() == publicParameters.getS(),
                 "The number of authorities should match the public parameters");
         ElectionSet electionSet = bulletinBoardService.getElectionSet();
+        Preconditions.checkState(voterSimulators.size() == electionSet.getVoters().size(),
+                "The number of voter simulators should be equal to " +
+                        "the number of voters in the election set");
 
         List<List<SecretVoterData>> voterDataMatrix = new ArrayList<>();
         for (AuthorityService authority : authorities) {
@@ -43,5 +53,9 @@ public class PrintingAuthoritySimulator {
         }
 
         List<CodeSheet> sheets = codeSheetPreparationAlgorithms.getSheets(electionSet, voterDataMatrix);
+
+        for (int i = 0; i < sheets.size(); i++) {
+            voterSimulators.get(i).sendCodeSheet(sheets.get(i));
+        }
     }
 }

@@ -7,12 +7,18 @@ import java.util.List;
  */
 public class VotingPageData {
     private final List<Integer> selectionCounts;
+    private final List<Integer> candidateCounts;
 
-    public VotingPageData(List<Integer> selectionCounts) {
+    public VotingPageData(List<Integer> selectionCounts, List<Integer> candidateCounts) {
         this.selectionCounts = selectionCounts;
+        this.candidateCounts = candidateCounts;
     }
 
     public List<Integer> getSelectionCounts() {
         return selectionCounts;
+    }
+
+    public List<Integer> getCandidateCounts() {
+        return candidateCounts;
     }
 }

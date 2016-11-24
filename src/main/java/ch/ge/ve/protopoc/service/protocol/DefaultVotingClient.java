@@ -49,7 +49,7 @@ public class DefaultVotingClient implements VotingClientService {
                 .collect(Collectors.toList());
 
 
-        return new VotingPageData(voterSelectionCounts);
+        return new VotingPageData(voterSelectionCounts, electionSet.getBold_n());
     }
 
     @Override
