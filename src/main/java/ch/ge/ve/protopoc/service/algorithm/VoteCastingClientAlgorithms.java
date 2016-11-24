@@ -1,7 +1,7 @@
 package ch.ge.ve.protopoc.service.algorithm;
 
 import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException;
-import ch.ge.ve.protopoc.service.exception.InvalidObliviousTransferResponse;
+import ch.ge.ve.protopoc.service.exception.InvalidObliviousTransferResponseException;
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
@@ -177,13 +177,13 @@ public class VoteCastingClientAlgorithms {
      * @param bold_s    the vector of selected primes
      * @param bold_r    the vector of randomizations used for the OT query
      * @return the point matrix corresponding to the replies of the s authorities for the k selections
-     * @throws InvalidObliviousTransferResponse when one of the points would be outside the defined space
+     * @throws InvalidObliviousTransferResponseException when one of the points would be outside the defined space
      */
     public List<List<Point>> getPointMatrix(
             List<ObliviousTransferResponse> bold_beta,
             List<Integer> bold_k,
             List<Integer> bold_s,
-            List<BigInteger> bold_r) throws InvalidObliviousTransferResponse {
+            List<BigInteger> bold_r) throws InvalidObliviousTransferResponseException {
         List<List<Point>> bold_P = new ArrayList<>();
 
         for (ObliviousTransferResponse beta_j : bold_beta) {
@@ -201,13 +201,13 @@ public class VoteCastingClientAlgorithms {
      * @param bold_s the vector of selected primes
      * @param bold_r the vector of randomizations used for the OT query
      * @return the points corresponding to the authority's reply for the k selections
-     * @throws InvalidObliviousTransferResponse when one of the points would be outside the defined space
+     * @throws InvalidObliviousTransferResponseException when one of the points would be outside the defined space
      */
     public List<Point> getPoints(
             ObliviousTransferResponse beta,
             List<Integer> bold_k,
             List<Integer> bold_s,
-            List<BigInteger> bold_r) throws InvalidObliviousTransferResponse {
+            List<BigInteger> bold_r) throws InvalidObliviousTransferResponseException {
         List<Point> bold_p = new ArrayList<>();
         List<BigInteger> b = beta.getB();
         byte[][] c = beta.getC();
@@ -223,7 +223,7 @@ public class VoteCastingClientAlgorithms {
                 BigInteger x_i = conversion.toInteger(Arrays.copyOfRange(M_i, 0, L_m / 2 + 1));
                 BigInteger y_i = conversion.toInteger(Arrays.copyOfRange(M_i, L_m / 2 + 1, M_i.length));
                 if (x_i.compareTo(p_prime) >= 0 || y_i.compareTo(p_prime) >= 0) {
-                    throw new InvalidObliviousTransferResponse("x_i >= p' or y_i >= p'");
+                    throw new InvalidObliviousTransferResponseException("x_i >= p' or y_i >= p'");
                 }
                 bold_p.add(new Point(x_i, y_i));
                 i++;

@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Default implementation of the bulletin board service
+ * Default implementation of the {@link BulletinBoardService}
  */
 public class DefaultBulletinBoard implements BulletinBoardService {
     private final List<AuthorityService> authorities = new ArrayList<>();
@@ -114,19 +114,18 @@ public class DefaultBulletinBoard implements BulletinBoardService {
     }
 
     @Override
-    public byte[][] publishConfirmation(Integer voterIndex, Confirmation confirmation)
+    public List<FinalizationCodePart> publishConfirmation(Integer voterIndex, Confirmation confirmation)
             throws IncorrectConfirmationException {
         Preconditions.checkState(publicParameters != null,
                 "The public parameters need to have been defined first");
         Preconditions.checkState(authorities.size() == publicParameters.getS(),
                 "The number of authorities should match the public parameters");
 
-        byte[][] finalizationCodeParts = new byte[authorities.size()][];
+        List<FinalizationCodePart> finalizationCodeParts = new ArrayList<>();
 
         for (int i = 0; i < authorities.size(); i++) {
             AuthorityService authority = authorities.get(i);
-            FinalizationCodePart finalizationCodePart = authority.handleConfirmation(voterIndex, confirmation);
-            finalizationCodeParts[i] = finalizationCodePart.getF();
+            finalizationCodeParts.add(authority.handleConfirmation(voterIndex, confirmation));
         }
 
         return finalizationCodeParts;

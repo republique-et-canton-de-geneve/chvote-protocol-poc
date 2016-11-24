@@ -70,7 +70,7 @@ public class DefaultAuthority implements AuthorityService {
         Preconditions.checkArgument(publicKeyParts.size() == publicParameters.getS());
         Preconditions.checkArgument(publicKeyParts.get(j).equals(myPublicKey));
 
-        systemPublicKey = keyEstablishmentAlgorithms.getPublicKey(publicKeyParts.toArray(new EncryptionPublicKey[0]));
+        systemPublicKey = keyEstablishmentAlgorithms.getPublicKey(publicKeyParts);
     }
 
     @Override

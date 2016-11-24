@@ -7,6 +7,7 @@ import ch.ge.ve.protopoc.service.support.RandomGenerator;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
+import java.util.List;
 
 /**
  * Algorithms used during the key establishment part of the election preparation phase
@@ -36,10 +37,10 @@ public class KeyEstablishmentAlgorithms {
      * @param publicKeys the set of public key shares that should be combined
      * @return the combined public key
      */
-    public EncryptionPublicKey getPublicKey(EncryptionPublicKey... publicKeys) {
+    public EncryptionPublicKey getPublicKey(List<EncryptionPublicKey> publicKeys) {
         // check all encryption groups are equal
         BigInteger publicKey = BigInteger.ONE;
-        EncryptionGroup eg = publicKeys[0].getEncryptionGroup();
+        EncryptionGroup eg = publicKeys.get(0).getEncryptionGroup();
         for (EncryptionPublicKey key : publicKeys) {
             publicKey = publicKey.multiply(key.getPublicKey()).mod(eg.getP());
         }

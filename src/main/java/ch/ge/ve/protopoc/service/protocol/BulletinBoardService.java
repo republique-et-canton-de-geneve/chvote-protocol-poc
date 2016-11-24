@@ -28,5 +28,5 @@ public interface BulletinBoardService {
 
     List<ObliviousTransferResponse> publishBallot(Integer voterIndex, BallotAndQuery ballotAndQuery) throws IncorrectBallotOrQueryException;
 
-    byte[][] publishConfirmation(Integer voterIndex, Confirmation confirmation) throws IncorrectConfirmationException;
+    List<FinalizationCodePart> publishConfirmation(Integer voterIndex, Confirmation confirmation) throws IncorrectConfirmationException;
 }
