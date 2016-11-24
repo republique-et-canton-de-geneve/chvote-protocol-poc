@@ -61,8 +61,10 @@ public class DefaultAuthority implements AuthorityService {
 
     @Override
     public void buildPublicKey() {
-        Preconditions.checkNotNull(myPrivateKey);
-        Preconditions.checkNotNull(myPublicKey);
+        Preconditions.checkState(myPrivateKey != null,
+                "The encryption keys need to have been generated beforehand");
+        Preconditions.checkState(myPublicKey != null,
+                "The encryption keys need to have been generated beforehand");
 
         List<EncryptionPublicKey> publicKeyParts = bulletinBoardService.getPublicKeyParts();
         Preconditions.checkArgument(publicKeyParts.size() == publicParameters.getS());
@@ -81,6 +83,8 @@ public class DefaultAuthority implements AuthorityService {
 
     @Override
     public List<SecretVoterData> getPrivateCredentials() {
+        Preconditions.checkState(electorateData != null,
+                "The electorate data should have been generated first");
         return electorateData.getD();
     }
 
@@ -93,6 +97,8 @@ public class DefaultAuthority implements AuthorityService {
     @Override
     public ObliviousTransferResponse handleBallot(Integer voterIndex, BallotAndQuery ballotAndQuery)
             throws IncompatibleParametersException, IncorrectBallotException {
+        Preconditions.checkState(publicCredentials != null,
+                "The public credentials need to have been retrieved first");
         List<BigInteger> publicIdentificationCredentials =
                 publicCredentials.stream().map(p -> p.x).collect(Collectors.toList());
         if (!voteCastingAuthorityAlgorithms.checkBallot(voterIndex, ballotAndQuery, systemPublicKey,
@@ -109,7 +115,10 @@ public class DefaultAuthority implements AuthorityService {
     }
 
     @Override
-    public FinalizationCodePart handleConfirmation(Integer voterIndex, Confirmation confirmation) throws IncorrectConfirmationException {
+    public FinalizationCodePart handleConfirmation(Integer voterIndex, Confirmation confirmation)
+            throws IncorrectConfirmationException {
+        Preconditions.checkState(publicCredentials != null,
+                "The public credentials need to have been retrieved first");
         List<BigInteger> publicConfirmationCredentials =
                 publicCredentials.stream().map(p -> p.y).collect(Collectors.toList());
 

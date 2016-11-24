@@ -1,5 +1,6 @@
 package ch.ge.ve.protopoc.service.protocol;
 
+import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
 
@@ -25,7 +26,7 @@ public interface BulletinBoardService {
 
     List<List<Point>> getPublicCredentialsParts();
 
-    ObliviousTransferResponse publishBallot(BallotAndQuery ballotAndQuery);
+    List<ObliviousTransferResponse> publishBallot(Integer voterIndex, BallotAndQuery ballotAndQuery) throws IncorrectBallotOrQueryException;
 
-    byte[] publishConfirmation(Confirmation confirmation);
+    byte[][] publishConfirmation(Integer voterIndex, Confirmation confirmation) throws IncorrectConfirmationException;
 }
