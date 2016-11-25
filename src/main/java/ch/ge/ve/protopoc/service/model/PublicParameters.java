@@ -4,7 +4,7 @@ import ch.ge.ve.protopoc.service.support.BigIntegers;
 import com.google.common.base.Preconditions;
 
 /**
- * Missing javadoc!
+ * The model class grouping all public parameters
  */
 public class PublicParameters {
     private final SecurityParameters securityParameters;
@@ -48,10 +48,6 @@ public class PublicParameters {
                             int s) {
         // All tests that only impact properties of a given element are performed locally at the constructor level
         // Preconditions tested here are those that impact a combination of the properties of the lower level elements
-        // TODO check reply from Rolf
-//        Preconditions.checkArgument(identificationGroup.getQ_circ()
-//                        .compareTo(encryptionGroup.getP().subtract(BigInteger.ONE).divide(encryptionGroup.getH())) == 0,
-//                "q_circ must equal (p - 1)/h");
         Preconditions.checkArgument(encryptionGroup.getH().compareTo(BigIntegers.TWO) >= 0,
                 "");
         Preconditions.checkArgument(2 * securityParameters.mu <= identificationGroup.getQ_circ().bitLength());

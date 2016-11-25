@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 
 /**
- * Missing javadoc!
+ * The model class representing the encryption group
  */
 public class EncryptionGroup {
     /**
