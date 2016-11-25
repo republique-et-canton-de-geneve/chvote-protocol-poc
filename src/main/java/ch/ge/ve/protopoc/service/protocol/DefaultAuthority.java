@@ -10,6 +10,8 @@ import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
  * Default implementation of the {@link AuthorityService} interface
  */
 public class DefaultAuthority implements AuthorityService {
+    private static final Logger log = LoggerFactory.getLogger(DefaultAuthority.class);
     private final int j;
     private final BulletinBoardService bulletinBoardService;
     private final KeyEstablishmentAlgorithms keyEstablishmentAlgorithms;
@@ -75,6 +78,7 @@ public class DefaultAuthority implements AuthorityService {
 
     @Override
     public void generateElectorateData() {
+        log.info(String.format("Authority %d generating electorate data", j));
         electionSet = bulletinBoardService.getElectionSet();
         electorateData = electionPreparationAlgorithms.genElectorateData(electionSet);
 
@@ -99,11 +103,13 @@ public class DefaultAuthority implements AuthorityService {
             throws IncompatibleParametersException, IncorrectBallotException {
         Preconditions.checkState(publicCredentials != null,
                 "The public credentials need to have been retrieved first");
+
+        log.info(String.format("Authority %d handling ballot", j));
+
         List<BigInteger> publicIdentificationCredentials =
                 publicCredentials.stream().map(p -> p.x).collect(Collectors.toList());
         if (!voteCastingAuthorityAlgorithms.checkBallot(voterIndex, ballotAndQuery, systemPublicKey,
                 publicIdentificationCredentials, ballotEntries)) {
-
             throw new IncorrectBallotException(String.format("Ballot for voter %d was deemed invalid", voterIndex));
         }
 

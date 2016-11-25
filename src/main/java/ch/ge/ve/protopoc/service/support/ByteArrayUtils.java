@@ -15,4 +15,11 @@ public class ByteArrayUtils {
         }
         return result;
     }
+
+    public static byte[] concatenate(byte[] a, byte[] b) {
+        byte[] concatenated = new byte[a.length + b.length];
+        System.arraycopy(a, 0, concatenated, 0, a.length);
+        System.arraycopy(b, 0, concatenated, a.length, b.length);
+        return concatenated;
+    }
 }

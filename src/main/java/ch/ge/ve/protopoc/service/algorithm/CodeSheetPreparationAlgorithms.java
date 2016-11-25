@@ -69,7 +69,7 @@ public class CodeSheetPreparationAlgorithms {
         BigInteger sum_x_ij = IntStream.range(0, s).mapToObj(secretVoterDataList::get)
                 .map(SecretVoterData::getX)
                 .reduce(BigInteger::add).orElseGet(() -> BigInteger.ZERO);
-        return conversion.toByteArray(sum_x_ij, publicParameters.getL_x() / 8);
+        return conversion.toByteArray(sum_x_ij, (int) Math.ceil(publicParameters.getL_x() / 8.0));
     }
 
     /**
@@ -82,7 +82,7 @@ public class CodeSheetPreparationAlgorithms {
         BigInteger sum_y_ij = IntStream.range(0, s).mapToObj(secretVoterDataList::get)
                 .map(SecretVoterData::getY)
                 .reduce(BigInteger::add).orElseGet(() -> BigInteger.ZERO);
-        return conversion.toByteArray(sum_y_ij, publicParameters.getL_y() / 8);
+        return conversion.toByteArray(sum_y_ij, (int) Math.ceil(publicParameters.getL_y() / 8.0));
     }
 
     /**

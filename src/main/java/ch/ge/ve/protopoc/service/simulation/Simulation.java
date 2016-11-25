@@ -170,7 +170,7 @@ public class Simulation {
         DomainOfInfluence canton = new DomainOfInfluence("canton");
         DomainOfInfluence municipality1 = new DomainOfInfluence("municipality1");
 
-        List<Voter> voters = IntStream.range(0, 10).mapToObj(i -> new Voter()).collect(Collectors.toList());
+        List<Voter> voters = IntStream.range(0, 100).mapToObj(i -> new Voter()).collect(Collectors.toList());
         voters.forEach(v -> v.addDomainsOfInfluence(canton));
         voters.subList(0, 10).forEach(v -> v.addDomainsOfInfluence(municipality1));
 

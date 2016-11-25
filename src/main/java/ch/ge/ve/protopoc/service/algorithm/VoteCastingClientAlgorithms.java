@@ -10,6 +10,8 @@ import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import java.util.List;
  * Algorithms related to the vote casting phase
  */
 public class VoteCastingClientAlgorithms {
+    private static final Logger log = LoggerFactory.getLogger(VoteCastingClientAlgorithms.class);
     private final PublicParameters publicParameters;
     private final Hash hash;
     private final RandomGenerator randomGenerator;
@@ -48,16 +51,17 @@ public class VoteCastingClientAlgorithms {
         BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
         BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
+        BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
 
         BigInteger x = conversion.toInteger(X);
         BigInteger x_circ = g_circ.modPow(x, p_circ);
 
         List<BigInteger> bold_u = computeBoldU(bold_s);
-        BigInteger u = computeU(p, bold_u);
+        BigInteger u = computeU(bold_u, p);
         ObliviousTransferQuery query = genQuery(bold_u, pk);
-        BigInteger a = computeA(p, query);
-        BigInteger r = computeR(p, query);
+        BigInteger a = computeA(query, p);
+        BigInteger r = computeR(query, q);
         BigInteger b = g.modPow(r, p);
         NonInteractiveZKP pi = genBallotNIZKP(x, u, r, x_circ, a, b, pk);
         BallotAndQuery alpha = new BallotAndQuery(x_circ, query.getBold_a(), b, pi);
@@ -75,7 +79,7 @@ public class VoteCastingClientAlgorithms {
         return bold_u;
     }
 
-    private BigInteger computeU(BigInteger p, List<BigInteger> bold_u) throws IncompatibleParametersException {
+    private BigInteger computeU(List<BigInteger> bold_u, BigInteger p) throws IncompatibleParametersException {
         BigInteger u = bold_u.stream().reduce(BigInteger::multiply)
                 .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"));
         if (u.compareTo(p) >= 0) {
@@ -84,16 +88,16 @@ public class VoteCastingClientAlgorithms {
         return u;
     }
 
-    private BigInteger computeA(BigInteger p, ObliviousTransferQuery query) {
+    private BigInteger computeA(ObliviousTransferQuery query, BigInteger p) {
         return query.getBold_a().stream().reduce(BigInteger::multiply)
                 .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"))
                 .mod(p);
     }
 
-    private BigInteger computeR(BigInteger p, ObliviousTransferQuery query) {
+    private BigInteger computeR(ObliviousTransferQuery query, BigInteger q) {
         return query.getBold_r().stream().reduce(BigInteger::add)
                 .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"))
-                .mod(p);
+                .mod(q);
     }
 
     /**
@@ -110,9 +114,9 @@ public class VoteCastingClientAlgorithms {
         List<BigInteger> bold_a = new ArrayList<>();
         List<BigInteger> bold_r = new ArrayList<>();
 
-        for (int i = 0; i < bold_u.size(); i++) {
+        for (BigInteger u_i : bold_u) {
             BigInteger r_i = randomGenerator.randomInZq(q);
-            BigInteger a_i = bold_u.get(i).multiply(pk.getPublicKey().modPow(r_i, p)).mod(p);
+            BigInteger a_i = u_i.multiply(pk.getPublicKey().modPow(r_i, p)).mod(p);
             bold_a.add(a_i);
             bold_r.add(r_i);
         }
@@ -137,7 +141,8 @@ public class VoteCastingClientAlgorithms {
             BigInteger u,
             BigInteger r,
             BigInteger x_circ,
-            BigInteger a, BigInteger b,
+            BigInteger a,
+            BigInteger b,
             EncryptionPublicKey pk) {
         IdentificationGroup identificationGroup = publicParameters.getIdentificationGroup();
         BigInteger p_circ = identificationGroup.getP_circ();
@@ -148,6 +153,8 @@ public class VoteCastingClientAlgorithms {
         BigInteger p = encryptionGroup.getP();
         BigInteger q = encryptionGroup.getQ();
         BigInteger g = encryptionGroup.getG();
+
+        log.debug(String.format("genBallotNIZKP: a = %s", a));
 
         BigInteger omega_1 = randomGenerator.randomInZq(q_circ);
         BigInteger omega_2 = randomGenerator.randomInGq(encryptionGroup);
@@ -160,6 +167,7 @@ public class VoteCastingClientAlgorithms {
         BigInteger[] v = new BigInteger[]{x_circ, a, b};
         BigInteger[] t = new BigInteger[]{t_1, t_2, t_3};
         BigInteger c = generalAlgorithms.getNIZKPChallenge(v, t, q.min(q_circ));
+        log.debug(String.format("genBallotNIZKP: c = %s", c));
 
         BigInteger s_1 = omega_1.add(c.multiply(x)).mod(q_circ);
         BigInteger s_2 = omega_2.multiply(u.modPow(c, p)).mod(p);
@@ -214,20 +222,24 @@ public class VoteCastingClientAlgorithms {
         List<BigInteger> d = beta.getD();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger p_prime = publicParameters.getPrimeField().getP_prime();
-
         int L_m = publicParameters.getL_m() / 8;
 
         int i = 0; // 0 based indices in java, as opposed to the 1-based specification
         for (int j = 0; j < bold_k.size(); j++) {
             for (int l = 0; l < bold_k.get(j); l++) {
+                log.debug("c[" + (bold_s.get(i) - 1) + "] = " + Arrays.toString(c[bold_s.get(i) - 1]));
+                BigInteger valueToHash = b.get(i).multiply(d.get(j).modPow(bold_r.get(i).negate(), p)).mod(p);
+                log.debug(String.format("Hashing the following value: %s", valueToHash));
                 byte[] M_i = ByteArrayUtils.xor(
                         // selections are 1-based
                         c[bold_s.get(i) - 1],
-                        Arrays.copyOf(
-                                hash.hash(b.get(i).multiply(d.get(j).modPow(bold_r.get(j).negate(), p)).mod(p)),
-                                L_m));
+                        Arrays.copyOf(hash.hash(valueToHash), L_m));
                 BigInteger x_i = conversion.toInteger(Arrays.copyOfRange(M_i, 0, L_m / 2));
                 BigInteger y_i = conversion.toInteger(Arrays.copyOfRange(M_i, L_m / 2, M_i.length));
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Decoding %s as  point : %d <%s, %s>", Arrays.toString(M_i), i, x_i, y_i));
+                }
+
                 if (x_i.compareTo(p_prime) >= 0 || y_i.compareTo(p_prime) >= 0) {
                     throw new InvalidObliviousTransferResponseException("x_i >= p' or y_i >= p'");
                 }

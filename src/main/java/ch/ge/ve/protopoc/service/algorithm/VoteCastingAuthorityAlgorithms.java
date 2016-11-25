@@ -9,16 +9,19 @@ import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
 import com.google.common.base.Preconditions;
-import org.bouncycastle.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Algorithms related to the vote casting phase, performed by the authorities
  */
 public class VoteCastingAuthorityAlgorithms {
+    private static final Logger log = LoggerFactory.getLogger(VoteConfirmationAuthorityAlgorithms.class);
     private final PublicParameters publicParameters;
     private final GeneralAlgorithms generalAlgorithms;
     private final RandomGenerator randomGenerator;
@@ -100,6 +103,8 @@ public class VoteCastingAuthorityAlgorithms {
         Preconditions.checkNotNull(pk.getPublicKey());
         Preconditions.checkArgument(pk.getEncryptionGroup() == publicParameters.getEncryptionGroup());
 
+        log.debug(String.format("checkBallotNIZKP: a = %s", a));
+
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
@@ -111,6 +116,7 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger[] t = new BigInteger[3];
         pi.getT().toArray(t);
         BigInteger c = generalAlgorithms.getNIZKPChallenge(v, t, q.min(q_circ));
+        log.debug(String.format("checkBallotNIZKP: c = %s", c));
 
         BigInteger s_1 = pi.getS().get(0);
         BigInteger s_2 = pi.getS().get(1);
@@ -186,13 +192,15 @@ public class VoteCastingAuthorityAlgorithms {
             for (int l = 0; l < n_j; l++) {
                 int v = n_offset + l;
                 Point point_iv = bold_P.get(i).get(v);
-                byte[] M_v = Arrays.concatenate(
+                byte[] M_v = ByteArrayUtils.concatenate(
                         conversion.toByteArray(point_iv.x, upper_l_m / 2),
                         conversion.toByteArray(point_iv.y, upper_l_m / 2)
                 );
-                bold_c[v] = ByteArrayUtils.xor(M_v, Arrays.copyOf(
-                        hash.hash(bold_u.get(v).modPow(r_j, p)),
-                        upper_l_m));
+                log.debug(String.format("Encoding point %s as %s", point_iv, Arrays.toString(M_v)));
+                BigInteger valueToHash = bold_u.get(v).modPow(r_j, p);
+                log.debug(String.format("Hashing the following value: %s", valueToHash));
+                bold_c[v] = ByteArrayUtils.xor(M_v, Arrays.copyOf(hash.hash(valueToHash), upper_l_m));
+                log.debug(String.format("bold_c[%d] = %s", v, Arrays.toString(bold_c[v])));
             }
             n_offset += n_j;
 

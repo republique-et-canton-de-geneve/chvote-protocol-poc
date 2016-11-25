@@ -6,6 +6,8 @@ import ch.ge.ve.protopoc.service.model.polynomial.PointsAndZeroImages;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -17,8 +19,10 @@ import java.util.Set;
  * This class holds the parameters and the methods / algorithms applicable to polynomials
  */
 public class PolynomialAlgorithms {
+    private static final Logger log = LoggerFactory.getLogger(PolynomialAlgorithms.class);
     private final RandomGenerator randomGenerator;
     private final PrimeField primeField;
+
 
     public PolynomialAlgorithms(RandomGenerator randomGenerator, PrimeField primeField) {
         this.randomGenerator = randomGenerator;
@@ -41,20 +45,24 @@ public class PolynomialAlgorithms {
         }
         List<Point> points = new ArrayList<>();
         List<BigInteger> y0s = new ArrayList<>();
-        // i = 0 (used as subscript for x_i, y_i)
+        int i = 0; // (used as subscript for x_i, y_i)
         // loop on election: index j (hence the a_j symbol)
-        for (int i = 0; i < n.size(); i++) {
+        for (int j = 0; j < n.size(); j++) {
             Set<BigInteger> xValues = new HashSet<>();
-            List<BigInteger> a_j = genPolynomial(k.get(i) - 1);
-            for (int l = 0; l < n.get(i); l++) {
+            List<BigInteger> a_j = genPolynomial(k.get(j) - 1);
+            for (int l = 0; l < n.get(j); l++) {
                 BigInteger x_i;
                 do {
                     x_i = randomGenerator.randomInZq(primeField.getP_prime());
                 } while (x_i.compareTo(BigInteger.ZERO) == 0 || xValues.contains(x_i));
                 xValues.add(x_i);
                 BigInteger y_i = getYValue(x_i, a_j);
-                points.add(new Point(x_i, y_i));
-                // i++
+                Point point = new Point(x_i, y_i);
+                points.add(point);
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Created point %d: %s", i, point));
+                }
+                i++;
             }
             y0s.add(getYValue(BigInteger.ZERO, a_j));
         }
