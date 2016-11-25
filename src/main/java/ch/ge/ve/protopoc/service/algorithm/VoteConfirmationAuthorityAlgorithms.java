@@ -7,6 +7,7 @@ import ch.ge.ve.protopoc.service.support.Hash;
 import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -96,7 +97,7 @@ public class VoteConfirmationAuthorityAlgorithms {
      */
     public FinalizationCodePart getFinalization(Integer i, List<List<Point>> bold_P, List<BallotEntry> B) {
         Object[] bold_p_i = bold_P.get(i).toArray();
-        byte[] F = hash.hash(bold_p_i);
+        byte[] F = Arrays.copyOf(hash.hash(bold_p_i), publicParameters.getL_f() / 8);
 
         BallotEntry ballotEntry = B.stream().filter(b -> Objects.equals(b.getI(), i)).findFirst().orElseThrow(
                 () -> new BallotNotFoundException(String.format("Couldn't find any ballot for voter %d", i))

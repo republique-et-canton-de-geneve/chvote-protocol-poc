@@ -38,7 +38,7 @@ public class PrintingAuthoritySimulator {
         this.voterSimulators.addAll(voterSimulators);
     }
 
-    public void startPrinting() {
+    public void print() {
         PublicParameters publicParameters = bulletinBoardService.getPublicParameters();
         Preconditions.checkState(authorities.size() == publicParameters.getS(),
                 "The number of authorities should match the public parameters");

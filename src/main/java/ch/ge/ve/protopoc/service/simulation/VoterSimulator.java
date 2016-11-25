@@ -1,13 +1,14 @@
 package ch.ge.ve.protopoc.service.simulation;
 
 import ch.ge.ve.protopoc.service.algorithm.VoteConfirmationVoterAlgorithms;
-import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException;
 import ch.ge.ve.protopoc.service.exception.VoteCastingException;
 import ch.ge.ve.protopoc.service.exception.VoteConfirmationException;
 import ch.ge.ve.protopoc.service.model.CodeSheet;
 import ch.ge.ve.protopoc.service.model.VotingPageData;
 import ch.ge.ve.protopoc.service.protocol.VotingClientService;
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Random;
  * selections on elections
  */
 public class VoterSimulator {
+    private static final Logger log = LoggerFactory.getLogger(VoterSimulator.class);
     private final Integer voterIndex;
     private final VotingClientService votingClient;
     private final VoteConfirmationVoterAlgorithms voteConfirmationVoterAlgorithms;
@@ -32,33 +34,51 @@ public class VoterSimulator {
     }
 
     public void sendCodeSheet(CodeSheet codeSheet) {
-        Preconditions.checkState(codeSheet == null,
-                "The code sheet may not be updated once set");
+        Preconditions.checkState(this.codeSheet == null,
+                String.format("The code sheet may not be updated once set (at voter %d)", voterIndex));
         this.codeSheet = codeSheet;
     }
 
-    public void vote() throws IncompatibleParametersException, VoteCastingException, ReturnCodesNotMatchingException,
-            VoteConfirmationException, FinalizationCodeNotMatchingException {
+    public void vote() {
         Preconditions.checkState(codeSheet != null,
                 "The voter needs their code sheet to vote");
 
+        log.info(String.format("Voter %d starting vote", voterIndex));
         VotingPageData votingPageData = votingClient.startVoteSession(voterIndex);
 
         List<Integer> selections = pickAtRandom(
                 votingPageData.getSelectionCounts(),
                 votingPageData.getCandidateCounts());
 
-        byte[][] returnCodes = votingClient.sumbitVote(codeSheet.getX_i(), selections);
+        byte[][] returnCodes;
+        try {
+            log.info(String.format("Voter %d submitting vote", voterIndex));
+            returnCodes = votingClient.sumbitVote(codeSheet.getX_i(), selections);
+        } catch (VoteCastingException e) {
+            log.error(String.format("Voter %d: error during vote casting", voterIndex), e);
+            throw new VoteProcessException(e);
+        }
 
+        log.info(String.format("Voter %d checking return codes", voterIndex));
         if (!voteConfirmationVoterAlgorithms.checkReturnCodes(codeSheet.getRc_i(), returnCodes, selections)) {
-            throw new ReturnCodesNotMatchingException("Return codes do not match");
+            throw new VoteProcessException(new ReturnCodesNotMatchingException("Return codes do not match"));
         }
 
-        byte[] finalizationCode = votingClient.confirmVote(codeSheet.getY_i());
+        byte[] finalizationCode;
+        try {
+            log.info(String.format("Voter %d confirming vote", voterIndex));
+            finalizationCode = votingClient.confirmVote(codeSheet.getY_i());
+        } catch (VoteConfirmationException e) {
+            log.error(String.format("Voter %d: error during vote confirmation", voterIndex), e);
+            throw new VoteProcessException(e);
+        }
 
+        log.info(String.format("Voter %d checking finalizaztion code", voterIndex));
         if (!voteConfirmationVoterAlgorithms.checkFinalizationCode(codeSheet.getF_i(), finalizationCode)) {
-            throw new FinalizationCodeNotMatchingException("Finalization code does not match");
+            throw new VoteProcessException(new FinalizationCodeNotMatchingException("Finalization code does not match"));
         }
+
+        log.info(String.format("Voter %d done voting", voterIndex));
     }
 
     private List<Integer> pickAtRandom(List<Integer> selectionCounts, List<Integer> candidateCounts) {
@@ -66,7 +86,7 @@ public class VoterSimulator {
                 "The size of both lists should be identical");
 
         List<Integer> selections = new ArrayList<>();
-        int n_offset = 0;
+        int n_offset = 1;
 
         for (int i = 0; i < selectionCounts.size(); i++) {
             int numberOfSelections = selectionCounts.get(i);

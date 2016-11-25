@@ -1,5 +1,6 @@
 package ch.ge.ve.protopoc.service.model;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -14,6 +15,8 @@ public class ElectionSet {
     private final List<Election> elections;
 
     public ElectionSet(List<Voter> voters, List<Candidate> candidates, List<Election> elections) {
+        Preconditions.checkArgument(candidates.size() ==
+                elections.stream().map(Election::getNumberOfCandidates).reduce((a, b) -> a + b).orElse(0));
         this.voters = voters;
         this.candidates = candidates;
         this.elections = elections;

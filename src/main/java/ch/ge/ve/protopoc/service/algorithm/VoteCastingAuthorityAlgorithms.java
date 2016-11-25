@@ -189,7 +189,9 @@ public class VoteCastingAuthorityAlgorithms {
                         conversion.toByteArray(point.x, upper_l_m / 2),
                         conversion.toByteArray(point.y, upper_l_m / 2)
                 );
-                bold_c[y] = ByteArrayUtils.xor(M_y, hash.hash(bold_u.get(y).modPow(r_j, p)));
+                bold_c[y] = ByteArrayUtils.xor(M_y, Arrays.copyOf(
+                        hash.hash(bold_u.get(y).modPow(r_j, p)),
+                        upper_l_m));
             }
             n_offset += n_j;
 

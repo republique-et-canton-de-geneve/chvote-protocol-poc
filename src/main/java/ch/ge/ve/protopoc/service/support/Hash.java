@@ -21,11 +21,11 @@ public class Hash {
         this.conversion = conversion;
 
         MessageDigest messageDigest = newMessageDigest();
-        if (messageDigest.getDigestLength() * 8 != securityParameters.l) {
+        if (messageDigest.getDigestLength() * 8 < securityParameters.l) {
             throw new IllegalArgumentException(
                     String.format(
-                            "The length of the message digest should match the expected output length. " +
-                                    "Got %d expected %d",
+                            "The length of the message digest should be greater or equal to the expected output " +
+                                    "length. Got %d expected %d",
                             messageDigest.getDigestLength() * 8,
                             securityParameters.l));
         }

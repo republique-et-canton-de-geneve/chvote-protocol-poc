@@ -58,7 +58,7 @@ public class VoteConfirmationClientAlgorithms {
         for (int j = 0; j < publicParameters.getS(); j++) {
             List<Point> bold_p_j = bold_P.get(j);
             List<BigInteger> bold_y_j = getValues(bold_p_j, bold_k);
-            BigInteger y_j = conversion.toInteger(hash.hash(bold_y_j)).mod(q_circ);
+            BigInteger y_j = conversion.toInteger(hash.hash(bold_y_j.toArray())).mod(q_circ);
             y_js.add(y_j);
         }
         BigInteger y = conversion.toInteger(Y).add(

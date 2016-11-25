@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,10 +28,12 @@ public class ElectionPreparationAlgorithms {
     private final Conversion conversion = new Conversion();
     private final PolynomialAlgorithms polynomialAlgorithms;
     private final int s;
+    private final PublicParameters publicParameters;
 
     public ElectionPreparationAlgorithms(Hash hash, RandomGenerator randomGenerator, PublicParameters publicParameters) {
         this.hash = hash;
         this.randomGenerator = randomGenerator;
+        this.publicParameters = publicParameters;
         q_x = BigIntegers.TWO.pow(publicParameters.getL_x()).divide(BigInteger.valueOf(publicParameters.getS()));
         q_y = BigIntegers.TWO.pow(publicParameters.getL_y()).divide(BigInteger.valueOf(publicParameters.getS()));
         identificationGroup = publicParameters.getIdentificationGroup();
@@ -80,11 +83,11 @@ public class ElectionPreparationAlgorithms {
     public SecretVoterData genSecretVoterData(List<Point> points) {
         BigInteger x = randomGenerator.randomInZq(q_x);
         BigInteger y = randomGenerator.randomInZq(q_y);
-        byte[] F = hash.hash(points.toArray());
+        byte[] F = Arrays.copyOf(hash.hash(points.toArray()), publicParameters.getL_f() / 8);
         byte[][] rc = new byte[points.size()][];
 
         for (int i = 0; i < points.size(); i++) {
-            rc[i] = hash.hash(points.get(i));
+            rc[i] = Arrays.copyOf(hash.hash(points.get(i)), publicParameters.getL_r() / 8);
         }
 
         return new SecretVoterData(x, y, F, rc);

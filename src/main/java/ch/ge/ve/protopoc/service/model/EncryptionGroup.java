@@ -33,8 +33,8 @@ public class EncryptionGroup {
         Preconditions.checkArgument(p.isProbablePrime(100));
         Preconditions.checkArgument(q.isProbablePrime(80));
         Preconditions.checkArgument(q.bitLength() == p.bitLength() - 1);
-        Preconditions.checkArgument(g.compareTo(BigInteger.ZERO) != 0);
-        Preconditions.checkArgument(h.compareTo(BigInteger.ZERO) != 0);
+        Preconditions.checkArgument(g.compareTo(BigInteger.ONE) > 0);
+        Preconditions.checkArgument(h.compareTo(BigInteger.ONE) > 0);
         this.p = p;
         this.q = q;
         this.g = g;
@@ -55,5 +55,15 @@ public class EncryptionGroup {
 
     public BigInteger getH() {
         return h;
+    }
+
+    @Override
+    public String toString() {
+        return "EncryptionGroup{" +
+                "p=" + p +
+                ", q=" + q +
+                ", g=" + g +
+                ", h=" + h +
+                '}';
     }
 }

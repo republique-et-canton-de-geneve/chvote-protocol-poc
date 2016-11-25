@@ -19,7 +19,8 @@ public class VoteConfirmationVoterAlgorithms {
      */
     public boolean checkReturnCodes(byte[][] bold_rc, byte[][] bold_rc_prime, List<Integer> bold_s) {
         for (int i = 0; i < bold_s.size(); i++) {
-            if (!Arrays.equals(bold_rc[bold_s.get(i)], bold_rc_prime[i])) {
+            // selections are 1-based
+            if (!Arrays.equals(bold_rc[bold_s.get(i) - 1], bold_rc_prime[i])) {
                 return false;
             }
         }

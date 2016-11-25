@@ -33,9 +33,11 @@ public class CodeSheetPreparationAlgorithms {
      * @return all the relevant information combined for printing on the code sheets
      */
     public List<CodeSheet> getSheets(ElectionSet electionSet, List<List<SecretVoterData>> codeSheetData) {
-        Preconditions.checkArgument(codeSheetData.size() == electionSet.getVoters().size(),
-                String.format("|D| [%d] != |v| [%d]", codeSheetData.size(), electionSet.getVoters().size()));
-        Preconditions.checkArgument(codeSheetData.stream().allMatch(d_i -> d_i.size() == s));
+        Preconditions.checkArgument(codeSheetData.size() == publicParameters.getS(),
+                String.format("|D| [%d] != s [%d]", codeSheetData.size(), publicParameters.getS()));
+        Preconditions.checkArgument(codeSheetData.stream().allMatch(
+                secretVoterDatas -> secretVoterDatas.size() == electionSet.getVoters().size()),
+                "Each authority should have submitted one code sheet per voter");
 
         List<CodeSheet> codeSheets = new ArrayList<>();
         for (int i = 0; i < electionSet.getVoters().size(); i++) {

@@ -154,7 +154,7 @@ public class VoteCastingClientAlgorithms {
         BigInteger omega_3 = randomGenerator.randomInZq(q);
 
         BigInteger t_1 = g_circ.modPow(omega_1, p_circ);
-        BigInteger t_2 = omega_2.multiply(pk.getPublicKey().modPow(omega_3, p).mod(p));
+        BigInteger t_2 = omega_2.multiply(pk.getPublicKey().modPow(omega_3, p)).mod(p);
         BigInteger t_3 = g.modPow(omega_3, p);
 
         BigInteger[] v = new BigInteger[]{x_circ, a, b};
@@ -214,14 +214,20 @@ public class VoteCastingClientAlgorithms {
         List<BigInteger> d = beta.getD();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger p_prime = publicParameters.getPrimeField().getP_prime();
+
         int L_m = publicParameters.getL_m() / 8;
 
         int i = 0; // 0 based indices in java, as opposed to the 1-based specification
         for (int j = 0; j < bold_k.size(); j++) {
             for (int l = 0; l < bold_k.get(j); l++) {
-                byte[] M_i = ByteArrayUtils.xor(c[bold_s.get(i)], hash.hash(b.get(i).multiply(d.get(j).modPow(bold_r.get(j).negate(), p)).mod(p)));
-                BigInteger x_i = conversion.toInteger(Arrays.copyOfRange(M_i, 0, L_m / 2 + 1));
-                BigInteger y_i = conversion.toInteger(Arrays.copyOfRange(M_i, L_m / 2 + 1, M_i.length));
+                byte[] M_i = ByteArrayUtils.xor(
+                        // selections are 1-based
+                        c[bold_s.get(i) - 1],
+                        Arrays.copyOf(
+                                hash.hash(b.get(i).multiply(d.get(j).modPow(bold_r.get(j).negate(), p)).mod(p)),
+                                L_m));
+                BigInteger x_i = conversion.toInteger(Arrays.copyOfRange(M_i, 0, L_m / 2));
+                BigInteger y_i = conversion.toInteger(Arrays.copyOfRange(M_i, L_m / 2, M_i.length));
                 if (x_i.compareTo(p_prime) >= 0 || y_i.compareTo(p_prime) >= 0) {
                     throw new InvalidObliviousTransferResponseException("x_i >= p' or y_i >= p'");
                 }
@@ -247,7 +253,9 @@ public class VoteCastingClientAlgorithms {
         for (int i = 0; i < length; i++) {
             byte[] rc_i = new byte[publicParameters.getL_r() / 8];
             for (int j = 0; j < publicParameters.getS(); j++) {
-                rc_i = ByteArrayUtils.xor(rc_i, hash.hash(bold_P.get(j).get(i)));
+                rc_i = ByteArrayUtils.xor(rc_i, Arrays.copyOf(
+                        hash.hash(bold_P.get(j).get(i)),
+                        publicParameters.getL_r() / 8));
             }
             rc[i] = rc_i;
         }
