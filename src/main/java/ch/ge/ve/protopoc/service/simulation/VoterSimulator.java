@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Simulation class for a Voter, with interfaces to receive the code sheet, initiate a voting client, and perform
@@ -49,6 +50,7 @@ public class VoterSimulator {
         List<Integer> selections = pickAtRandom(
                 votingPageData.getSelectionCounts(),
                 votingPageData.getCandidateCounts());
+        log.info(String.format("Voter %d selections: %s", voterIndex, selections));
 
         byte[][] returnCodes;
         try {
@@ -104,6 +106,6 @@ public class VoterSimulator {
             n_offset += numberOfCandidates;
         }
 
-        return selections;
+        return selections.stream().sorted().collect(Collectors.toList());
     }
 }

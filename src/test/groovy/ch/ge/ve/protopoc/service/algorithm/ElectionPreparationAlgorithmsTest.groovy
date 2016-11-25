@@ -25,6 +25,11 @@ class ElectionPreparationAlgorithmsTest extends Specification {
 
     void setup() {
         publicParameters.getS() >> 4
+        publicParameters.l_x >> 8
+        publicParameters.l_y >> 8
+        publicParameters.l_f >> 8
+        publicParameters.l_r >> 8
+        publicParameters.l_m >> 16
         publicParameters.identificationGroup >> identificationGroup
         publicParameters.primeField >> primeField
 

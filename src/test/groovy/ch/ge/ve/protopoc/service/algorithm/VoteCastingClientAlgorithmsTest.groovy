@@ -35,7 +35,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         identificationGroup.g_circ >> THREE
         publicParameters.primeField >> primeField
         primeField.p_prime >> FIVE
-        publicParameters.l_m >> 16
+        publicParameters.l_m >> 32
         publicParameters.l_r >> 16
         publicParameters.s >> 2
 
@@ -153,7 +153,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         hash.hash(ONE) >> ([0xA0, 0xB3, 0xC0, 0xD0] as byte[]) // b_i * d_j^{-r_i} mod p = 2 * 4^-5 mod 7 = 1
 
         when:
-        def pointMatrix = voteCastingClient.getPointMatrix([beta_1, beta_2], [1], [2], [FIVE])
+        def pointMatrix = voteCastingClient.getPointMatrix([beta_1, beta_2], [1], [3], [FIVE])
 
         then:
         pointMatrix == [
@@ -171,7 +171,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         hash.hash(THREE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 7 = 3
 
         when:
-        def points = voteCastingClient.getPoints(beta, [1], [2], [FIVE])
+        def points = voteCastingClient.getPoints(beta, [1], [3], [FIVE])
 
         then:
         points == [new Point(FOUR, ONE)]

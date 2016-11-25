@@ -140,7 +140,8 @@ public class VoteCastingAuthorityAlgorithms {
     public ObliviousTransferResponseAndRand genResponse(Integer i, List<BigInteger> bold_a, EncryptionPublicKey pk,
                                                         List<Integer> bold_n,
                                                         List<List<Integer>> bold_K,
-                                                        List<List<Point>> bold_P) throws IncompatibleParametersException {
+                                                        List<List<Point>> bold_P)
+            throws IncompatibleParametersException {
         Preconditions.checkArgument(bold_K.size() > 0);
         final int t = bold_K.get(0).size();
         Preconditions.checkArgument(bold_K.stream().allMatch(bold_k_i -> bold_k_i.size() == t));
@@ -183,14 +184,14 @@ public class VoteCastingAuthorityAlgorithms {
 
             Integer n_j = bold_n.get(j);
             for (int l = 0; l < n_j; l++) {
-                int y = n_offset + l;
-                Point point = bold_P.get(i).get(y);
-                byte[] M_y = Arrays.concatenate(
-                        conversion.toByteArray(point.x, upper_l_m / 2),
-                        conversion.toByteArray(point.y, upper_l_m / 2)
+                int v = n_offset + l;
+                Point point_iv = bold_P.get(i).get(v);
+                byte[] M_v = Arrays.concatenate(
+                        conversion.toByteArray(point_iv.x, upper_l_m / 2),
+                        conversion.toByteArray(point_iv.y, upper_l_m / 2)
                 );
-                bold_c[y] = ByteArrayUtils.xor(M_y, Arrays.copyOf(
-                        hash.hash(bold_u.get(y).modPow(r_j, p)),
+                bold_c[v] = ByteArrayUtils.xor(M_v, Arrays.copyOf(
+                        hash.hash(bold_u.get(v).modPow(r_j, p)),
                         upper_l_m));
             }
             n_offset += n_j;

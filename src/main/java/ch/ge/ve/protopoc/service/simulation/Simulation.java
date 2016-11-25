@@ -61,7 +61,12 @@ public class Simulation {
         log.info("Starting simulation");
         Simulation simulation = new Simulation();
 
-        simulation.initializeSettings();
+        int level = 1;
+        if (args.length == 1) {
+            level = Integer.parseInt(args[0]);
+        }
+
+        simulation.initializeSettings(level);
         simulation.createComponents();
 
         simulation.run();
@@ -154,9 +159,9 @@ public class Simulation {
         hash = new Hash("SHA-512", "SUN", publicParameters.getSecurityParameters(), conversion);
     }
 
-    private void initializeSettings() {
+    private void initializeSettings(int level) {
         log.info("Initializing settings");
-        createPublicParameters();
+        createPublicParameters(level);
         createElectionSet();
         log.info("Settings initialiazed");
     }
@@ -165,9 +170,9 @@ public class Simulation {
         DomainOfInfluence canton = new DomainOfInfluence("canton");
         DomainOfInfluence municipality1 = new DomainOfInfluence("municipality1");
 
-        List<Voter> voters = IntStream.range(0, 100).mapToObj(i -> new Voter()).collect(Collectors.toList());
+        List<Voter> voters = IntStream.range(0, 10).mapToObj(i -> new Voter()).collect(Collectors.toList());
         voters.forEach(v -> v.addDomainsOfInfluence(canton));
-        voters.subList(90, 100).forEach(v -> v.addDomainsOfInfluence(municipality1));
+        voters.subList(0, 10).forEach(v -> v.addDomainsOfInfluence(municipality1));
 
         Election cantonalVotation1 = new Election(3, 1, canton);
         Election cantonalVotation2 = new Election(3, 1, canton);
@@ -185,12 +190,46 @@ public class Simulation {
         electionSet = new ElectionSet(voters, candidates, elections);
     }
 
-    private void createPublicParameters() {
+    private void createPublicParameters(int level) {
         log.info("creating public parameters");
-        SecurityParameters securityParameters = new SecurityParameters(112, 112, 256, 0.999);
+        switch (level) {
+            case 0:
+                createSecurityLevel0Parameters();
+                break;
+            case 1:
+                createSecurityLevel1Parameters();
+                break;
+            case 2:
+                createSecurityLevel2Parameters();
+                break;
+        }
+        log.info("public parameters created");
+    }
 
-        EncryptionGroup encryptionGroup = createEncryptionGroup();
-        IdentificationGroup identificationGroup = createIdentificationGroup(securityParameters, encryptionGroup);
+    private void createSecurityLevel0Parameters() {
+        SecurityParameters securityParameters = new SecurityParameters(3, 3, 8, 0.9);
+
+        EncryptionGroup encryptionGroup = new EncryptionGroup(SimulationConstants.p_RC0e, SimulationConstants.q_RC0e,
+                SimulationConstants.g_RC0e, SimulationConstants.h_RC0e);
+        IdentificationGroup identificationGroup = new IdentificationGroup(SimulationConstants.p_circ_RC0s,
+                SimulationConstants.q_circ_RC0s, SimulationConstants.g_circ_RC0s);
+        PrimeField primeField = createPrimeField(securityParameters);
+
+        int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
+
+        publicParameters = new PublicParameters(securityParameters,
+                encryptionGroup, identificationGroup, primeField,
+                2 * securityParameters.mu, 2 * securityParameters.mu,
+                8, 8, l_m, 4);
+    }
+
+    private void createSecurityLevel1Parameters() {
+        SecurityParameters securityParameters = new SecurityParameters(80, 80, 160, 0.999);
+
+        EncryptionGroup encryptionGroup = new EncryptionGroup(SimulationConstants.p_RC1e, SimulationConstants.q_RC1e,
+                SimulationConstants.g_RC1e, SimulationConstants.h_RC1e);
+        IdentificationGroup identificationGroup = new IdentificationGroup(SimulationConstants.p_circ_RC1s,
+                SimulationConstants.q_circ_RC1s, SimulationConstants.g_circ_RC1s);
         PrimeField primeField = createPrimeField(securityParameters);
 
         int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
@@ -199,7 +238,21 @@ public class Simulation {
                 encryptionGroup, identificationGroup, primeField,
                 2 * securityParameters.mu, 2 * securityParameters.mu,
                 16, 16, l_m, 4);
-        log.info("public parameters created");
+    }
+
+    private void createSecurityLevel2Parameters() {
+        SecurityParameters securityParameters = new SecurityParameters(112, 112, 256, 0.999);
+
+        EncryptionGroup encryptionGroup = createEncryptionGroup(SimulationConstants.p2048);
+        IdentificationGroup identificationGroup = createIdentificationGroup(SimulationConstants.p_circ_2048, securityParameters);
+        PrimeField primeField = createPrimeField(securityParameters);
+
+        int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
+
+        publicParameters = new PublicParameters(securityParameters,
+                encryptionGroup, identificationGroup, primeField,
+                2 * securityParameters.mu, 2 * securityParameters.mu,
+                16, 16, l_m, 4);
     }
 
     private PrimeField createPrimeField(SecurityParameters securityParameters) {
@@ -213,19 +266,17 @@ public class Simulation {
         return primeField;
     }
 
-    private IdentificationGroup createIdentificationGroup(SecurityParameters securityParameters,
-                                                          EncryptionGroup encryptionGroup) {
+    private IdentificationGroup createIdentificationGroup(BigInteger p_circ, SecurityParameters securityParameters) {
         log.info("creating identification group");
         IdentificationGroup identificationGroup = null;
         while (identificationGroup == null) {
-            BigInteger p_circ = SimulationConstants.p_prime_2048;
             BigInteger p_circMinusOne = p_circ.subtract(ONE);
 
-            BigInteger h = TWO;
-            while (p_circMinusOne.mod(h).compareTo(ZERO) != 0) {
-                h = h.add(ONE);
+            BigInteger k = TWO;
+            while (p_circMinusOne.mod(k).compareTo(ZERO) != 0) {
+                k = k.add(ONE);
             }
-            BigInteger q_circ = p_circMinusOne.divide(h);
+            BigInteger q_circ = p_circMinusOne.divide(k);
             if (!q_circ.isProbablePrime(100)) {
                 log.info("q_circ is not prime");
                 continue;
@@ -236,10 +287,10 @@ public class Simulation {
             }
 
             BigInteger i = randomGenerator.randomInZq(p_circ);
-            while (i.modPow(h, p_circ).compareTo(ONE) == 0) {
+            while (i.modPow(k, p_circ).compareTo(ONE) == 0) {
                 i = randomGenerator.randomInZq(p_circ);
             }
-            BigInteger g_circ = i.modPow(h, p_circ);
+            BigInteger g_circ = i.modPow(k, p_circ);
 
             try {
                 identificationGroup = new IdentificationGroup(p_circ, q_circ, g_circ);
@@ -252,12 +303,11 @@ public class Simulation {
         return identificationGroup;
     }
 
-    private EncryptionGroup createEncryptionGroup() {
+    private EncryptionGroup createEncryptionGroup(BigInteger p) {
         log.info("creating encryption group");
         EncryptionGroup encryptionGroup = null;
 
         while (encryptionGroup == null) {
-            BigInteger p = SimulationConstants.p2048;
             if (!p.isProbablePrime(100)) {
                 log.info("p is not prime...");
                 continue;

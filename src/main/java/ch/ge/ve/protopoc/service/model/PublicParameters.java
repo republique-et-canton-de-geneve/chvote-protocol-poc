@@ -51,10 +51,8 @@ public class PublicParameters {
         Preconditions.checkArgument(encryptionGroup.getH().compareTo(BigIntegers.TWO) >= 0,
                 "");
         Preconditions.checkArgument(2 * securityParameters.mu <= identificationGroup.getQ_circ().bitLength());
-        Preconditions.checkArgument(l_x % 8 == 0, "l_x needs to be a multiple of 8");
         Preconditions.checkArgument(2 * securityParameters.mu <= l_x && l_x <= identificationGroup.getQ_circ().bitLength(),
                 "l_x needs to be comprised between 2*mu and the length of q_circ");
-        Preconditions.checkArgument(l_y % 8 == 0, "l_y needs to be a multiple of 8");
         Preconditions.checkArgument(2 * securityParameters.mu <= l_y && l_y <= identificationGroup.getQ_circ().bitLength(),
                 "l_y needs to be comprised between 2*mu and the length of q_circ");
         Preconditions.checkArgument(l_r % 8 == 0, "l_r needs to be a multiple of 8");

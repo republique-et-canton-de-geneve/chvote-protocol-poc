@@ -37,6 +37,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         publicParameters.primeField >> primeField
         primeField.p_prime >> SEVEN
         publicParameters.s >> 4
+        publicParameters.l_f >> 16
 
         voteConfirmationAuthority =
                 new VoteConfirmationAuthorityAlgorithms(publicParameters, generalAlgorithms, voteCastingAuthority, hash)
@@ -163,6 +164,8 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         ]
         and: "ballots that are not found in the ballot list"
         voteCastingAuthority.hasBallot(2, ballotList) >> false
+        and: "some random hash"
+        hash.hash(_) >> ([0x04, 0x01] as byte[])
 
         when: "a call to getFinalization is performed"
         voteConfirmationAuthority.getFinalization(2, pointMatrix, ballotList)

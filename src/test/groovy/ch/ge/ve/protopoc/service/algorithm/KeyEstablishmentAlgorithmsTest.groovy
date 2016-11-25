@@ -38,7 +38,7 @@ class KeyEstablishmentAlgorithmsTest extends Specification {
     }
 
     def "getPublicKey"() {
-        def pubKeys = [new EncryptionPublicKey(SEVEN, encryptionGroup), new EncryptionPublicKey(THREE, encryptionGroup)] as EncryptionPublicKey[]
+        def pubKeys = [new EncryptionPublicKey(SEVEN, encryptionGroup), new EncryptionPublicKey(THREE, encryptionGroup)]
 
         when:
         def publicKey = keyEstablishment.getPublicKey(pubKeys)
