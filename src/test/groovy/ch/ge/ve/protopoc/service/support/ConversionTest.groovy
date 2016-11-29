@@ -102,15 +102,6 @@ class ConversionTest extends Specification {
         BigInteger.valueOf(456975) | 4 | 'A'..'Z' || "ZZZZ"
     }
 
-    def "someUselesstest"() {
-        given:
-        def range = 'A'..'Z' as List<Character>
-//        range.each { print(it) }
-
-        expect:
-        range.indexOf('A') == 0
-    }
-
     def "toInteger(String, List<Character>"() {
         expect:
         conversion.toInteger(S, (from as Character)..(to as Character)) == x
