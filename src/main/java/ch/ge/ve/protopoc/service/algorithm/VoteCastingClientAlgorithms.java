@@ -29,7 +29,7 @@ public class VoteCastingClientAlgorithms {
     private final GeneralAlgorithms generalAlgorithms;
     private final Conversion conversion = new Conversion();
 
-    public VoteCastingClientAlgorithms(PublicParameters publicParameters, Hash hash, RandomGenerator randomGenerator, GeneralAlgorithms generalAlgorithms) {
+    public VoteCastingClientAlgorithms(PublicParameters publicParameters, GeneralAlgorithms generalAlgorithms, RandomGenerator randomGenerator, Hash hash) {
         this.publicParameters = publicParameters;
         this.hash = hash;
         this.randomGenerator = randomGenerator;

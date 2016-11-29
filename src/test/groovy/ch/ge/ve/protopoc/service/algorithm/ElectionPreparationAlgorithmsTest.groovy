@@ -39,7 +39,7 @@ class ElectionPreparationAlgorithmsTest extends Specification {
 
         primeField.p_prime >> SEVEN
 
-        electionPreparation = new ElectionPreparationAlgorithms(hash, randomGenerator, publicParameters)
+        electionPreparation = new ElectionPreparationAlgorithms(publicParameters, randomGenerator, hash)
     }
 
     def "genElectorateData should generate the expected electorate data"() {

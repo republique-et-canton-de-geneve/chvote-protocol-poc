@@ -39,7 +39,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         publicParameters.l_r >> 16
         publicParameters.s >> 2
 
-        voteCastingClient = new VoteCastingClientAlgorithms(publicParameters, hash, randomGenerator, generalAlgorithms)
+        voteCastingClient = new VoteCastingClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
     }
 
     def "genBallot should generate a valid ballot (incl. OT query and used randomness)"() {

@@ -37,7 +37,7 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         primeField.p_prime >> SEVEN
         publicParameters.s >> 4
 
-        voteConfirmationClient = new VoteConfirmationClientAlgorithms(publicParameters, randomGenerator, generalAlgorithms, hash)
+        voteConfirmationClient = new VoteConfirmationClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
     }
 
     def "genConfirmation should generate the expected confirmation"() {

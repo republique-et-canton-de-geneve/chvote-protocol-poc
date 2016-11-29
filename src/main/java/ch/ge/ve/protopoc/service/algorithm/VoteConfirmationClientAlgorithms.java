@@ -27,7 +27,7 @@ public class VoteConfirmationClientAlgorithms {
     private final Hash hash;
     private final Conversion conversion = new Conversion();
 
-    public VoteConfirmationClientAlgorithms(PublicParameters publicParameters, RandomGenerator randomGenerator, GeneralAlgorithms generalAlgorithms, Hash hash) {
+    public VoteConfirmationClientAlgorithms(PublicParameters publicParameters, GeneralAlgorithms generalAlgorithms, RandomGenerator randomGenerator, Hash hash) {
         this.publicParameters = publicParameters;
         this.randomGenerator = randomGenerator;
         this.generalAlgorithms = generalAlgorithms;

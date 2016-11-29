@@ -144,12 +144,12 @@ public class Simulation {
         log.info("instantiating algorithms classes");
         generalAlgorithms = new GeneralAlgorithms(new JacobiSymbol(), hash, conversion, publicParameters.getEncryptionGroup());
         keyEstablishmentAlgorithms = new KeyEstablishmentAlgorithms(randomGenerator);
-        electionPreparationAlgorithms = new ElectionPreparationAlgorithms(hash, randomGenerator, publicParameters);
+        electionPreparationAlgorithms = new ElectionPreparationAlgorithms(publicParameters, randomGenerator, hash);
         voteCastingAuthorityAlgorithms = new VoteCastingAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);
         voteConfirmationAuthorityAlgorithms = new VoteConfirmationAuthorityAlgorithms(publicParameters, generalAlgorithms, voteCastingAuthorityAlgorithms, hash);
         codeSheetPreparationAlgorithms = new CodeSheetPreparationAlgorithms(publicParameters);
-        voteCastingClientAlgorithms = new VoteCastingClientAlgorithms(publicParameters, hash, randomGenerator, generalAlgorithms);
-        voteConfirmationClientAlgorithms = new VoteConfirmationClientAlgorithms(publicParameters, randomGenerator, generalAlgorithms, hash);
+        voteCastingClientAlgorithms = new VoteCastingClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);
+        voteConfirmationClientAlgorithms = new VoteConfirmationClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);
         voteConfirmationVoterAlgorithms = new VoteConfirmationVoterAlgorithms();
         log.info("instantiated all algorithm classes");
     }

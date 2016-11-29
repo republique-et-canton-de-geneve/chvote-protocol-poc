@@ -30,7 +30,7 @@ public class ElectionPreparationAlgorithms {
     private final int s;
     private final PublicParameters publicParameters;
 
-    public ElectionPreparationAlgorithms(Hash hash, RandomGenerator randomGenerator, PublicParameters publicParameters) {
+    public ElectionPreparationAlgorithms(PublicParameters publicParameters, RandomGenerator randomGenerator, Hash hash) {
         this.hash = hash;
         this.randomGenerator = randomGenerator;
         this.publicParameters = publicParameters;
