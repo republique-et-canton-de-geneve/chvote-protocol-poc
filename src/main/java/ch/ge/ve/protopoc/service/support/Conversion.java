@@ -1,6 +1,6 @@
 package ch.ge.ve.protopoc.service.support;
 
-import org.bouncycastle.util.Arrays;
+import com.google.common.base.Preconditions;
 
 import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
@@ -14,27 +14,39 @@ public class Conversion {
     private static final BigInteger BYTE_MULTIPLIER = BigInteger.valueOf(256L);
 
     /**
-     * As described in section 2.2.1 of specification
+     * Algorithm 2.1
      *
-     * @param bigInteger the integer to be converted
-     * @param byteLength the target length (in bytes)
-     * @return the converted value, left-padded with <tt>0</tt>s if length is smaller than target, or trucated left if its larger
-     */
-    public byte[] toByteArray(BigInteger bigInteger, int byteLength) {
-        return Arrays.reverse(Arrays.copyOf(Arrays.reverse(toByteArray(bigInteger)), byteLength));
-    }
-
-    /**
-     * As described in section 2.2.1 of specification
      * @param x the integer to be converted
      * @return the byte array corresponding to the integer
      */
     public byte[] toByteArray(BigInteger x) {
-        return x.toByteArray();
+        return toByteArray(x, (int) Math.ceil(x.bitLength() / 8.0));
+    }
+
+    /**
+     * Algorithm 2.2
+     *
+     * @param x the integer to be converted
+     * @param n the target length (in bytes)
+     * @return the converted value, left-padded with <tt>0</tt>s if length is smaller than target, or trucated left if its larger
+     */
+    public byte[] toByteArray(BigInteger x, int n) {
+        Preconditions.checkArgument(x.signum() >= 0, "x must be non-negative");
+        byte[] byteArray = new byte[n];
+
+        BigInteger current = x;
+        for (int i = 1; i <= n; i++) {
+            BigInteger[] divideAndRemainder = current.divideAndRemainder(BYTE_MULTIPLIER);
+            current = divideAndRemainder[0];
+            byteArray[n - i] = divideAndRemainder[1].byteValue();
+        }
+
+        return byteArray;
     }
 
     /**
      * As described in section 2.2.2 of specification
+     *
      * @param byteArray the byte array to be converted
      * @return the corresponding integer (unsigned, non-injective conversion)
      */
@@ -50,6 +62,7 @@ public class Conversion {
 
     /**
      * As described in section 2.2.3 of specification
+     *
      * @param s the string to be converted
      * @return the corresponding byte array
      */
@@ -59,6 +72,7 @@ public class Conversion {
 
     /**
      * Description in section 2.2.4 needs more work, temporarily using Base64.
+     *
      * @param byteArray the byte array to represent as String
      * @return the corresponding string
      */

@@ -12,24 +12,39 @@ class ConversionTest extends Specification {
         conversion = new Conversion()
     }
 
+    def "toByteArray(BigInteger, int)"() {
+        expect:
+        conversion.toByteArray(x, n) == (bytes as byte[])
+
+        where:
+        x                       | n || bytes
+        BigInteger.valueOf(0)   | 0 || []
+        BigInteger.valueOf(0)   | 1 || [0x00]
+        BigInteger.valueOf(0)   | 2 || [0x00, 0x00]
+        BigInteger.valueOf(0)   | 3 || [0x00, 0x00, 0x00]
+        BigInteger.valueOf(255) | 1 || [0xFF]
+        BigInteger.valueOf(255) | 2 || [0x00, 0xFF]
+        BigInteger.valueOf(255) | 3 || [0x00, 0x00, 0xFF]
+        BigInteger.valueOf(256) | 2 || [0x01, 0x00]
+        BigInteger.valueOf(256) | 3 || [0x00, 0x01, 0x00]
+        BigInteger.valueOf(256) | 4 || [0x00, 0x00, 0x01, 0x00]
+
+    }
+
     def "toByteArray(BigInteger)"() {
         expect:
         conversion.toByteArray(x) == (bytes as byte[])
 
         where:
-        x                              | bytes
-        BigInteger.valueOf(-128)       | [0x80]
-        BigInteger.valueOf(-1)         | [0xFF]
-        BigInteger.valueOf(0)          | [0x0]
-        BigInteger.valueOf(127)        | [0x7F]
-        BigInteger.valueOf(-32_768)    | [0x80, 0x00]
-        BigInteger.valueOf(-129)       | [0xFF, 0x7F]
-        BigInteger.valueOf(128)        | [0x00, 0x80]
-        BigInteger.valueOf(32_767)     | [0x7F, 0xFF]
-        BigInteger.valueOf(-8_388_608) | [0x80, 0x00, 0x00]
-        BigInteger.valueOf(-32_769)    | [0xFF, 0x7F, 0xFF]
-        BigInteger.valueOf(32_768)     | [0x00, 0x80, 0x00]
-        BigInteger.valueOf(8_388_607)  | [0x7F, 0xFF, 0xFF]
+        x                              || bytes
+        BigInteger.valueOf(0)          || []
+        BigInteger.valueOf(1)          || [0x1]
+        BigInteger.valueOf(255)        || [0xFF]
+        BigInteger.valueOf(256)        || [0x01, 0x00]
+        BigInteger.valueOf(65_535)     || [0xFF, 0xFF]
+        BigInteger.valueOf(65_536)     || [0x01, 0x00, 0x00]
+        BigInteger.valueOf(16_777_215) || [0xFF, 0xFF, 0xFF]
+        BigInteger.valueOf(16_777_216) || [0x01, 0x00, 0x00, 0x00]
     }
 
     def "toInteger"() {
@@ -57,7 +72,7 @@ class ConversionTest extends Specification {
         conversion.toString(bytes as byte[]) == s
 
         where:
-        bytes | s
+        bytes                                                             | s
         [(byte) 0x48, (byte) 0x65, (byte) 0x6C, (byte) 0x6C, (byte) 0x6F] | "SGVsbG8="
     }
 }
