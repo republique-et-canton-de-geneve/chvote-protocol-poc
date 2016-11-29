@@ -59,7 +59,7 @@ class ConversionTest extends Specification {
 
     def "toByteArray(String)"() {
         expect:
-        conversion.toByteArray(s) == bytes
+        conversion.toByteArray(s) == (bytes as byte[])
 
         where:
         s       | bytes
@@ -74,5 +74,59 @@ class ConversionTest extends Specification {
         where:
         bytes                                                             | s
         [(byte) 0x48, (byte) 0x65, (byte) 0x6C, (byte) 0x6C, (byte) 0x6F] | "SGVsbG8="
+    }
+
+    def "toString(BigInteger, int, List<Character>)"() {
+        expect:
+        conversion.toString(x, k, A as List<Character>) == s
+
+        where:
+        x                          | k | A        || s
+        BigInteger.valueOf(0)      | 4 | '0'..'1' || "0000"
+        BigInteger.valueOf(0)      | 0 | '0'..'1' || ""
+        BigInteger.valueOf(1)      | 4 | '0'..'1' || "0001"
+        BigInteger.valueOf(1)      | 1 | '0'..'1' || "1"
+        BigInteger.valueOf(2)      | 4 | '0'..'1' || "0010"
+        BigInteger.valueOf(2)      | 2 | '0'..'1' || "10"
+        BigInteger.valueOf(4)      | 4 | '0'..'1' || "0100"
+        BigInteger.valueOf(4)      | 3 | '0'..'1' || "100"
+        BigInteger.valueOf(8)      | 4 | '0'..'1' || "1000"
+        BigInteger.valueOf(15)     | 4 | '0'..'1' || "1111"
+        BigInteger.valueOf(731)    | 4 | 'A'..'Z' || "ABCD"
+        BigInteger.valueOf(25)     | 1 | 'A'..'Z' || "Z"
+        BigInteger.valueOf(650)    | 2 | 'A'..'Z' || "ZA"
+        BigInteger.valueOf(675)    | 2 | 'A'..'Z' || "ZZ"
+        BigInteger.valueOf(16900)  | 3 | 'A'..'Z' || "ZAA"
+        BigInteger.valueOf(17575)  | 3 | 'A'..'Z' || "ZZZ"
+        BigInteger.valueOf(439400) | 4 | 'A'..'Z' || "ZAAA"
+        BigInteger.valueOf(456975) | 4 | 'A'..'Z' || "ZZZZ"
+    }
+
+    def "someUselesstest"() {
+        given:
+        def range = 'A'..'Z' as List<Character>
+//        range.each { print(it) }
+
+        expect:
+        range.indexOf('A') == 0
+    }
+
+    def "toInteger(String, List<Character>"() {
+        expect:
+        conversion.toInteger(S, (from as Character)..(to as Character)) == x
+
+        where:
+        S      | from | to  || x
+        ""     | '0'  | '1' || BigInteger.valueOf(0)
+        "0001" | '0'  | '1' || BigInteger.valueOf(1)
+        "1000" | '0'  | '1' || BigInteger.valueOf(8)
+        "1111" | '0'  | '1' || BigInteger.valueOf(15)
+        "Z"    | 'A'  | 'Z' || BigInteger.valueOf(25)
+        "ZA"   | 'A'  | 'Z' || BigInteger.valueOf(650)
+        "ZZ"   | 'A'  | 'Z' || BigInteger.valueOf(675)
+        "ZAA"  | 'A'  | 'Z' || BigInteger.valueOf(16900)
+        "ZZZ"  | 'A'  | 'Z' || BigInteger.valueOf(17575)
+        "ZAAA" | 'A'  | 'Z' || BigInteger.valueOf(439400)
+        "ZZZZ" | 'A'  | 'Z' || BigInteger.valueOf(456975)
     }
 }

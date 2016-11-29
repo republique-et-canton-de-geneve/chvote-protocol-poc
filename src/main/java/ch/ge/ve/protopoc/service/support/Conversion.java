@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * This class handles the conversions between strings, byte arrays and integers
@@ -14,7 +15,7 @@ public class Conversion {
     private static final BigInteger BYTE_MULTIPLIER = BigInteger.valueOf(256L);
 
     /**
-     * Algorithm 2.1
+     * Algorithm 2.1: ToByteArray
      *
      * @param x the integer to be converted
      * @return the byte array corresponding to the integer
@@ -24,7 +25,7 @@ public class Conversion {
     }
 
     /**
-     * Algorithm 2.2
+     * Algorithm 2.2: ToByteArray
      *
      * @param x the integer to be converted
      * @param n the target length (in bytes)
@@ -32,6 +33,7 @@ public class Conversion {
      */
     public byte[] toByteArray(BigInteger x, int n) {
         Preconditions.checkArgument(x.signum() >= 0, "x must be non-negative");
+        Preconditions.checkArgument(n >= (int) Math.ceil(x.bitLength() / 8.0));
         byte[] byteArray = new byte[n];
 
         BigInteger current = x;
@@ -45,7 +47,7 @@ public class Conversion {
     }
 
     /**
-     * As described in section 2.2.2 of specification
+     * Algorithm 2.3: ToInteger
      *
      * @param byteArray the byte array to be converted
      * @return the corresponding integer (unsigned, non-injective conversion)
@@ -78,5 +80,53 @@ public class Conversion {
      */
     public String toString(byte[] byteArray) {
         return DatatypeConverter.printBase64Binary(byteArray);
+    }
+
+    /**
+     * Algorithm 2.4: ToString
+     *
+     * @param x the integer to convert
+     * @param k the required String size
+     * @param A the alphabet to be used
+     * @return a string of length k, using alphabet A, and representing x
+     */
+    public String toString(BigInteger x, int k, List<Character> A) {
+        Preconditions.checkArgument(x.signum() >= 0, "x should be a non-negative integer");
+        int alphabetSize = A.size();
+        BigInteger N = BigInteger.valueOf(alphabetSize);
+        Preconditions.checkArgument(N.pow(k).compareTo(x) >= 0,
+                "x is too large to be encoded with k characters of alphabet A");
+
+        StringBuilder sb = new StringBuilder(k);
+        BigInteger current = x;
+        for (int i = 1; i <= k; i++) {
+            BigInteger[] divideAndRemainder = current.divideAndRemainder(N);
+            current = divideAndRemainder[0];
+            // always insert before the previous character
+            sb.insert(0, A.get(divideAndRemainder[1].intValue()));
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Algorithm 2.5: ToInteger
+     *
+     * @param S the string to be converted
+     * @param A the alphabet to be used
+     * @return the corresponding integer value
+     */
+    public BigInteger toInteger(String S, List<Character> A) {
+        BigInteger N = BigInteger.valueOf(A.size());
+
+        BigInteger x = BigInteger.ZERO;
+        for (int i = 0; i < S.length(); i++) {
+            int rank_A = A.indexOf(S.charAt(i));
+            Preconditions.checkArgument(rank_A >= 0,
+                    String.format("character %s not found in alphabet %s", S.charAt(i), A));
+            x = x.multiply(N).add(BigInteger.valueOf(rank_A));
+        }
+
+        return x;
     }
 }
