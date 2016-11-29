@@ -175,9 +175,10 @@ public class VoteCastingAuthorityAlgorithms {
             throw new IncompatibleParametersException(e);
         }
 
+        // u = k_offset + l \in [0, k_ij)
         int k_offset = 0; // index 0 based, as opposed to the specification 1 based
+        // v = n_offset + l \in [0, n_j)
         int n_offset = 0; // same comment
-
 
         for (int j = 0; j < t; j++) {
             BigInteger r_j = randomGenerator.randomInZq(q);
