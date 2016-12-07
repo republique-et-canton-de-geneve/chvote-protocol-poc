@@ -63,7 +63,7 @@ public class VoteCastingClientAlgorithms {
         BigInteger a = computeA(query, p);
         BigInteger r = computeR(query, q);
         BigInteger b = g.modPow(r, p);
-        NonInteractiveZKP pi = genBallotNIZKP(x, u, r, x_circ, a, b, pk);
+        NonInteractiveZKP pi = genBallotProof(x, u, r, x_circ, a, b, pk);
         BallotAndQuery alpha = new BallotAndQuery(x_circ, query.getBold_a(), b, pi);
 
         return new BallotQueryAndRand(alpha, query.getBold_r());
@@ -125,7 +125,7 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.21: GenBallotNIZKP
+     * Algorithm 5.21: GenBallotProof
      *
      * @param x      first half of voting credentials
      * @param u      encoded selections, u \isin G_q
@@ -136,7 +136,7 @@ public class VoteCastingClientAlgorithms {
      * @param pk     encryption key
      * @return a non interactive proof of knowledge for the ballot
      */
-    public NonInteractiveZKP genBallotNIZKP(
+    public NonInteractiveZKP genBallotProof(
             BigInteger x,
             BigInteger u,
             BigInteger r,
@@ -154,7 +154,7 @@ public class VoteCastingClientAlgorithms {
         BigInteger q = encryptionGroup.getQ();
         BigInteger g = encryptionGroup.getG();
 
-        log.debug(String.format("genBallotNIZKP: a = %s", a));
+        log.debug(String.format("genBallotProof: a = %s", a));
 
         BigInteger omega_1 = randomGenerator.randomInZq(q_circ);
         BigInteger omega_2 = randomGenerator.randomInGq(encryptionGroup);
@@ -166,8 +166,8 @@ public class VoteCastingClientAlgorithms {
 
         BigInteger[] v = new BigInteger[]{x_circ, a, b};
         BigInteger[] t = new BigInteger[]{t_1, t_2, t_3};
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(v, t, q.min(q_circ));
-        log.debug(String.format("genBallotNIZKP: c = %s", c));
+        BigInteger c = generalAlgorithms.getProofChallenge(v, t, q.min(q_circ));
+        log.debug(String.format("genBallotProof: c = %s", c));
 
         BigInteger s_1 = omega_1.add(c.multiply(x)).mod(q_circ);
         BigInteger s_2 = omega_2.multiply(u.modPow(c, p)).mod(p);

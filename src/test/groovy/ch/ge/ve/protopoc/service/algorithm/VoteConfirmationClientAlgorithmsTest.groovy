@@ -65,8 +65,8 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
                 [0x56] as byte[], // j = 3 --> y_3 = 86 mod 5 = 1
                 [0x78] as byte[]  // j = 4 --> y_4 = 120 mod 5 = 0
         ]
-        randomGenerator.randomInZq(FIVE) >> THREE // called by GenConfirmationNIZKP - omega
-        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], _ as BigInteger[], _ as BigInteger) >> THREE // c
+        randomGenerator.randomInZq(FIVE) >> THREE // called by GenConfirmationProof - omega
+        generalAlgorithms.getProofChallenge(_ as BigInteger[], _ as BigInteger[], _ as BigInteger) >> THREE // c
 
         // y = 154 + 3 + 2 + 1 + 0 mod 5 = 0
         // y_circ = g_circ ^ y mod p_circ = 3 ^ 0 mod 11 = 1
@@ -100,16 +100,16 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         [new Point(THREE, TWO), new Point(FIVE, ONE)] || ZERO // performed algorithm by hand, on paper.
     }
 
-    def "genConfirmationNIZKP should generate a valid proof of knowledge for y"() {
+    def "genConfirmationProof should generate a valid proof of knowledge for y"() {
         given: "a known random omega"
         randomGenerator.randomInZq(FIVE) >> FOUR // omega
         and: "a known challenge value"
         // t = g_circ ^ omega mod p_circ = 3 ^ 4 mod 11 = 4
-        generalAlgorithms.getNIZKPChallenge([NINE] as BigInteger[], [FOUR] as BigInteger[], FIVE) >> THREE
+        generalAlgorithms.getProofChallenge([NINE] as BigInteger[], [FOUR] as BigInteger[], FIVE) >> THREE
 
-        expect: "the generated NIZKP to have the expected value"
+        expect: "the generated proof to have the expected value"
         // s = omega + c * y mod q_circ = 4 + 3 * 2 mod 5 = 0
-        voteConfirmationClient.genConfirmationNIZKP(TWO, NINE) == new NonInteractiveZKP([FOUR], [ZERO])
+        voteConfirmationClient.genConfirmationProof(TWO, NINE) == new NonInteractiveZKP([FOUR], [ZERO])
 
     }
 

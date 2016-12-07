@@ -24,7 +24,8 @@ public class GeneralAlgorithms {
 
     /**
      * Constructor, defines all collaborators
-     * @param jacobiSymbol the jacobiSymbol computing class
+     *
+     * @param jacobiSymbol    the jacobiSymbol computing class
      * @param hash
      * @param conversion
      * @param encryptionGroup
@@ -39,7 +40,7 @@ public class GeneralAlgorithms {
     /**
      * Algorithm 5.1 : isMember
      *
-     * @param x  A number
+     * @param x A number
      * @return true if x &isin; encryptionGroup, false otherwise
      */
     public boolean isMember(BigInteger x) {
@@ -54,7 +55,7 @@ public class GeneralAlgorithms {
     /**
      * Algorithm 5.2: getPrimes
      *
-     * @param n  the number of requested primes
+     * @param n the number of requested primes
      * @return the ordered list of the n first primes found in the group
      */
     public List<BigInteger> getPrimes(int n) throws NotEnoughPrimesInGroupException {
@@ -120,21 +121,23 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 5.5: GetNIZKPChallenge
-     * @param v the public values vector (domain unspecified)
-     * @param t the commitments vector (domain unspecified)
+     * Algorithm 5.5: GetProofChallenge
+     *
+     * @param v    the public values vector (domain unspecified)
+     * @param t    the commitments vector (domain unspecified)
      * @param c_ub the upper-bound of the challenge
      * @return the computed challenge
      */
-    public BigInteger getNIZKPChallenge(Object[] v, Object[] t, BigInteger c_ub) {
+    public BigInteger getProofChallenge(Object[] v, Object[] t, BigInteger c_ub) {
         Preconditions.checkArgument(v.length == t.length, "The lengths of v and t should be identical");
         return conversion.toInteger(hash.hash(v, t)).mod(c_ub);
     }
 
     /**
      * Algorithm 5.6: GetPublicChallenges
-     * @param n the number of challenges requested
-     * @param v the public values vector (domain unspecified)
+     *
+     * @param n    the number of challenges requested
+     * @param v    the public values vector (domain unspecified)
      * @param c_ub the upper-bound of the challenge
      * @return a list challenges, of length n
      */

@@ -46,7 +46,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
                 new BallotEntry(1, null, null)
         ]
         List<BigInteger> publicCredentials = [THREE, FOUR, ONE, TWO]
-        generalAlgorithms.getNIZKPChallenge([x_circ, a, b] as BigInteger[], t as BigInteger[], THREE) >> c
+        generalAlgorithms.getProofChallenge([x_circ, a, b] as BigInteger[], t as BigInteger[], THREE) >> c
 
         expect:
         result == voteCastingAuthority.checkBallot(
@@ -91,17 +91,17 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         46 || false
     }
 
-    def "checkBallotNIZKP should verify the validity of a provided proof"() {
+    def "checkBallotProof should verify the validity of a provided proof"() {
         given: "a fixed encryption key and challenge"
         def encryptionKey = new EncryptionPublicKey(ONE, encryptionGroup)
-        generalAlgorithms.getNIZKPChallenge([x_circ, a, b] as BigInteger[], t as BigInteger[], THREE) >> c
+        generalAlgorithms.getProofChallenge([x_circ, a, b] as BigInteger[], t as BigInteger[], THREE) >> c
 
-        expect: "the verification of the NIZKP to have the expected result"
-        result == voteCastingAuthority.checkBallotNIZKP(new NonInteractiveZKP(t, s), x_circ, a, b, encryptionKey)
+        expect: "the verification of the Proof to have the expected result"
+        result == voteCastingAuthority.checkBallotProof(new NonInteractiveZKP(t, s), x_circ, a, b, encryptionKey)
 
         where: "the values are taken from the following table"
         t                 | s                | x_circ | a    | b    | c    || result
-        [NINE, SIX, TWO]  | [TWO, FIVE, TWO] | THREE  | FOUR | FOUR | FIVE || true // values from genBallotNIZKP test
+        [NINE, SIX, TWO]  | [TWO, FIVE, TWO] | THREE  | FOUR | FOUR | FIVE || true // values from genBallotProof test
         [NINE, FIVE, TWO] | [TWO, FIVE, TWO] | THREE  | FOUR | FOUR | FIVE || false
         [NINE, SIX, TWO]  | [TWO, FOUR, TWO] | THREE  | FOUR | FOUR | FIVE || false
     }

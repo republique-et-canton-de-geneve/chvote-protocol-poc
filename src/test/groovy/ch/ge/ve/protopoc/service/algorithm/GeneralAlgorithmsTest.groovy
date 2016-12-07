@@ -15,14 +15,14 @@ import static java.math.BigInteger.TEN
  * This specification defines the expected behaviour of the general algorithms
  */
 class GeneralAlgorithmsTest extends Specification {
-    def GeneralAlgorithms generalAlgorithms
-    def JacobiSymbol jacobiSymbol = Mock()
-    def Hash hash = Mock()
-    def Conversion conversion = Mock()
+    GeneralAlgorithms generalAlgorithms
+    JacobiSymbol jacobiSymbol = Mock()
+    Hash hash = Mock()
+    Conversion conversion = Mock()
 
     def static ELEVEN = BigInteger.valueOf(11L)
 
-    def EncryptionGroup eg = Mock()
+    EncryptionGroup eg = Mock()
 
     void setup() {
         generalAlgorithms = new GeneralAlgorithms(jacobiSymbol, hash, conversion, eg)
@@ -86,7 +86,7 @@ class GeneralAlgorithmsTest extends Specification {
         def selectedPrimes = generalAlgorithms.getSelectedPrimes(Arrays.asList(1, 2, 4))
 
         then:
-        selectedPrimes.size() == 3;
+        selectedPrimes.size() == 3
         selectedPrimes.containsAll(TWO, THREE, SEVEN)
     }
 
@@ -100,13 +100,13 @@ class GeneralAlgorithmsTest extends Specification {
         generators.containsAll(FIVE, THREE, SEVEN)
     }
 
-    def "getNIZKPChallenge"() {
-        Object[] v, t;
+    def "getProofChallenge"() {
+        Object[] v, t
         v = new Object[0]
         t = new Object[0]
 
         when:
-        def challenge = generalAlgorithms.getNIZKPChallenge(v, t, ELEVEN)
+        def challenge = generalAlgorithms.getProofChallenge(v, t, ELEVEN)
 
         then:
         1 * hash.hash(v, t) >> ([0x0D] as byte[])

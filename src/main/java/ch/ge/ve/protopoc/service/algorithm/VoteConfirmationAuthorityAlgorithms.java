@@ -32,7 +32,7 @@ public class VoteConfirmationAuthorityAlgorithms {
      * Algorithm 5.36: CheckConfirmation
      *
      * @param i           the voter index
-     * @param gamma       the voter's confirmation, including public confirmation credential and NIZKP of knowledge of
+     * @param gamma       the voter's confirmation, including public confirmation credential and proof of knowledge of
      *                    the private confirmation credential
      * @param bold_y_circ the list of public confirmation credentials, as generated during the preparation phase
      * @param B           the current list of ballots
@@ -45,7 +45,7 @@ public class VoteConfirmationAuthorityAlgorithms {
         return voteCastingAuthorityAlgorithms.hasBallot(i, B) &&
                 !hasConfirmation(i, C) &&
                 bold_y_circ.get(i).compareTo(gamma.getY_circ()) == 0 &&
-                checkConfirmationNIZKP(gamma.getPi(), gamma.getY_circ());
+                checkConfirmationProof(gamma.getPi(), gamma.getY_circ());
     }
 
     /**
@@ -60,13 +60,13 @@ public class VoteConfirmationAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.38: CheckConfirmationNIZKP
+     * Algorithm 5.38: CheckConfirmationProof
      *
      * @param pi     the proof of knowledge of private confirmation credential y, provided by the voting client
      * @param y_circ the public confirmation credential corresponding to the private credential y
      * @return true if the proof of knowledge is valid, false otherwise
      */
-    public boolean checkConfirmationNIZKP(NonInteractiveZKP pi, BigInteger y_circ) {
+    public boolean checkConfirmationProof(NonInteractiveZKP pi, BigInteger y_circ) {
         Preconditions.checkNotNull(pi);
         Preconditions.checkNotNull(pi.getT());
         Preconditions.checkNotNull(pi.getS());
@@ -81,7 +81,7 @@ public class VoteConfirmationAuthorityAlgorithms {
         BigInteger t = pi.getT().get(0);
         BigInteger s = pi.getS().get(0);
 
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(new BigInteger[]{y_circ}, new BigInteger[]{t}, q_circ);
+        BigInteger c = generalAlgorithms.getProofChallenge(new BigInteger[]{y_circ}, new BigInteger[]{t}, q_circ);
         BigInteger t_prime = g_circ.modPow(s, p_circ).multiply(y_circ.modPow(c.negate(), p_circ)).mod(p_circ);
 
         return t.compareTo(t_prime) == 0;

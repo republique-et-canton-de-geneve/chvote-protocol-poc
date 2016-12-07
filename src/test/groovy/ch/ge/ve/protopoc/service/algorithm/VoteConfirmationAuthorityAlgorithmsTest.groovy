@@ -57,8 +57,8 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         voteCastingAuthority.hasBallot(1, ballotList) >> true
         voteCastingAuthority.hasBallot(2, ballotList) >> true
         voteCastingAuthority.hasBallot(3, ballotList) >> true
-        and: "the following NIZKP challenges"
-        generalAlgorithms.getNIZKPChallenge([y_circ] as BigInteger[], t as BigInteger[], FIVE) >> THREE
+        and: "the following proof challenges"
+        generalAlgorithms.getProofChallenge([y_circ] as BigInteger[], t as BigInteger[], FIVE) >> THREE
 
         and: "the following constructed parameters"
         def pi = new NonInteractiveZKP(t, s)
@@ -98,12 +98,12 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         100 || false
     }
 
-    def "checkConfirmationNIZKP should correctly validate the confirmation NIZKP"() {
+    def "checkConfirmationProof should correctly validate the confirmation proof"() {
         given:
-        generalAlgorithms.getNIZKPChallenge([y_circ] as BigInteger[], t as BigInteger[], FIVE) >> THREE
+        generalAlgorithms.getProofChallenge([y_circ] as BigInteger[], t as BigInteger[], FIVE) >> THREE
 
         expect:
-        voteConfirmationAuthority.checkConfirmationNIZKP(new NonInteractiveZKP(t, s), y_circ) == result
+        voteConfirmationAuthority.checkConfirmationProof(new NonInteractiveZKP(t, s), y_circ) == result
 
         where:
         t      | s       | y_circ || result

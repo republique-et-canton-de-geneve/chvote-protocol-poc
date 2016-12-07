@@ -64,7 +64,7 @@ public class VoteConfirmationClientAlgorithms {
                         () -> new IllegalArgumentException("Can't happen if s > 0"))
         ).mod(q_circ);
         BigInteger y_circ = g_circ.modPow(y, p_circ);
-        NonInteractiveZKP pi = genConfirmationNIZKP(y, y_circ);
+        NonInteractiveZKP pi = genConfirmationProof(y, y_circ);
 
         return new Confirmation(y_circ, pi);
     }
@@ -119,13 +119,13 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.34: GenConfirmationNIZKP
+     * Algorithm 5.34: GenConfirmationProof
      *
      * @param y      the secret confirmation credential
      * @param y_circ the public confirmation credential
-     * @return a NIZKP of knowledge of the secret confirmation credential
+     * @return a proof of knowledge of the secret confirmation credential
      */
-    public NonInteractiveZKP genConfirmationNIZKP(BigInteger y, BigInteger y_circ) {
+    public NonInteractiveZKP genConfirmationProof(BigInteger y, BigInteger y_circ) {
         BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
         BigInteger q_circ = publicParameters.getIdentificationGroup().getQ_circ();
         BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
@@ -135,7 +135,7 @@ public class VoteConfirmationClientAlgorithms {
         BigInteger t = g_circ.modPow(omega, p_circ);
         BigInteger[] bold_v = new BigInteger[]{y_circ};
         BigInteger[] bold_t = new BigInteger[]{t};
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(bold_v, bold_t, q_circ);
+        BigInteger c = generalAlgorithms.getProofChallenge(bold_v, bold_t, q_circ);
 
         BigInteger s = omega.add(c.multiply(y)).mod(q_circ);
         return new NonInteractiveZKP(singletonList(t), singletonList(s));

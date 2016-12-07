@@ -52,17 +52,17 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         randomGenerator.randomInZq(_) >>> [
                 ONE, // genQuery, r_1
                 ZERO, // genQuery, r_2
-                THREE, // genBallotNIZKP, omega_1
-                ONE // genBallotNIZKP, omega_3
+                THREE, // genBallotProof, omega_1
+                ONE // genBallotProof, omega_3
         ]
-        randomGenerator.randomInGq(encryptionGroup) >> TWO // genBallotNIZKP, omega_2
+        randomGenerator.randomInGq(encryptionGroup) >> TWO // genBallotProof, omega_2
         and: "some valid selected primes"
         generalAlgorithms.getSelectedPrimes([1, 2]) >> [TWO, THREE]
-        and: "some arbitrary values for the NIZKP challenge"
+        and: "some arbitrary values for the proof challenge"
         // t_1 = g_circ ^ omega_1 mod p_circ = 3^3 mod 11 = 5
         // t_2 = omega_2 * pk ^ omega_3 mod p = 2 * 3 ^ 1 mod 7 = 6
         // t_3 = g ^ omega_3 mod p = 2 ^ 1 mod 7 = 2
-        generalAlgorithms.getNIZKPChallenge(
+        generalAlgorithms.getProofChallenge(
                 [ONE, FOUR, TWO] as BigInteger[], // x_circ, a, b
                 [FIVE, SIX, TWO] as BigInteger[],  // t_1, t_2, t_3
                 THREE // min(q, q_circ)
@@ -114,23 +114,23 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         query.bold_r == [ONE, ZERO]
     }
 
-    def "genBallotNIZKP should generate a valid proof of knowledge of the ballot"() {
+    def "genBallotProof should generate a valid proof of knowledge of the ballot"() {
         given: "some known randomness"
         randomGenerator.randomInZq(_) >> TWO >> ONE // omega_1 and omega_3
         randomGenerator.randomInGq(encryptionGroup) >> TWO // omega_2
 
-        and: "some arbitrary values for the NIZKP challenge"
+        and: "some arbitrary values for the proof challenge"
         // t_1 = g_circ ^ omega_1 mod p_circ = 3^2 mod 11 = 9
         // t_2 = omega_2 * pk ^ omega_3 mod p = 2 * 3 ^ 1 mod 7 = 6
         // t_3 = g ^ omega_3 mod p = 2 ^ 1 mod 7 = 2
-        generalAlgorithms.getNIZKPChallenge(
+        generalAlgorithms.getProofChallenge(
                 [THREE, FOUR, FOUR] as BigInteger[], // x_circ, a, b
                 [NINE, SIX, TWO] as BigInteger[],  // t_1, t_2, t_3
                 THREE // min(q, q_circ)
         ) >> FIVE // c
 
         when: "generating a ballot ZKP"
-        def pi = voteCastingClient.genBallotNIZKP(ONE, SIX, TWO, THREE, FOUR, FOUR, new EncryptionPublicKey(THREE, encryptionGroup))
+        def pi = voteCastingClient.genBallotProof(ONE, SIX, TWO, THREE, FOUR, FOUR, new EncryptionPublicKey(THREE, encryptionGroup))
 
         then:
         // for values of t_1 to t_3 see above

@@ -62,7 +62,7 @@ public class VoteCastingAuthorityAlgorithms {
             BigInteger a = alpha.getBold_a().stream().reduce(BigInteger::multiply)
                     .orElseThrow(() -> new IllegalArgumentException("can't happen if bold_a is not empty"))
                     .mod(p);
-            return checkBallotNIZKP(alpha.getPi(), alpha.getX_circ(), a, alpha.getB(), pk);
+            return checkBallotProof(alpha.getPi(), alpha.getX_circ(), a, alpha.getB(), pk);
         }
         return false;
     }
@@ -82,16 +82,16 @@ public class VoteCastingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.27: CheckBallotNIZKP
+     * Algorithm 5.27: CheckBallotProof
      *
-     * @param pi     NIZKP
+     * @param pi     the proof
      * @param x_circ public voting credential
      * @param a      first part of ElGamal encryption
      * @param b      second part of ElGamal encryption
      * @param pk     the encryption public key
      * @return true if the proof is valid, false otherwise
      */
-    public boolean checkBallotNIZKP(NonInteractiveZKP pi, BigInteger x_circ, BigInteger a, BigInteger b,
+    public boolean checkBallotProof(NonInteractiveZKP pi, BigInteger x_circ, BigInteger a, BigInteger b,
                                     EncryptionPublicKey pk) {
         Preconditions.checkNotNull(pi);
         Preconditions.checkNotNull(pi.getT());
@@ -103,7 +103,7 @@ public class VoteCastingAuthorityAlgorithms {
         Preconditions.checkNotNull(pk.getPublicKey());
         Preconditions.checkArgument(pk.getEncryptionGroup() == publicParameters.getEncryptionGroup());
 
-        log.debug(String.format("checkBallotNIZKP: a = %s", a));
+        log.debug(String.format("checkBallotProof: a = %s", a));
 
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
@@ -115,8 +115,8 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger[] v = new BigInteger[]{x_circ, a, b};
         BigInteger[] t = new BigInteger[3];
         pi.getT().toArray(t);
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(v, t, q.min(q_circ));
-        log.debug(String.format("checkBallotNIZKP: c = %s", c));
+        BigInteger c = generalAlgorithms.getProofChallenge(v, t, q.min(q_circ));
+        log.debug(String.format("checkBallotProof: c = %s", c));
 
         BigInteger s_1 = pi.getS().get(0);
         BigInteger s_2 = pi.getS().get(1);
