@@ -57,13 +57,13 @@ public class VoteCastingClientAlgorithms {
         BigInteger x = conversion.toInteger(X, publicParameters.getA_x());
         BigInteger x_circ = g_circ.modPow(x, p_circ);
 
-        List<BigInteger> bold_u = computeBoldU(bold_s);
-        BigInteger u = computeU(bold_u, p);
-        ObliviousTransferQuery query = genQuery(bold_u, pk);
+        List<BigInteger> bold_q = computeBoldU(bold_s);
+        BigInteger m = computeM(bold_q, p);
+        ObliviousTransferQuery query = genQuery(bold_q, pk);
         BigInteger a = computeA(query, p);
         BigInteger r = computeR(query, q);
         BigInteger b = g.modPow(r, p);
-        NonInteractiveZKP pi = genBallotProof(x, u, r, x_circ, a, b, pk);
+        NonInteractiveZKP pi = genBallotProof(x, m, r, x_circ, a, b, pk);
         BallotAndQuery alpha = new BallotAndQuery(x_circ, query.getBold_a(), b, pi);
 
         return new BallotQueryAndRand(alpha, query.getBold_r());
@@ -79,8 +79,8 @@ public class VoteCastingClientAlgorithms {
         return bold_u;
     }
 
-    private BigInteger computeU(List<BigInteger> bold_u, BigInteger p) throws IncompatibleParametersException {
-        BigInteger u = bold_u.stream().reduce(BigInteger::multiply)
+    private BigInteger computeM(List<BigInteger> bold_q, BigInteger p) throws IncompatibleParametersException {
+        BigInteger u = bold_q.stream().reduce(BigInteger::multiply)
                 .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"));
         if (u.compareTo(p) >= 0) {
             throw new IncompatibleParametersException("(k,n) is incompatible with p");
@@ -103,20 +103,20 @@ public class VoteCastingClientAlgorithms {
     /**
      * Algorithm 5.20: GenQuery
      *
-     * @param bold_u the selected primes
+     * @param bold_q the selected primes
      * @param pk     the public encryption key
      * @return the generated oblivious transfer query
      */
-    public ObliviousTransferQuery genQuery(List<BigInteger> bold_u, EncryptionPublicKey pk) {
+    public ObliviousTransferQuery genQuery(List<BigInteger> bold_q, EncryptionPublicKey pk) {
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
 
         List<BigInteger> bold_a = new ArrayList<>();
         List<BigInteger> bold_r = new ArrayList<>();
 
-        for (BigInteger u_i : bold_u) {
+        for (BigInteger q_i : bold_q) {
             BigInteger r_i = randomGenerator.randomInZq(q);
-            BigInteger a_i = u_i.multiply(pk.getPublicKey().modPow(r_i, p)).mod(p);
+            BigInteger a_i = q_i.multiply(pk.getPublicKey().modPow(r_i, p)).mod(p);
             bold_a.add(a_i);
             bold_r.add(r_i);
         }
@@ -128,7 +128,7 @@ public class VoteCastingClientAlgorithms {
      * Algorithm 5.21: GenBallotProof
      *
      * @param x      first half of voting credentials
-     * @param u      encoded selections, u \isin G_q
+     * @param m      encoded selections, m \isin G_q
      * @param r      randomization
      * @param x_circ second half of voting credentials
      * @param a      first half of ElGamal encryption
@@ -138,7 +138,7 @@ public class VoteCastingClientAlgorithms {
      */
     public NonInteractiveZKP genBallotProof(
             BigInteger x,
-            BigInteger u,
+            BigInteger m,
             BigInteger r,
             BigInteger x_circ,
             BigInteger a,
@@ -170,7 +170,7 @@ public class VoteCastingClientAlgorithms {
         log.debug(String.format("genBallotProof: c = %s", c));
 
         BigInteger s_1 = omega_1.add(c.multiply(x)).mod(q_circ);
-        BigInteger s_2 = omega_2.multiply(u.modPow(c, p)).mod(p);
+        BigInteger s_2 = omega_2.multiply(m.modPow(c, p)).mod(p);
         BigInteger s_3 = omega_3.add(c.multiply(r)).mod(q);
         List<BigInteger> s = Arrays.asList(s_1, s_2, s_3);
 

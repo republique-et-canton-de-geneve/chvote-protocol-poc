@@ -77,7 +77,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         ballotQueryAndRand.alpha.x_circ == ONE
 
         and: "bold_a has the expected value"
-        // u = 2 * 3 = 6
+        // m = 2 * 3 = 6
         // a_1 = u_1 * pk ^ r_1 mod p = 2 * 3 ^ 1 mod 7 = 6
         // a_2 = u_2 * pk ^ r_2 mod p = 3 * 3 ^ 0 mod 7 = 3
         ballotQueryAndRand.alpha.bold_a == [SIX, THREE]
@@ -89,7 +89,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         and: "pi has the expected value"
         // for values of t_1 to t_3 see above
         // s_1 = omega_1 + c * x mod q_circ = 3 + 5 * 15 mod 5 = 3
-        // s_2 = omega_2 * u ^ c mod p = 2 * 6 ^ 5 mod p = 5
+        // s_2 = omega_2 * m ^ c mod p = 2 * 6 ^ 5 mod p = 5
         // s_3 = omega_3 + c * r mod q = 1 + 5 * 1 mod 3 = 0
         ballotQueryAndRand.alpha.pi == new NonInteractiveZKP(
                 [FIVE, SIX, TWO],
@@ -135,7 +135,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         then:
         // for values of t_1 to t_3 see above
         // s_1 = omega_1 + c * x mod q_circ = 2 + 5 * 1 mod 5 = 2
-        // s_2 = omega_2 * u ^ c mod p = 2 * 6 ^ 5 mod p = 5
+        // s_2 = omega_2 * m ^ c mod p = 2 * 6 ^ 5 mod p = 5
         // s_3 = omega_3 + c * r mod q = 1 + 5 * 2 mod 3 = 2
         pi == new NonInteractiveZKP(
                 [NINE, SIX, TWO],
