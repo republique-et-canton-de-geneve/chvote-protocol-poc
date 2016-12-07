@@ -1,6 +1,5 @@
 package ch.ge.ve.protopoc.service.algorithm;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,10 +16,10 @@ public class VoteConfirmationVoterAlgorithms {
      * @param bold_s        the voter's selections
      * @return true if every displayed return code matches the corresponding printed return code
      */
-    public boolean checkReturnCodes(byte[][] bold_rc, byte[][] bold_rc_prime, List<Integer> bold_s) {
+    public boolean checkReturnCodes(List<String> bold_rc, List<String> bold_rc_prime, List<Integer> bold_s) {
         for (int i = 0; i < bold_s.size(); i++) {
             // selections are 1-based
-            if (!Arrays.equals(bold_rc[bold_s.get(i) - 1], bold_rc_prime[i])) {
+            if (!bold_rc.get(bold_s.get(i) - 1).equals(bold_rc_prime.get(i))) {
                 return false;
             }
         }
@@ -34,7 +33,7 @@ public class VoteConfirmationVoterAlgorithms {
      * @param F_prime the displayed finalization code, shown during the vote casting session
      * @return true if both finalization codes match, false otherwise
      */
-    public boolean checkFinalizationCode(byte[] F, byte[] F_prime) {
-        return Arrays.equals(F, F_prime);
+    public boolean checkFinalizationCode(String F, String F_prime) {
+        return F.equals(F_prime);
     }
 }

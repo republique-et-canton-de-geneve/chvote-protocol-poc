@@ -43,7 +43,7 @@ public class VoteConfirmationClientAlgorithms {
      * @param bold_k the number of selections per election
      * @return the public confirmation y_circ and the proof of knowledge of the secret confirmation y
      */
-    public Confirmation genConfirmation(Integer i, byte[] Y, List<List<Point>> bold_P, List<Integer> bold_k) {
+    public Confirmation genConfirmation(Integer i, String Y, List<List<Point>> bold_P, List<Integer> bold_k) {
         Preconditions.checkNotNull(i);
         Preconditions.checkNotNull(Y);
         Preconditions.checkNotNull(bold_P);
@@ -61,7 +61,7 @@ public class VoteConfirmationClientAlgorithms {
             BigInteger y_j = conversion.toInteger(hash.hash(bold_y_j.toArray())).mod(q_circ);
             y_js.add(y_j);
         }
-        BigInteger y = conversion.toInteger(Y).add(
+        BigInteger y = conversion.toInteger(Y, publicParameters.getA_y()).add(
                 y_js.stream().reduce(BigInteger::add).orElseThrow(
                         () -> new IllegalArgumentException("Can't happen if s > 0"))
         ).mod(q_circ);
@@ -149,10 +149,10 @@ public class VoteConfirmationClientAlgorithms {
      * @param finalizationCodeParts the finalization code parts received from the authorities
      * @return the combined finalization code
      */
-    public byte[] getFinalizationCode(List<FinalizationCodePart> finalizationCodeParts) {
+    public String getFinalizationCode(List<FinalizationCodePart> finalizationCodeParts) {
         Preconditions.checkArgument(finalizationCodeParts.size() == publicParameters.getS());
-        return finalizationCodeParts.stream().map(FinalizationCodePart::getF).reduce(ByteArrayUtils::xor).orElseThrow(
-                () -> new IllegalArgumentException("Can't happen if s > 0")
-        );
+        return finalizationCodeParts.stream().map(FinalizationCodePart::getF).reduce(ByteArrayUtils::xor)
+                .map(b -> conversion.toString(b, publicParameters.getA_f()))
+                .orElseThrow(() -> new IllegalArgumentException("Can't happen if s > 0"));
     }
 }

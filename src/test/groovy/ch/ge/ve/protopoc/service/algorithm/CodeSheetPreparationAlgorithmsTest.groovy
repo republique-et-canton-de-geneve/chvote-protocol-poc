@@ -15,11 +15,19 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
     CodeSheetPreparationAlgorithms codeSheetPreparation
 
     void setup() {
+        def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray()
+
         publicParameters.s >> 2 // For the sake of simplifying the examples
         publicParameters.l_x >> 16
         publicParameters.l_y >> 16
         publicParameters.l_f >> 16
         publicParameters.l_r >> 16
+        publicParameters.a_x >> (defaultAlphabet as List<Character>)
+        publicParameters.a_y >> (defaultAlphabet as List<Character>)
+        publicParameters.a_f >> (defaultAlphabet as List<Character>)
+        publicParameters.a_r >> (defaultAlphabet as List<Character>)
+        publicParameters.k_x >> 3
+        publicParameters.k_y >> 3
 
         codeSheetPreparation = new CodeSheetPreparationAlgorithms(publicParameters)
 
@@ -92,19 +100,29 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         def sheet_1 = sheets.get(0)
         sheet_1.voter == voter1
         sheet_1.electionSet == electionSet
-        sheet_1.x_i == ([0x00, 0x08] as byte[])
-        sheet_1.y_i == ([0x00, 0x03] as byte[])
-        sheet_1.f_i == ([0x10, 0x10] as byte[])
-        sheet_1.rc_i == ([[0xC0, 0xD0], [0xE0, 0xF0], [0xC0, 0xD0], [0xE0, 0xF0]] as byte[][])
+        sheet_1.x_i == "aai" // 5 + 3 = 8
+        sheet_1.y_i == "aad" // 2 + 1 = 3
+        sheet_1.f_i == "baq" // [0x10, 0x10] -> 4112
+        sheet_1.rc_i == [
+                "mdq", // [0xC0, 0xD0] -> 49360
+                "odW", // [0xE0, 0xF0] -> 57584
+                "mdq", // [0xC0, 0xD0] -> 49360
+                "odW" // [0xE0, 0xF0] -> 57584
+        ]
         sheet_1.k_i == [1, 1]
 
         def sheet_2 = sheets.get(1)
         sheet_2.voter == voter2
         sheet_2.electionSet == electionSet
-        sheet_2.x_i == ([0x00, 0x05] as byte[])
-        sheet_2.y_i == ([0x00, 0x07] as byte[])
-        sheet_2.f_i == ([0x3E, 0x4E] as byte[])
-        sheet_2.rc_i == ([[0xC1, 0xD2], [0xE3, 0xF4], [0xC5, 0xD6], [0xE7, 0xF8]] as byte[][])
+        sheet_2.x_i == "aaf" // 4 + 1 = 5
+        sheet_2.y_i == "aah" // 3 + 4 = 7
+        sheet_2.f_i == "d5o" // [0x3E, 0x4E] -> 15950
+        sheet_2.rc_i == [
+                "mhs", // [0xC1, 0xD2] -> 49618
+                "op0", // [0xE3, 0xF4] -> 58356
+                "mxw", // [0xC5, 0xD6] -> 50646
+                "oF4" // [0xE7, 0xF8] -> 59384
+        ]
         sheet_2.k_i == [1, 0]
     }
 }

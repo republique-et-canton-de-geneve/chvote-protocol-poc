@@ -45,7 +45,7 @@ public class VoteCastingClientAlgorithms {
      * @return the combined ballot, OT query and random elements used
      * @throws IncompatibleParametersException when there is an issue with the public parameters
      */
-    public BallotQueryAndRand genBallot(byte[] X, List<Integer> bold_s, EncryptionPublicKey pk) throws IncompatibleParametersException {
+    public BallotQueryAndRand genBallot(String X, List<Integer> bold_s, EncryptionPublicKey pk) throws IncompatibleParametersException {
         Preconditions.checkArgument(bold_s.size() > 0);
 
         BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
@@ -54,7 +54,7 @@ public class VoteCastingClientAlgorithms {
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
 
-        BigInteger x = conversion.toInteger(X);
+        BigInteger x = conversion.toInteger(X, publicParameters.getA_x());
         BigInteger x_circ = g_circ.modPow(x, p_circ);
 
         List<BigInteger> bold_u = computeBoldU(bold_s);
@@ -257,11 +257,13 @@ public class VoteCastingClientAlgorithms {
      * @param bold_P the point matrix containing the responses for each of the authorities
      * @return the return codes corresponding to the point matrix
      */
-    public byte[][] getReturnCodes(List<List<Point>> bold_P) {
+    public List<String> getReturnCodes(List<List<Point>> bold_P) {
         Preconditions.checkArgument(bold_P.size() == publicParameters.getS());
         int length = bold_P.get(0).size();
         Preconditions.checkArgument(bold_P.stream().allMatch(l -> l.size() == length));
-        byte[][] rc = new byte[length][];
+        List<Character> A_r = publicParameters.getA_r();
+
+        List<String> rc = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             byte[] rc_i = new byte[publicParameters.getL_r() / 8];
             for (int j = 0; j < publicParameters.getS(); j++) {
@@ -269,7 +271,7 @@ public class VoteCastingClientAlgorithms {
                         hash.hash(bold_P.get(j).get(i)),
                         publicParameters.getL_r() / 8));
             }
-            rc[i] = rc_i;
+            rc.add(conversion.toString(rc_i, A_r));
         }
         return rc;
     }

@@ -12,7 +12,7 @@ import java.util.List;
 public interface VotingClientService {
     VotingPageData startVoteSession(Integer voterIndex);
 
-    byte[][] sumbitVote(byte[] identificationCredentials, List<Integer> selections) throws VoteCastingException;
+    List<String> sumbitVote(String identificationCredentials, List<Integer> selections) throws VoteCastingException;
 
-    byte[] confirmVote(byte[] confirmationCredentials) throws VoteConfirmationException;
+    String confirmVote(String confirmationCredentials) throws VoteConfirmationException;
 }

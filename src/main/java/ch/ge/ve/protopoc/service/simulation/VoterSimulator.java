@@ -52,7 +52,7 @@ public class VoterSimulator {
                 votingPageData.getCandidateCounts());
         log.info(String.format("Voter %d selections: %s", voterIndex, selections));
 
-        byte[][] returnCodes;
+        List<String> returnCodes;
         try {
             log.info(String.format("Voter %d submitting vote", voterIndex));
             returnCodes = votingClient.sumbitVote(codeSheet.getX_i(), selections);
@@ -66,7 +66,7 @@ public class VoterSimulator {
             throw new VoteProcessException(new ReturnCodesNotMatchingException("Return codes do not match"));
         }
 
-        byte[] finalizationCode;
+        String finalizationCode;
         try {
             log.info(String.format("Voter %d confirming vote", voterIndex));
             finalizationCode = votingClient.confirmVote(codeSheet.getY_i());

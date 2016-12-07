@@ -2,6 +2,9 @@ package ch.ge.ve.protopoc.service.model;
 
 import ch.ge.ve.protopoc.service.support.BigIntegers;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 /**
  * The model class grouping all public parameters
@@ -12,17 +15,33 @@ public class PublicParameters {
     private final IdentificationGroup identificationGroup;
     private final PrimeField primeField;
     /**
+     * Alphabet used for voting code
+     */
+    private final List<Character> A_x;
+    /**
      * Length of voting code l_x
      */
     private final int l_x;
+    /**
+     * Alphabet used for confirmation code
+     */
+    private final List<Character> A_y;
     /**
      * Length of confirmation code
      */
     private final int l_y;
     /**
+     * Alphabet used for return codes
+     */
+    private final List<Character> A_r;
+    /**
      * Length of return codes
      */
     private final int l_r;
+    /**
+     * Alphabet used for finalization codes
+     */
+    private final List<Character> A_f;
     /**
      * Length of finalization code
      */
@@ -40,9 +59,13 @@ public class PublicParameters {
                             EncryptionGroup encryptionGroup,
                             IdentificationGroup identificationGroup,
                             PrimeField primeField,
+                            List<Character> A_x,
                             int l_x,
+                            List<Character> A_y,
                             int l_y,
+                            List<Character> A_r,
                             int l_r,
+                            List<Character> A_f,
                             int l_f,
                             int l_m,
                             int s) {
@@ -56,10 +79,10 @@ public class PublicParameters {
         Preconditions.checkArgument(2 * securityParameters.mu <= l_y && l_y <= identificationGroup.getQ_circ().bitLength(),
                 "l_y needs to be comprised between 2*mu and the length of q_circ");
         Preconditions.checkArgument(l_r % 8 == 0, "l_r needs to be a multiple of 8");
-        Preconditions.checkArgument(1.0/Math.pow(2.0, l_r) <= (1.0 - securityParameters.epsilon),
+        Preconditions.checkArgument(1.0 / Math.pow(2.0, l_r) <= (1.0 - securityParameters.epsilon),
                 "1/2^l_r must be smaller or equal to 1 - epsilon");
         Preconditions.checkArgument(l_f % 8 == 0, "l_f needs to be a multiple of 8");
-        Preconditions.checkArgument(1.0/Math.pow(2.0, l_f) <= (1.0 - securityParameters.epsilon),
+        Preconditions.checkArgument(1.0 / Math.pow(2.0, l_f) <= (1.0 - securityParameters.epsilon),
                 "1/2^l_f must be smaller or equal to 1 - epsilon");
         Preconditions.checkArgument(l_m % 8 == 0, "l_m needs to be a multiple of 8");
         Preconditions.checkArgument(l_m == 16 * Math.ceil(primeField.getP_prime().bitLength() / 8.0),
@@ -69,9 +92,13 @@ public class PublicParameters {
         this.encryptionGroup = encryptionGroup;
         this.identificationGroup = identificationGroup;
         this.primeField = primeField;
+        this.A_x = A_x;
         this.l_x = l_x;
+        this.A_y = A_y;
         this.l_y = l_y;
+        this.A_r = A_r;
         this.l_r = l_r;
+        this.A_f = A_f;
         this.l_f = l_f;
         this.l_m = l_m;
         this.s = s;
@@ -93,16 +120,32 @@ public class PublicParameters {
         return primeField;
     }
 
+    public List<Character> getA_x() {
+        return ImmutableList.copyOf(A_x);
+    }
+
     public int getL_x() {
         return l_x;
+    }
+
+    public List<Character> getA_y() {
+        return ImmutableList.copyOf(A_y);
     }
 
     public int getL_y() {
         return l_y;
     }
 
+    public List<Character> getA_r() {
+        return ImmutableList.copyOf(A_r);
+    }
+
     public int getL_r() {
         return l_r;
+    }
+
+    public List<Character> getA_f() {
+        return ImmutableList.copyOf(A_f);
     }
 
     public int getL_f() {
@@ -115,5 +158,25 @@ public class PublicParameters {
 
     public int getS() {
         return s;
+    }
+
+    public int getK_x() {
+        return getLength(l_x, A_x.size());
+    }
+
+    public int getK_y() {
+        return getLength(l_y, A_y.size());
+    }
+
+    public int getK_r() {
+        return getLength(l_r, A_r.size());
+    }
+
+    public int getK_f() {
+        return getLength(l_f, A_f.size());
+    }
+
+    private int getLength(int bitLength, int alphabetSize) {
+        return (int) Math.ceil(bitLength / (Math.log(alphabetSize) / Math.log(2)));
     }
 }

@@ -14,30 +14,30 @@ class VoteConfirmationVoterAlgorithmsTest extends Specification {
 
     def "checkReturnCodes should verify return codes"() {
         expect:
-        result == voteConfirmationVoter.checkReturnCodes(bold_rc as byte[][], bold_rc_prime as byte[][], bold_s)
+        result == voteConfirmationVoter.checkReturnCodes(bold_rc, bold_rc_prime, bold_s)
 
         where:
-        bold_rc                          | bold_rc_prime    | bold_s || result
-        [[0x00], [0x01], [0x02], [0x03]] | [[0x02]]         | [3]    || true
-        [[0x00], [0x01], [0x02], [0x03]] | [[0x01], [0x03]] | [2, 4] || true
-        [[0x00, 0x01], [0x02, 0x03]]     | [[0x00, 0x01]]   | [1]    || true
-        [[0x00], [0x01], [0x02], [0x03]] | [[0x03]]         | [3]    || false
-        [[0x00], [0x01], [0x02], [0x03]] | [[0x02], [0x03]] | [2, 4] || false
-        [[0x00, 0x01], [0x02, 0x03]]     | [[0x02, 0x03]]   | [1]    || false
+        bold_rc              | bold_rc_prime | bold_s || result
+        ["a", "b", "c", "d"] | ["c"]         | [3]    || true
+        ["a", "b", "c", "d"] | ["b", "d"]    | [2, 4] || true
+        ["ab", "cd"]         | ["ab"]        | [1]    || true
+        ["a", "b", "c", "d"] | ["d"]         | [3]    || false
+        ["a", "b", "c", "d"] | ["b", "c"]    | [2, 4] || false
+        ["ab", "cd"]         | ["cd"]        | [1]    || false
     }
 
     def "checkFinalizationCode should verify the finalization code"() {
         expect:
-        result == voteConfirmationVoter.checkFinalizationCode(F as byte[], F_prime as byte[])
+        result == voteConfirmationVoter.checkFinalizationCode(F, F_prime)
 
         where:
-        F            | F_prime      || result
-        [0x01]       | [0x01]       || true
-        [0x01, 0x02] | [0x01, 0x02] || true
-        [0x01]       | [0x01, 0x02] || false
-        [0x01, 0x02] | [0x01]       || false
-        [0x01, 0x02] | [0xF1, 0xF2] || false
-        [0xF1, 0x02] | [0x01, 0x02] || false
+        F    | F_prime || result
+        "a"  | "a"     || true
+        "ab" | "ab"    || true
+        "a"  | "ab"    || false
+        "ab" | "a"     || false
+        "ab" | "AB"    || false
+        "Ab" | "ab"    || false
 
     }
 }

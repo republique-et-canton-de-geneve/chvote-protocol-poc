@@ -53,7 +53,7 @@ public class DefaultVotingClient implements VotingClientService {
     }
 
     @Override
-    public byte[][] sumbitVote(byte[] identificationCredentials, List<Integer> selections) throws VoteCastingException {
+    public List<String> sumbitVote(String identificationCredentials, List<Integer> selections) throws VoteCastingException {
         Preconditions.checkState(publicParameters != null,
                 "The public parameters need to have been retrieved first");
         Preconditions.checkState(electionSet != null,
@@ -72,7 +72,7 @@ public class DefaultVotingClient implements VotingClientService {
         return voteCastingClientAlgorithms.getReturnCodes(pointMatrix);
     }
 
-    private BallotQueryAndRand computeBallot(byte[] identificationCredentials, List<Integer> selections, EncryptionPublicKey systemPublicKey) throws VoteCastingException {
+    private BallotQueryAndRand computeBallot(String identificationCredentials, List<Integer> selections, EncryptionPublicKey systemPublicKey) throws VoteCastingException {
         BallotQueryAndRand ballotQueryAndRand;
         try {
             ballotQueryAndRand =
@@ -104,7 +104,7 @@ public class DefaultVotingClient implements VotingClientService {
     }
 
     @Override
-    public byte[] confirmVote(byte[] confirmationCredentials) throws VoteConfirmationException {
+    public String confirmVote(String confirmationCredentials) throws VoteConfirmationException {
         Preconditions.checkState(publicParameters != null,
                 "The public parameters need to have been retrieved first");
         Preconditions.checkState(electionSet != null,

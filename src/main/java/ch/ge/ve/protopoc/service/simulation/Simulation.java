@@ -17,6 +17,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +52,7 @@ public class Simulation {
     private VoteConfirmationClientAlgorithms voteConfirmationClientAlgorithms;
     private VoteConfirmationVoterAlgorithms voteConfirmationVoterAlgorithms;
     private List<VoterSimulator> voterSimulators;
+    private List<Character> defaultAlphabet = getDefaultAlphabet();
 
     public Simulation() throws NoSuchProviderException, NoSuchAlgorithmException {
         secureRandom = SecureRandom.getInstance("SHA1PRNG", "SUN");
@@ -217,10 +219,12 @@ public class Simulation {
 
         int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
 
-        publicParameters = new PublicParameters(securityParameters,
-                encryptionGroup, identificationGroup, primeField,
-                2 * securityParameters.mu, 2 * securityParameters.mu,
-                8, 8, l_m, 4);
+        publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
+                defaultAlphabet, 2 * securityParameters.mu,
+                defaultAlphabet, 2 * securityParameters.mu,
+                defaultAlphabet, 8,
+                defaultAlphabet, 8,
+                l_m, 4);
     }
 
     private void createSecurityLevel1Parameters() {
@@ -234,10 +238,12 @@ public class Simulation {
 
         int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
 
-        publicParameters = new PublicParameters(securityParameters,
-                encryptionGroup, identificationGroup, primeField,
-                2 * securityParameters.mu, 2 * securityParameters.mu,
-                16, 16, l_m, 4);
+        publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
+                defaultAlphabet, 2 * securityParameters.mu,
+                defaultAlphabet, 2 * securityParameters.mu,
+                defaultAlphabet, 16,
+                defaultAlphabet, 16,
+                l_m, 4);
     }
 
     private void createSecurityLevel2Parameters() {
@@ -249,10 +255,12 @@ public class Simulation {
 
         int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
 
-        publicParameters = new PublicParameters(securityParameters,
-                encryptionGroup, identificationGroup, primeField,
-                2 * securityParameters.mu, 2 * securityParameters.mu,
-                16, 16, l_m, 4);
+        publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
+                defaultAlphabet, 2 * securityParameters.mu,
+                defaultAlphabet, 2 * securityParameters.mu,
+                defaultAlphabet, 16,
+                defaultAlphabet, 16,
+                l_m, 4);
     }
 
     private PrimeField createPrimeField(SecurityParameters securityParameters) {
@@ -350,5 +358,17 @@ public class Simulation {
         }
         log.info("generator created");
         return h.modPow(TWO, p);
+    }
+
+    private List<Character> getDefaultAlphabet() {
+        char[] chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray();
+
+        List<Character> alphabet = new ArrayList<>();
+
+        for (char c : chars) {
+            alphabet.add(c);
+        }
+
+        return alphabet;
     }
 }

@@ -2,7 +2,6 @@ package ch.ge.ve.protopoc.service.support;
 
 import com.google.common.base.Preconditions;
 
-import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -73,16 +72,6 @@ public class Conversion {
     }
 
     /**
-     * Description in section 2.2.4 needs more work, temporarily using Base64.
-     *
-     * @param byteArray the byte array to represent as String
-     * @return the corresponding string
-     */
-    public String toString(byte[] byteArray) {
-        return DatatypeConverter.printBase64Binary(byteArray);
-    }
-
-    /**
      * Algorithm 2.4: ToString
      *
      * @param x the integer to convert
@@ -128,5 +117,17 @@ public class Conversion {
         }
 
         return x;
+    }
+
+    /**
+     * Algorithm 2.6: ToString
+     *
+     * @param byteArray the byte array to represent as String
+     * @return the corresponding string
+     */
+    public String toString(byte[] byteArray, List<Character> alphabet) {
+        BigInteger x = toInteger(byteArray);
+        int k = (int) Math.ceil(8.0 * byteArray.length / (Math.log(alphabet.size()) / Math.log(2)));
+        return toString(x, k, alphabet);
     }
 }

@@ -25,6 +25,8 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
     VoteConfirmationClientAlgorithms voteConfirmationClient
 
     void setup() {
+        def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray()
+
         publicParameters.encryptionGroup >> encryptionGroup
         encryptionGroup.p >> SEVEN
         encryptionGroup.q >> THREE
@@ -37,13 +39,17 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         primeField.p_prime >> SEVEN
         publicParameters.s >> 4
 
+        publicParameters.a_y >> (defaultAlphabet as List<Character>)
+        publicParameters.k_y >> 2
+        publicParameters.a_f >> (defaultAlphabet as List<Character>)
+
         voteConfirmationClient = new VoteConfirmationClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
     }
 
     def "genConfirmation should generate the expected confirmation"() {
         given: "a given set of parameters"
         def voterIndex = 0
-        def confirmationCode = [0x9A] as byte[] // ToInteger(Y) = 154
+        def confirmationCode = "cA" // ToInteger(Y) = 154
         def bold_P = [
                 [new Point(FOUR, TWO)],
                 [new Point(THREE, ONE)],
@@ -114,6 +120,6 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
                 new FinalizationCodePart([0xBE, 0xEF] as byte[], []),
                 new FinalizationCodePart([0x01, 0x10] as byte[], []),
                 new FinalizationCodePart([0xFA, 0xCE] as byte[], [])
-        ]) == ([0x9B, 0x9C] as byte[])
+        ]) == "jUC" // [0x9B, 0x9C] -> 39836
     }
 }

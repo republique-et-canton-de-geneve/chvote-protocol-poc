@@ -25,6 +25,8 @@ class VoteCastingClientAlgorithmsTest extends Specification {
     VoteCastingClientAlgorithms voteCastingClient
 
     void setup() {
+        def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray()
+
         publicParameters.encryptionGroup >> encryptionGroup
         encryptionGroup.p >> SEVEN
         encryptionGroup.q >> THREE
@@ -38,6 +40,9 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         publicParameters.l_m >> 32
         publicParameters.l_r >> 16
         publicParameters.s >> 2
+        publicParameters.a_x >> (defaultAlphabet as List<Character>)
+        publicParameters.a_r >> (defaultAlphabet as List<Character>)
+        publicParameters.k_x >> 3
 
         voteCastingClient = new VoteCastingClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
     }
@@ -64,7 +69,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         ) >> FIVE // c
 
         when: "generating a ballot"
-        def ballotQueryAndRand = voteCastingClient.genBallot([0x0F] as byte[], [1, 2], new EncryptionPublicKey(THREE, encryptionGroup))
+        def ballotQueryAndRand = voteCastingClient.genBallot("p", [1, 2], new EncryptionPublicKey(THREE, encryptionGroup))
 
         then: "x_circ has the expected value"
         // x = 15
@@ -196,7 +201,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         def rc = voteCastingClient.getReturnCodes(pointMatrix)
 
         then:
-        rc.length == 1
-        rc[0] == ([0xD4, 0xC9] as byte[])
+        rc.size() == 1
+        rc[0] == "ntj" // [0xD4, 0xC9] -> 54473
     }
 }
