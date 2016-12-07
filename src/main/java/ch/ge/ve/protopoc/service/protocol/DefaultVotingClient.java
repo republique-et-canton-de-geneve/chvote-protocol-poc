@@ -112,7 +112,7 @@ public class DefaultVotingClient implements VotingClientService {
         Preconditions.checkState(pointMatrix != null,
                 "The point matrix needs to have been computed first");
 
-        Confirmation confirmation = voteConfirmationClientAlgorithms.genConfirmation(voterIndex,
+        Confirmation confirmation = voteConfirmationClientAlgorithms.genConfirmation(
                 confirmationCredentials, pointMatrix, voterSelectionCounts);
 
         List<FinalizationCodePart> finalizationCodeParts;

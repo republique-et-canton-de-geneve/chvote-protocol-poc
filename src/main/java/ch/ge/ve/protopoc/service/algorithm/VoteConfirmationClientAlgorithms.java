@@ -37,14 +37,12 @@ public class VoteConfirmationClientAlgorithms {
     /**
      * Algorithm 5.31: GenConfirmation
      *
-     * @param i      the voter index
      * @param Y      the confirmation code
      * @param bold_P the <tt>k</tt> per <tt>s</tt> point matrix, where k = sum(bold_k) and s is the number of authorities
      * @param bold_k the number of selections per election
      * @return the public confirmation y_circ and the proof of knowledge of the secret confirmation y
      */
-    public Confirmation genConfirmation(Integer i, String Y, List<List<Point>> bold_P, List<Integer> bold_k) {
-        Preconditions.checkNotNull(i);
+    public Confirmation genConfirmation(String Y, List<List<Point>> bold_P, List<Integer> bold_k) {
         Preconditions.checkNotNull(Y);
         Preconditions.checkNotNull(bold_P);
         Preconditions.checkArgument(bold_P.size() == publicParameters.getS());

@@ -73,7 +73,7 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         // t = g_circ ^ omega mod p_circ = 3 ^ 3 mod 11 = 5
         // s = omega + c * y mod q_circ = 3 + 3 * 0 mod 11 = 3
         expect:
-        voteConfirmationClient.genConfirmation(voterIndex, confirmationCode, bold_P, bold_k) ==
+        voteConfirmationClient.genConfirmation(confirmationCode, bold_P, bold_k) ==
                 new Confirmation(ONE, new NonInteractiveZKP([FIVE], [THREE]))
     }
 
