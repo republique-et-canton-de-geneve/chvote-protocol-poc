@@ -1,6 +1,7 @@
 package ch.ge.ve.protopoc.service.support;
 
 import ch.ge.ve.protopoc.service.model.EncryptionGroup;
+import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -14,6 +15,18 @@ public class RandomGenerator {
 
     public RandomGenerator(SecureRandom secureRandom) {
         this.secureRandom = secureRandom;
+    }
+
+    /**
+     * Generate a random integer in the given range, taken from a uniform random distribution
+     *
+     * @param from the start of the range, inclusive
+     * @param to   the end of the range, inclusive
+     * @return a random integer within range
+     */
+    public int randomIntInRange(int from, int to) {
+        Preconditions.checkArgument(from <= to, "The lowerbound must be less or equal to the upperbound");
+        return secureRandom.nextInt(to - from) + from;
     }
 
     /**

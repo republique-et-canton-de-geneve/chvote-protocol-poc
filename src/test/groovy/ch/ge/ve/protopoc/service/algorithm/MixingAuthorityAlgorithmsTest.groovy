@@ -1,6 +1,7 @@
 package ch.ge.ve.protopoc.service.algorithm
 
 import ch.ge.ve.protopoc.service.model.*
+import ch.ge.ve.protopoc.service.support.RandomGenerator
 import spock.lang.Specification
 
 import static ch.ge.ve.protopoc.service.support.BigIntegers.*
@@ -12,6 +13,7 @@ import static java.math.BigInteger.ONE
 class MixingAuthorityAlgorithmsTest extends Specification {
     PublicParameters publicParameters = Mock()
     EncryptionGroup encryptionGroup = Mock()
+    RandomGenerator randomGenerator = Mock()
     VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms = Mock()
 
     MixingAuthorityAlgorithms mixingAuthorityAlgorithms
@@ -20,7 +22,7 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         publicParameters.encryptionGroup >> encryptionGroup
         encryptionGroup.p >> ELEVEN
 
-        mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, voteConfirmationAuthorityAlgorithms)
+        mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, voteConfirmationAuthorityAlgorithms, randomGenerator)
     }
 
     def "getEncryptions should retrieve a list of valid, confirmed encryptions"() {
@@ -46,5 +48,20 @@ class MixingAuthorityAlgorithmsTest extends Specification {
                 new Encryption(FOUR, ONE),
                 new Encryption(EIGHT, FOUR)
         ])
+    }
+
+    def "genPermutation should generate a valid permutation"() {
+        given:
+        randomGenerator.randomIntInRange(_, _) >>> randomInts
+
+        expect:
+        mixingAuthorityAlgorithms.genPermutation(n) == psy
+
+        where:
+        n | randomInts   || psy
+        1 | [0]          || [0]
+        2 | [1, 1]       || [1, 0]
+        3 | [1, 1, 2]    || [1, 0, 2]
+        4 | [0, 3, 2, 3] || [0, 3, 2, 1]
     }
 }
