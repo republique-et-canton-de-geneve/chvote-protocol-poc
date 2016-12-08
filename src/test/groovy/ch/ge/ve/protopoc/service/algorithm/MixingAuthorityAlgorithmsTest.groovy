@@ -21,6 +21,8 @@ class MixingAuthorityAlgorithmsTest extends Specification {
     void setup() {
         publicParameters.encryptionGroup >> encryptionGroup
         encryptionGroup.p >> ELEVEN
+        encryptionGroup.q >> SEVEN
+        encryptionGroup.g >> TWO
 
         mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, voteConfirmationAuthorityAlgorithms, randomGenerator)
     }
@@ -63,5 +65,20 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         2 | [1, 1]       || [1, 0]
         3 | [1, 1, 2]    || [1, 0, 2]
         4 | [0, 3, 2, 3] || [0, 3, 2, 1]
+    }
+
+    def "genReEncryption should correctly re-encrypt the ballot"() {
+        given:
+        def pk = THREE
+        randomGenerator.randomInZq(SEVEN) >> r_prime
+
+        expect:
+        mixingAuthorityAlgorithms.genReEncryption(new Encryption(a, b), new EncryptionPublicKey(pk, encryptionGroup)) ==
+                new ReEncryption(new Encryption(a_prime, b_prime), r_prime)
+
+        where:
+        a     | b   | r_prime || a_prime | b_prime
+        FIVE  | TWO | SIX     || FOUR    | SEVEN
+        THREE | ONE | FOUR    || ONE     | FIVE
     }
 }

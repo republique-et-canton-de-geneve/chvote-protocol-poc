@@ -36,4 +36,12 @@ public class Encryption {
     public int hashCode() {
         return Objects.hash(a, b);
     }
+
+    @Override
+    public String toString() {
+        return "Encryption{" +
+                "a=" + a +
+                ", b=" + b +
+                '}';
+    }
 }

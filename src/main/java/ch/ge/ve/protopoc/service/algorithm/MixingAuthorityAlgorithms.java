@@ -1,9 +1,6 @@
 package ch.ge.ve.protopoc.service.algorithm;
 
-import ch.ge.ve.protopoc.service.model.BallotEntry;
-import ch.ge.ve.protopoc.service.model.ConfirmationEntry;
-import ch.ge.ve.protopoc.service.model.Encryption;
-import ch.ge.ve.protopoc.service.model.PublicParameters;
+import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
 
 import java.math.BigInteger;
@@ -69,5 +66,26 @@ public class MixingAuthorityAlgorithms {
         }
 
         return psy;
+    }
+
+    /**
+     * Algorithm 5.43: GenReEncryption
+     *
+     * @param e         the original encryption
+     * @param publicKey the public key used
+     * @return
+     */
+    public ReEncryption genReEncryption(Encryption e, EncryptionPublicKey publicKey) {
+        BigInteger p = publicParameters.getEncryptionGroup().getP();
+        BigInteger q = publicParameters.getEncryptionGroup().getQ();
+        BigInteger g = publicParameters.getEncryptionGroup().getG();
+        BigInteger pk = publicKey.getPublicKey();
+
+        BigInteger r_prime = randomGenerator.randomInZq(q);
+
+        BigInteger a_prime = e.getA().multiply(pk.modPow(r_prime, p)).mod(p);
+        BigInteger b_prime = e.getB().multiply(g.modPow(r_prime, p)).mod(p);
+
+        return new ReEncryption(new Encryption(a_prime, b_prime), r_prime);
     }
 }
