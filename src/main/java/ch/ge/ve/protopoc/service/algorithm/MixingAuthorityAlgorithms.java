@@ -2,6 +2,7 @@ package ch.ge.ve.protopoc.service.algorithm;
 
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
+import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -111,5 +112,45 @@ public class MixingAuthorityAlgorithms {
         BigInteger b_prime = e.getB().multiply(g.modPow(r_prime, p)).mod(p);
 
         return new ReEncryption(new Encryption(a_prime, b_prime), r_prime);
+    }
+
+    /**
+     * Algorithm 5.46: GenPermutationCommitment
+     *
+     * @param psy    the permutation
+     * @param bold_h a list of independent generators
+     * @return a commitment to the permutation
+     */
+    public PermutationCommitment genPermutationCommitment(List<Integer> psy, List<BigInteger> bold_h) {
+        Preconditions.checkArgument(psy.size() == bold_h.size(),
+                "The lengths of psy and bold_h should be identical");
+        BigInteger p = publicParameters.getEncryptionGroup().getP();
+        BigInteger q = publicParameters.getEncryptionGroup().getQ();
+        BigInteger g = publicParameters.getEncryptionGroup().getG();
+
+        List<BigInteger> bold_c = new ArrayList<>();
+        List<BigInteger> bold_r = new ArrayList<>();
+
+        // Loop indexed over j_i instead of i, for performance reasons, with a reverse permutation lookup
+        List<Integer> reversePsy = reversePermutation(psy);
+        for (int j_i = 0; j_i < psy.size(); j_i++) {
+            Integer i = reversePsy.get(j_i);
+            Preconditions.checkState(psy.get(i) == j_i, "The reverse permutation is not valid");
+
+            BigInteger r_j_i = randomGenerator.randomInZq(q);
+            BigInteger c_j_i = g.modPow(r_j_i, p).multiply(bold_h.get(i)).mod(p);
+            bold_c.add(c_j_i);
+            bold_r.add(r_j_i);
+        }
+
+        return new PermutationCommitment(bold_c, bold_r);
+    }
+
+    private List<Integer> reversePermutation(List<Integer> psy) {
+        Preconditions.checkArgument(psy.containsAll(IntStream.range(0, psy.size())
+                        .mapToObj(Integer::valueOf).collect(Collectors.toList())),
+                "The permutation should contain all number from 0 (inclusive) to length (exclusive)");
+
+        return IntStream.range(0, psy.size()).mapToObj(psy::indexOf).collect(Collectors.toList());
     }
 }

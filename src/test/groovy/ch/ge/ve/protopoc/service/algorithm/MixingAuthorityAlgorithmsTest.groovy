@@ -105,4 +105,16 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         FIVE  | TWO | SIX     || FOUR    | SEVEN
         THREE | ONE | FOUR    || ONE     | FIVE
     }
+
+    def "genPermutationCommitment should generate a valid permutation commitment"() {
+        given:
+        randomGenerator.randomInZq(SEVEN) >>> random
+
+        expect:
+        mixingAuthorityAlgorithms.genPermutationCommitment(psy, bold_h) == new PermutationCommitment(bold_c, random)
+
+        where:
+        psy       | bold_h             | random            || bold_c
+        [1, 0, 2] | [TWO, THREE, FIVE] | [ONE, TWO, THREE] || [SIX, EIGHT, SEVEN]
+    }
 }
