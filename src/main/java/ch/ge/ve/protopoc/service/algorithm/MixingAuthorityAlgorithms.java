@@ -146,6 +146,39 @@ public class MixingAuthorityAlgorithms {
         return new PermutationCommitment(bold_c, bold_r);
     }
 
+    /**
+     * Algorithm 5.47: GenCommitmentChain
+     *
+     * @param bold_u_prime the permuted challenges
+     * @return a commitment chain relative to the permuted list of public challenges
+     */
+    public CommitmentChain genCommitmentChain(List<BigInteger> bold_u_prime) {
+        BigInteger p = publicParameters.getEncryptionGroup().getP();
+        BigInteger q = publicParameters.getEncryptionGroup().getQ();
+        BigInteger g = publicParameters.getEncryptionGroup().getG();
+        BigInteger h = publicParameters.getEncryptionGroup().getH();
+
+        List<BigInteger> bold_c = new ArrayList<>();
+        List<BigInteger> bold_r = new ArrayList<>();
+
+        bold_c.add(h); // c_0, we'll remove it afterwards
+
+        for (int i = 0; i < bold_u_prime.size(); i++) {
+            BigInteger c_i_minus_one = bold_c.get(i); // offset by one, due to adding c_0 as a prefix
+            BigInteger u_prime_i = bold_u_prime.get(i);
+
+            BigInteger r_i = randomGenerator.randomInZq(q);
+            BigInteger c_i = g.modPow(r_i, p).multiply(c_i_minus_one.modPow(u_prime_i, p)).mod(p);
+
+            bold_c.add(c_i);
+            bold_r.add(r_i);
+        }
+
+        bold_c.remove(0);
+
+        return new CommitmentChain(bold_c, bold_r);
+    }
+
     private List<Integer> reversePermutation(List<Integer> psy) {
         Preconditions.checkArgument(psy.containsAll(IntStream.range(0, psy.size())
                         .mapToObj(Integer::valueOf).collect(Collectors.toList())),

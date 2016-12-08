@@ -23,6 +23,7 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         encryptionGroup.p >> ELEVEN
         encryptionGroup.q >> SEVEN
         encryptionGroup.g >> TWO
+        encryptionGroup.h >> THREE
 
         mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, voteConfirmationAuthorityAlgorithms, randomGenerator)
     }
@@ -116,5 +117,17 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         where:
         psy       | bold_h             | random            || bold_c
         [1, 0, 2] | [TWO, THREE, FIVE] | [ONE, TWO, THREE] || [SIX, EIGHT, SEVEN]
+    }
+
+    def "genCommitmentChain should generate a valid commitment chain"() {
+        given:
+        randomGenerator.randomInZq(SEVEN) >>> bold_r
+
+        expect:
+        mixingAuthorityAlgorithms.genCommitmentChain(bold_u_prime) == new CommitmentChain(bold_c, bold_r)
+
+        where:
+        bold_u_prime       | bold_r            || bold_c
+        [FIVE, ONE, THREE] | [ONE, TWO, THREE] || [TWO, EIGHT, FOUR]
     }
 }
