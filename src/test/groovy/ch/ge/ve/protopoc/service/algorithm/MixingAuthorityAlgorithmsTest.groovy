@@ -52,6 +52,30 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         ])
     }
 
+    def "genShuffle should generate a valid shuffle"() {
+        given:
+        randomGenerator.randomIntInRange(_, _) >>> [1, 1, 2] // psy = [1, 0, 2]
+        randomGenerator.randomInZq(SEVEN) >>> [SIX, FOUR, TWO]
+        def bold_e = [
+                new Encryption(FIVE, TWO),
+                new Encryption(THREE, ONE),
+                new Encryption(FIVE, NINE)
+        ]
+        def publicKey = new EncryptionPublicKey(THREE, encryptionGroup)
+
+        expect:
+        mixingAuthorityAlgorithms.genShuffle(bold_e, publicKey) == new Shuffle(
+                [
+                        new Encryption(ONE, FIVE),
+                        new Encryption(FOUR, SEVEN),
+                        new Encryption(ONE, THREE)
+                ],
+                [SIX, FOUR, TWO],
+                [1, 0, 2]
+        )
+
+    }
+
     def "genPermutation should generate a valid permutation"() {
         given:
         randomGenerator.randomIntInRange(_, _) >>> randomInts
@@ -69,11 +93,11 @@ class MixingAuthorityAlgorithmsTest extends Specification {
 
     def "genReEncryption should correctly re-encrypt the ballot"() {
         given:
-        def pk = THREE
+        def pk = new EncryptionPublicKey(THREE, encryptionGroup)
         randomGenerator.randomInZq(SEVEN) >> r_prime
 
         expect:
-        mixingAuthorityAlgorithms.genReEncryption(new Encryption(a, b), new EncryptionPublicKey(pk, encryptionGroup)) ==
+        mixingAuthorityAlgorithms.genReEncryption(new Encryption(a, b), pk) ==
                 new ReEncryption(new Encryption(a_prime, b_prime), r_prime)
 
         where:

@@ -46,6 +46,30 @@ public class MixingAuthorityAlgorithms {
     }
 
     /**
+     * Algorithm 5.41: GenShuffle
+     *
+     * @param bold_e the list of ElGamal encryptions
+     * @param pk     the encryption key
+     * @return the result of a shuffle, with re-encryption of the values
+     */
+    public Shuffle genShuffle(List<Encryption> bold_e, EncryptionPublicKey pk) {
+        List<Integer> psy = genPermutation(bold_e.size());
+        List<ReEncryption> reEncryptions = bold_e.stream()
+                .map(e_i -> genReEncryption(e_i, pk)).collect(Collectors.toList());
+
+        List<Encryption> bold_e_prime = psy.stream()
+                .map(reEncryptions::get)
+                .map(ReEncryption::getEncryption)
+                .collect(Collectors.toList());
+
+        List<BigInteger> bold_r_prime = reEncryptions.stream()
+                .map(ReEncryption::getRandomness)
+                .collect(Collectors.toList());
+
+        return new Shuffle(bold_e_prime, bold_r_prime, psy);
+    }
+
+    /**
      * Algorithm 5.42: GenPermutation
      *
      * @param n the permutation size
