@@ -46,7 +46,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
                 new BallotEntry(1, null, null)
         ]
         List<BigInteger> publicCredentials = [THREE, FOUR, ONE, TWO]
-        generalAlgorithms.getProofChallenge([x_circ, a, b] as BigInteger[], t as BigInteger[], THREE) >> c
+        generalAlgorithms.getNIZKPChallenge([x_circ, a, b] as BigInteger[], t as BigInteger[], THREE) >> c
 
         expect:
         result == voteCastingAuthority.checkBallot(
@@ -94,7 +94,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
     def "checkBallotProof should verify the validity of a provided proof"() {
         given: "a fixed encryption key and challenge"
         def encryptionKey = new EncryptionPublicKey(ONE, encryptionGroup)
-        generalAlgorithms.getProofChallenge([x_circ, a, b] as BigInteger[], t as BigInteger[], THREE) >> c
+        generalAlgorithms.getNIZKPChallenge([x_circ, a, b] as BigInteger[], t as BigInteger[], THREE) >> c
 
         expect: "the verification of the Proof to have the expected result"
         result == voteCastingAuthority.checkBallotProof(new NonInteractiveZKP(t, s), x_circ, a, b, encryptionKey)

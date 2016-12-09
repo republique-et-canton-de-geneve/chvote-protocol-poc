@@ -106,7 +106,7 @@ class GeneralAlgorithmsTest extends Specification {
         t = new Object[0]
 
         when:
-        def challenge = generalAlgorithms.getProofChallenge(v, t, ELEVEN)
+        def challenge = generalAlgorithms.getNIZKPChallenge(v, t, ELEVEN)
 
         then:
         1 * hash.hash(v, t) >> ([0x0D] as byte[])
@@ -118,7 +118,7 @@ class GeneralAlgorithmsTest extends Specification {
         Object[] v = new Object[0]
 
         when:
-        def challenges = generalAlgorithms.getPublicChallenges(3, v, ELEVEN)
+        def challenges = generalAlgorithms.getChallenges(3, v, ELEVEN)
 
         then:
         1 * hash.hash(v, ONE) >> ([0x0A] as byte[])

@@ -123,14 +123,14 @@ public class GeneralAlgorithms {
     /**
      * Algorithm 5.5: GetProofChallenge
      *
-     * @param v    the public values vector (domain unspecified)
+     * @param y    the public values vector (domain unspecified)
      * @param t    the commitments vector (domain unspecified)
      * @param c_ub the upper-bound of the challenge
      * @return the computed challenge
      */
-    public BigInteger getProofChallenge(Object[] v, Object[] t, BigInteger c_ub) {
-        Preconditions.checkArgument(v.length == t.length, "The lengths of v and t should be identical");
-        return conversion.toInteger(hash.hash(v, t)).mod(c_ub);
+    public BigInteger getNIZKPChallenge(Object[] y, Object[] t, BigInteger c_ub) {
+        Preconditions.checkArgument(y.length == t.length, "The lengths of y and t should be identical");
+        return conversion.toInteger(hash.hash(y, t)).mod(c_ub);
     }
 
     /**
@@ -141,7 +141,7 @@ public class GeneralAlgorithms {
      * @param c_ub the upper-bound of the challenge
      * @return a list challenges, of length n
      */
-    public List<BigInteger> getPublicChallenges(int n, Object[] v, BigInteger c_ub) {
+    public List<BigInteger> getChallenges(int n, Object[] v, BigInteger c_ub) {
         List<BigInteger> c = new ArrayList<>();
         for (int i = 1; i <= n; i++) {
             BigInteger c_i = conversion.toInteger(hash.hash(v, BigInteger.valueOf(i))).mod(c_ub);

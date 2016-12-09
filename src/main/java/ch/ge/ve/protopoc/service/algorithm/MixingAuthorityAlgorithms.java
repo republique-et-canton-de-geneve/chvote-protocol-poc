@@ -6,7 +6,10 @@ import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -15,11 +18,13 @@ import java.util.stream.IntStream;
  */
 public class MixingAuthorityAlgorithms {
     private final PublicParameters publicParameters;
+    private final GeneralAlgorithms generalAlgorithms;
     private final VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms;
     private final RandomGenerator randomGenerator;
 
-    public MixingAuthorityAlgorithms(PublicParameters publicParameters, VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms, RandomGenerator randomGenerator) {
+    public MixingAuthorityAlgorithms(PublicParameters publicParameters, GeneralAlgorithms generalAlgorithms, VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms, RandomGenerator randomGenerator) {
         this.publicParameters = publicParameters;
+        this.generalAlgorithms = generalAlgorithms;
         this.voteConfirmationAuthorityAlgorithms = voteConfirmationAuthorityAlgorithms;
         this.randomGenerator = randomGenerator;
     }
@@ -98,7 +103,7 @@ public class MixingAuthorityAlgorithms {
      *
      * @param e         the original encryption
      * @param publicKey the public key used
-     * @return
+     * @return a re-encryption of the provided ElGamal encryption
      */
     public ReEncryption genReEncryption(Encryption e, EncryptionPublicKey publicKey) {
         BigInteger p = publicParameters.getEncryptionGroup().getP();
@@ -112,6 +117,184 @@ public class MixingAuthorityAlgorithms {
         BigInteger b_prime = e.getB().multiply(g.modPow(r_prime, p)).mod(p);
 
         return new ReEncryption(new Encryption(a_prime, b_prime), r_prime);
+    }
+
+    /**
+     * Algorithm 5.44: GenShuffleProof
+     *
+     * @param bold_e       the vector of ElGamal encryptions
+     * @param bold_e_prime the vector of permuted ElGamal re-encryptions
+     * @param bold_r_prime the randomizations used for the re-encryption
+     * @param psy          the permutation used
+     * @param publicKey    the public key for the encryption
+     * @return a proof of the validity of the shuffle, as per Wikström's
+     * <em><strong>A commitment-consistent proof of a shuffle</strong></em>
+     */
+    public ShuffleProof genShuffleProof(List<Encryption> bold_e, List<Encryption> bold_e_prime,
+                                        List<BigInteger> bold_r_prime, List<Integer> psy,
+                                        EncryptionPublicKey publicKey) {
+        int N = bold_e.size();
+        Preconditions.checkArgument(bold_e_prime.size() == N,
+                "The length of bold_e_prime should be equal to that of bold_e");
+        Preconditions.checkArgument(bold_r_prime.size() == N,
+                "The length of bold_r_prime should be equal to that of bold_e");
+        Preconditions.checkArgument(psy.size() == N,
+                "The length of psy should be equal to that of bold_e");
+
+        BigInteger p = publicParameters.getEncryptionGroup().getP();
+        BigInteger q = publicParameters.getEncryptionGroup().getQ();
+        BigInteger g = publicParameters.getEncryptionGroup().getG();
+        BigInteger h = publicParameters.getEncryptionGroup().getH();
+
+        BigInteger pk = publicKey.getPublicKey();
+
+
+        List<BigInteger> bold_h = generalAlgorithms.getGenerators(N);
+        PermutationCommitment permutationCommitment = genPermutationCommitment(psy, bold_h);
+        List<BigInteger> bold_c = permutationCommitment.getBold_c();
+        List<BigInteger> bold_r = permutationCommitment.getBold_r();
+        List<BigInteger> bold_u = generalAlgorithms.getChallenges(N, new List[]{bold_e, bold_e_prime, bold_c}, q);
+
+        List<BigInteger> bold_u_prime = IntStream.range(0, N)
+                .mapToObj(i -> bold_u.get(psy.get(i))).collect(Collectors.toList());
+
+        CommitmentChain commitmentChain = genCommitmentChain(h, bold_u_prime);
+        List<BigInteger> bold_c_circ = commitmentChain.getBold_c();
+        List<BigInteger> bold_r_circ = commitmentChain.getBold_r();
+
+        BigInteger omega_1 = randomGenerator.randomInZq(q);
+        BigInteger omega_2 = randomGenerator.randomInZq(q);
+        BigInteger omega_3 = randomGenerator.randomInZq(q);
+        BigInteger omega_4 = randomGenerator.randomInZq(q);
+
+        List<BigInteger> bold_omega_circ = new ArrayList<>();
+        List<BigInteger> bold_omega_prime = new ArrayList<>();
+
+        for (int i = 0; i < N; i++) {
+            bold_omega_circ.add(randomGenerator.randomInZq(q));
+            bold_omega_prime.add(randomGenerator.randomInZq(q));
+        }
+
+        ShuffleProof.T t = computeT(bold_e_prime, N, p, g, h, pk, bold_h, bold_c_circ,
+                omega_1, omega_2, omega_3, omega_4, bold_omega_circ, bold_omega_prime);
+        Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_circ, pk};
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t.elementsToHash(), q);
+
+        ShuffleProof.S s = computeS(bold_r_prime, N, q, bold_r, bold_u, bold_u_prime, bold_r_circ,
+                omega_1, omega_2, omega_3, omega_4, bold_omega_circ, bold_omega_prime, c);
+
+        return new ShuffleProof(t, s, bold_c, bold_c_circ);
+    }
+
+    private ShuffleProof.S computeS(List<BigInteger> bold_r_prime, int N, BigInteger q, List<BigInteger> bold_r,
+                                    List<BigInteger> bold_u, List<BigInteger> bold_u_prime, List<BigInteger> bold_r_circ,
+                                    BigInteger omega_1, BigInteger omega_2, BigInteger omega_3, BigInteger omega_4,
+                                    List<BigInteger> bold_omega_circ, List<BigInteger> bold_omega_prime, BigInteger c) {
+        BigInteger s_1 = computeS1(q, bold_r, omega_1, c);
+
+        List<BigInteger> v = computeV(N, q, bold_u_prime);
+
+        BigInteger s_2 = computeSi(N, q, bold_r_circ, omega_2, c, v);
+        BigInteger s_3 = computeSi(N, q, bold_r, omega_3, c, bold_u);
+        BigInteger s_4 = computeSi(N, q, bold_r_prime, omega_4, c, bold_u);
+
+        List<BigInteger> s_circ = new ArrayList<>();
+        List<BigInteger> s_prime = new ArrayList<>();
+        for (int i = 0; i < N; i++) {
+            BigInteger s_circ_i = bold_omega_circ.get(i).add(c.multiply(bold_r_circ.get(i))).mod(q);
+            s_circ.add(s_circ_i);
+
+            BigInteger s_prime_i = bold_omega_prime.get(i).add(c.multiply(bold_u_prime.get(i))).mod(q);
+            s_prime.add(s_prime_i);
+        }
+
+        return new ShuffleProof.S(s_1, s_2, s_3, s_4, s_circ, s_prime);
+    }
+
+    private BigInteger computeSi(int N, BigInteger q, List<BigInteger> bold_r_circ, BigInteger omega_2, BigInteger c, List<BigInteger> v) {
+        BigInteger r_circ = IntStream.range(0, N)
+                .mapToObj(i -> bold_r_circ.get(i).multiply(v.get(i)).mod(q))
+                .reduce(BigInteger::add)
+                .orElseThrow(exceptionSupplier())
+                .mod(q);
+        return omega_2.add(c.multiply(r_circ)).mod(q);
+    }
+
+    private List<BigInteger> computeV(int N, BigInteger q, List<BigInteger> bold_u_prime) {
+        List<BigInteger> v = new ArrayList<>();
+        v.add(BigInteger.ONE);
+        for (int rev_i = 1; rev_i <= N; rev_i++) {
+            // inserting always at index 0 means that index 0 always contains the previous value
+            // and that values will be held in reverse order to the insertion order, which is equivalent to the
+            // algorithm described
+            int i = N - rev_i;
+            BigInteger v_i = bold_u_prime.get(i).multiply(v.get(0)).mod(q);
+            v.add(0, v_i);
+        }
+        return v;
+    }
+
+    private BigInteger computeS1(BigInteger q, List<BigInteger> bold_r, BigInteger omega_1, BigInteger c) {
+        BigInteger r_bar = bold_r.stream()
+                .reduce(BigInteger::add)
+                .orElseThrow(exceptionSupplier())
+                .mod(q);
+        return omega_1.add(c.multiply(r_bar)).mod(q);
+    }
+
+    private ShuffleProof.T computeT(List<Encryption> bold_e_prime, int N, BigInteger p, BigInteger g, BigInteger h,
+                                    BigInteger pk, List<BigInteger> bold_h, List<BigInteger> bold_c_circ,
+                                    BigInteger omega_1, BigInteger omega_2, BigInteger omega_3, BigInteger omega_4,
+                                    List<BigInteger> bold_omega_circ, List<BigInteger> bold_omega_prime) {
+        BigInteger t_1 = g.modPow(omega_1, p);
+        BigInteger t_2 = g.modPow(omega_2, p);
+
+        BigInteger h_prod = getBoldHProduct(N, p, bold_h, bold_omega_prime);
+        BigInteger t_3 = g.modPow(omega_3, p).multiply(h_prod).mod(p);
+
+        BigInteger a_prime_prod = getAPrimeProd(bold_e_prime, N, p, bold_omega_prime);
+        BigInteger t_4_1 = pk.modPow(omega_4.negate(), p).multiply(a_prime_prod).mod(p);
+
+        BigInteger b_prime_prod = getBPrimeProd(bold_e_prime, N, p, bold_omega_prime);
+        BigInteger t_4_2 = g.modPow(omega_4.negate(), p).multiply(b_prime_prod).mod(p);
+
+        // insert c_circ_0, thus offsetting c_circ indices by 1...
+        bold_c_circ.add(0, h);
+        List<BigInteger> bold_t_circ = IntStream.range(0, N)
+                .mapToObj(i -> g.modPow(bold_omega_circ.get(i), p)
+                        .multiply(bold_c_circ.get(i).modPow(bold_omega_prime.get(i), p))
+                        .mod(p)).collect(Collectors.toList());
+        bold_c_circ.remove(0); // restore c_circ to its former status
+        return new ShuffleProof.T(t_1, t_2, t_3, Arrays.asList(t_4_1, t_4_2), bold_t_circ);
+    }
+
+    private BigInteger getBPrimeProd(List<Encryption> bold_e_prime, int N, BigInteger p, List<BigInteger> bold_omega_prime) {
+        return IntStream.range(0, N)
+                .mapToObj(i -> bold_e_prime.get(i).getB().modPow(bold_omega_prime.get(i), p))
+                .reduce(multiplyModP(p))
+                .orElseThrow(exceptionSupplier());
+    }
+
+    private BigInteger getAPrimeProd(List<Encryption> bold_e_prime, int N, BigInteger p, List<BigInteger> bold_omega_prime) {
+        return IntStream.range(0, N)
+                .mapToObj(i -> bold_e_prime.get(i).getA().modPow(bold_omega_prime.get(i), p))
+                .reduce(multiplyModP(p))
+                .orElseThrow(exceptionSupplier());
+    }
+
+    private BinaryOperator<BigInteger> multiplyModP(BigInteger p) {
+        return (a, b) -> a.multiply(b).mod(p);
+    }
+
+    private Supplier<IllegalStateException> exceptionSupplier() {
+        return () -> new IllegalStateException("Should not happen, if N > 0");
+    }
+
+    private BigInteger getBoldHProduct(int n, BigInteger p, List<BigInteger> bold_h, List<BigInteger> bold_omega_prime) {
+        return IntStream.range(0, n)
+                .mapToObj(i -> bold_h.get(i).modPow(bold_omega_prime.get(i), p))
+                .reduce(multiplyModP(p))
+                .orElseThrow(exceptionSupplier());
     }
 
     /**
@@ -149,19 +332,19 @@ public class MixingAuthorityAlgorithms {
     /**
      * Algorithm 5.47: GenCommitmentChain
      *
+     * @param c_0          initial commitment
      * @param bold_u_prime the permuted challenges
      * @return a commitment chain relative to the permuted list of public challenges
      */
-    public CommitmentChain genCommitmentChain(List<BigInteger> bold_u_prime) {
+    public CommitmentChain genCommitmentChain(BigInteger c_0, List<BigInteger> bold_u_prime) {
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
-        BigInteger h = publicParameters.getEncryptionGroup().getH();
 
         List<BigInteger> bold_c = new ArrayList<>();
         List<BigInteger> bold_r = new ArrayList<>();
 
-        bold_c.add(h); // c_0, we'll remove it afterwards
+        bold_c.add(c_0); // c_0, we'll remove it afterwards
 
         for (int i = 0; i < bold_u_prime.size(); i++) {
             BigInteger c_i_minus_one = bold_c.get(i); // offset by one, due to adding c_0 as a prefix

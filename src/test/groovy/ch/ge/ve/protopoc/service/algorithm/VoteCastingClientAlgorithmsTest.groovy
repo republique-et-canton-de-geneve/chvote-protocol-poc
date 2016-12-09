@@ -62,7 +62,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         // t_1 = g_circ ^ omega_1 mod p_circ = 3^3 mod 11 = 5
         // t_2 = omega_2 * pk ^ omega_3 mod p = 2 * 3 ^ 1 mod 7 = 6
         // t_3 = g ^ omega_3 mod p = 2 ^ 1 mod 7 = 2
-        generalAlgorithms.getProofChallenge(
+        generalAlgorithms.getNIZKPChallenge(
                 [ONE, FOUR, TWO] as BigInteger[], // x_circ, a, b
                 [FIVE, SIX, TWO] as BigInteger[],  // t_1, t_2, t_3
                 THREE // min(q, q_circ)
@@ -123,7 +123,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         // t_1 = g_circ ^ omega_1 mod p_circ = 3^2 mod 11 = 9
         // t_2 = omega_2 * pk ^ omega_3 mod p = 2 * 3 ^ 1 mod 7 = 6
         // t_3 = g ^ omega_3 mod p = 2 ^ 1 mod 7 = 2
-        generalAlgorithms.getProofChallenge(
+        generalAlgorithms.getNIZKPChallenge(
                 [THREE, FOUR, FOUR] as BigInteger[], // x_circ, a, b
                 [NINE, SIX, TWO] as BigInteger[],  // t_1, t_2, t_3
                 THREE // min(q, q_circ)

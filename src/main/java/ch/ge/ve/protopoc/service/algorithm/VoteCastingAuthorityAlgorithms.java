@@ -115,7 +115,7 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger[] v = new BigInteger[]{x_circ, a, b};
         BigInteger[] t = new BigInteger[3];
         pi.getT().toArray(t);
-        BigInteger c = generalAlgorithms.getProofChallenge(v, t, q.min(q_circ));
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(v, t, q.min(q_circ));
         log.debug(String.format("checkBallotProof: c = %s", c));
 
         BigInteger s_1 = pi.getS().get(0);

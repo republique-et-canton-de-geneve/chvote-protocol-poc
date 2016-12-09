@@ -6,15 +6,18 @@ import spock.lang.Specification
 
 import static ch.ge.ve.protopoc.service.support.BigIntegers.*
 import static java.math.BigInteger.ONE
+import static java.math.BigInteger.ZERO
 
 /**
  * Tests on the mixing algorithms
  */
 class MixingAuthorityAlgorithmsTest extends Specification {
     PublicParameters publicParameters = Mock()
-    EncryptionGroup encryptionGroup = Mock()
-    RandomGenerator randomGenerator = Mock()
+    GeneralAlgorithms generalAlgorithms = Mock()
     VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms = Mock()
+    RandomGenerator randomGenerator = Mock()
+
+    EncryptionGroup encryptionGroup = Mock()
 
     MixingAuthorityAlgorithms mixingAuthorityAlgorithms
 
@@ -25,7 +28,7 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         encryptionGroup.g >> TWO
         encryptionGroup.h >> THREE
 
-        mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, voteConfirmationAuthorityAlgorithms, randomGenerator)
+        mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, generalAlgorithms, voteConfirmationAuthorityAlgorithms, randomGenerator)
     }
 
     def "getEncryptions should retrieve a list of valid, confirmed encryptions"() {
@@ -107,6 +110,63 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         THREE | ONE | FOUR    || ONE     | FIVE
     }
 
+    def "genShuffleProof should generate a valid shuffle proof"() {
+        given:
+        def bold_e = [
+                new Encryption(FIVE, TWO),
+                new Encryption(THREE, ONE),
+                new Encryption(FIVE, NINE)
+        ]
+        def bold_e_prime = [
+                new Encryption(ONE, FIVE),
+                new Encryption(FOUR, SEVEN),
+                new Encryption(ONE, THREE)
+        ]
+        def bold_r_prime = [SIX, FOUR, TWO]
+        def psy = [1, 0, 2]
+        def pk = new EncryptionPublicKey(THREE, encryptionGroup)
+        generalAlgorithms.getGenerators(3) >> [TWO, THREE, FIVE]
+        randomGenerator.randomInZq(SEVEN) >>> [
+                ONE, // genPermutationCommitment, r_1
+                TWO, // genPermutationCommitment, r_2
+                THREE, // genPermutationCommitment, r_3
+                FOUR, // genCommitmentChain, r_circ_1
+                FIVE, // genCommitmentChain, r_circ_2
+                SIX, // genCommitmentChain, r_circ_3
+                ONE, // omega_1
+                TWO, // omega_2
+                THREE, // omega_3
+                FOUR, // omega_4
+                TWO, // omega_circ_1
+                THREE, // omega_prime_1
+                FOUR, // omega_circ_2
+                FIVE, // omega_prime_2
+                SIX, // omega_circ_3
+                ONE, // omega_prime_3
+        ]
+        generalAlgorithms.getChallenges(3, [bold_e, bold_e_prime, [SIX, EIGHT, SEVEN]] as List[], SEVEN) >>
+                [TWO, FOUR, SIX]
+        generalAlgorithms.getNIZKPChallenge(_, _, _) >> FIVE
+
+        when:
+        def proof = mixingAuthorityAlgorithms.genShuffleProof(bold_e, bold_e_prime, bold_r_prime, psy, pk)
+
+        then: "the values in the proof match those computed by hand"
+        proof.t.t_1 == TWO
+        proof.t.t_2 == FOUR
+        proof.t.t_3 == ONE
+        proof.t.t_4 == [THREE, TWO]
+        proof.t.t_circ == [NINE, FIVE, EIGHT]
+        proof.s.s_1 == THREE
+        proof.s.s_2 == ZERO
+        proof.s.s_3 == THREE
+        proof.s.s_4 == ONE
+        proof.s.s_circ == [ONE, ONE, ONE]
+        proof.s.s_prime == [TWO, ONE, THREE]
+        proof.bold_c == [SIX, EIGHT, SEVEN]
+        proof.bold_c_prime == [NINE, SEVEN, THREE]
+    }
+
     def "genPermutationCommitment should generate a valid permutation commitment"() {
         given:
         randomGenerator.randomInZq(SEVEN) >>> random
@@ -124,7 +184,7 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         randomGenerator.randomInZq(SEVEN) >>> bold_r
 
         expect:
-        mixingAuthorityAlgorithms.genCommitmentChain(bold_u_prime) == new CommitmentChain(bold_c, bold_r)
+        mixingAuthorityAlgorithms.genCommitmentChain(THREE, bold_u_prime) == new CommitmentChain(bold_c, bold_r)
 
         where:
         bold_u_prime       | bold_r            || bold_c

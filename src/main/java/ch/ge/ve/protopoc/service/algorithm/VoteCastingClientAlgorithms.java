@@ -166,7 +166,7 @@ public class VoteCastingClientAlgorithms {
 
         BigInteger[] v = new BigInteger[]{x_circ, a, b};
         BigInteger[] t = new BigInteger[]{t_1, t_2, t_3};
-        BigInteger c = generalAlgorithms.getProofChallenge(v, t, q.min(q_circ));
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(v, t, q.min(q_circ));
         log.debug(String.format("genBallotProof: c = %s", c));
 
         BigInteger s_1 = omega_1.add(c.multiply(x)).mod(q_circ);

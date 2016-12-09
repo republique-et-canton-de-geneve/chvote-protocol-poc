@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.List;
 
 /**
  * This class manages all the hashing operations and combinations
@@ -73,6 +74,8 @@ public class Hash {
             return hash((byte[]) object);
         } else if (object instanceof Hashable) {
             return hash(((Hashable) object).elementsToHash());
+        } else if (object instanceof List) {
+            return hash(((List) object).toArray());
         } else if (object instanceof Object[]) {
             return hash((Object[]) object);
         } else {

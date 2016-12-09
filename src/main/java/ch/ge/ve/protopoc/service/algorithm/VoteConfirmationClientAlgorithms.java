@@ -135,7 +135,7 @@ public class VoteConfirmationClientAlgorithms {
         BigInteger t = g_circ.modPow(omega, p_circ);
         BigInteger[] bold_v = new BigInteger[]{y_circ};
         BigInteger[] bold_t = new BigInteger[]{t};
-        BigInteger c = generalAlgorithms.getProofChallenge(bold_v, bold_t, q_circ);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(bold_v, bold_t, q_circ);
 
         BigInteger s = omega.add(c.multiply(y)).mod(q_circ);
         return new NonInteractiveZKP(singletonList(t), singletonList(s));
