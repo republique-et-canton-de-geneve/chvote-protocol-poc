@@ -155,8 +155,8 @@ public class MixingAuthorityAlgorithms {
         List<BigInteger> bold_r = permutationCommitment.getBold_r();
         List<BigInteger> bold_u = generalAlgorithms.getChallenges(N, new List[]{bold_e, bold_e_prime, bold_c}, q);
 
-        List<BigInteger> bold_u_prime = IntStream.range(0, N)
-                .mapToObj(i -> bold_u.get(psy.get(i))).collect(Collectors.toList());
+        List<BigInteger> bold_u_prime = psy.stream()
+                .map(bold_u::get).collect(Collectors.toList());
 
         CommitmentChain commitmentChain = genCommitmentChain(h, bold_u_prime);
         List<BigInteger> bold_c_circ = commitmentChain.getBold_c();
@@ -223,12 +223,11 @@ public class MixingAuthorityAlgorithms {
     private List<BigInteger> computeV(int N, BigInteger q, List<BigInteger> bold_u_prime) {
         List<BigInteger> v = new ArrayList<>();
         v.add(BigInteger.ONE);
-        for (int rev_i = 1; rev_i <= N; rev_i++) {
+        for (int i = N - 2; i >= 0; i--) {
             // inserting always at index 0 means that index 0 always contains the previous value
             // and that values will be held in reverse order to the insertion order, which is equivalent to the
             // algorithm described
-            int i = N - rev_i;
-            BigInteger v_i = bold_u_prime.get(i).multiply(v.get(0)).mod(q);
+            BigInteger v_i = bold_u_prime.get(i + 1).multiply(v.get(0)).mod(q);
             v.add(0, v_i);
         }
         return v;
@@ -264,26 +263,32 @@ public class MixingAuthorityAlgorithms {
                 .mapToObj(i -> g.modPow(bold_omega_circ.get(i), p)
                         .multiply(bold_c_circ.get(i).modPow(bold_omega_prime.get(i), p))
                         .mod(p)).collect(Collectors.toList());
-        bold_c_circ.remove(0); // restore c_circ to its former status
+        bold_c_circ.remove(0); // restore c_circ to its former state
         return new ShuffleProof.T(t_1, t_2, t_3, Arrays.asList(t_4_1, t_4_2), bold_t_circ);
     }
 
     private BigInteger getBPrimeProd(List<Encryption> bold_e_prime, int N, BigInteger p, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, N)
                 .mapToObj(i -> bold_e_prime.get(i).getB().modPow(bold_omega_prime.get(i), p))
-                .reduce(multiplyModP(p))
+                .reduce(multiplyMod(p))
                 .orElseThrow(exceptionSupplier());
     }
 
     private BigInteger getAPrimeProd(List<Encryption> bold_e_prime, int N, BigInteger p, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, N)
                 .mapToObj(i -> bold_e_prime.get(i).getA().modPow(bold_omega_prime.get(i), p))
-                .reduce(multiplyModP(p))
+                .reduce(multiplyMod(p))
                 .orElseThrow(exceptionSupplier());
     }
 
-    private BinaryOperator<BigInteger> multiplyModP(BigInteger p) {
-        return (a, b) -> a.multiply(b).mod(p);
+    /**
+     * Get the operator for multiplying two BigIntegers modulo a fixed one
+     *
+     * @param m the modulus
+     * @return an operator on two BigIntegers, multiplying them modulo <tt>m</tt>
+     */
+    private BinaryOperator<BigInteger> multiplyMod(BigInteger m) {
+        return (a, b) -> a.multiply(b).mod(m);
     }
 
     private Supplier<IllegalStateException> exceptionSupplier() {
@@ -293,8 +298,114 @@ public class MixingAuthorityAlgorithms {
     private BigInteger getBoldHProduct(int n, BigInteger p, List<BigInteger> bold_h, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, n)
                 .mapToObj(i -> bold_h.get(i).modPow(bold_omega_prime.get(i), p))
-                .reduce(multiplyModP(p))
+                .reduce(multiplyMod(p))
                 .orElseThrow(exceptionSupplier());
+    }
+
+    public boolean checkShuffleProof(ShuffleProof pi, List<Encryption> bold_e, List<Encryption> bold_e_prime,
+                                     EncryptionPublicKey publicKey) {
+        int N = bold_e.size();
+        List<BigInteger> bold_c = pi.getBold_c();
+        List<BigInteger> bold_c_circ = pi.getBold_c_circ();
+        BigInteger t_1 = pi.getT().getT_1();
+        BigInteger t_2 = pi.getT().getT_2();
+        BigInteger t_3 = pi.getT().getT_3();
+        List<BigInteger> t_4 = pi.getT().getT_4();
+        List<BigInteger> t_circ = pi.getT().getT_circ();
+        BigInteger s_1 = pi.getS().getS_1();
+        BigInteger s_2 = pi.getS().getS_2();
+        BigInteger s_3 = pi.getS().getS_3();
+        BigInteger s_4 = pi.getS().getS_4();
+        List<BigInteger> s_circ = pi.getS().getS_circ();
+        List<BigInteger> s_prime = pi.getS().getS_prime();
+        Preconditions.checkArgument(bold_e_prime.size() == N,
+                "The length of bold_e_prime should be identical to that of bold_e");
+        Preconditions.checkArgument(bold_c.size() == N,
+                "The length of bold_c should be identical to that of bold_e");
+        Preconditions.checkArgument(bold_c_circ.size() == N,
+                "The length of bold_c_circ should be identical to that of bold_e");
+        Preconditions.checkArgument(t_4.size() == 2,
+                "t_4 should contain two elements");
+        Preconditions.checkArgument(t_circ.size() == N,
+                "The length of t_circ should be identical to that of bold_e");
+        Preconditions.checkArgument(s_circ.size() == N,
+                "The length of s_circ should be identical to that of bold_e");
+        Preconditions.checkArgument(s_prime.size() == N,
+                "The length of s_prime should be identical to that of bold_e");
+
+        BigInteger pk = publicKey.getPublicKey();
+        BigInteger p = publicParameters.getEncryptionGroup().getP();
+        BigInteger q = publicParameters.getEncryptionGroup().getQ();
+        BigInteger g = publicParameters.getEncryptionGroup().getG();
+        BigInteger h = publicParameters.getEncryptionGroup().getH();
+
+        List<BigInteger> bold_h = generalAlgorithms.getGenerators(N);
+        List<BigInteger> bold_u = generalAlgorithms.getChallenges(N, new List[]{bold_e, bold_e_prime, bold_c}, q);
+        Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_circ, pk};
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, pi.getT().elementsToHash(), q);
+
+        BigInteger c_prod = bold_c.stream().reduce(multiplyMod(p))
+                .orElseThrow(exceptionSupplier());
+        BigInteger h_prod = bold_h.stream().reduce(multiplyMod(p))
+                .orElseThrow(exceptionSupplier());
+        BigInteger c_bar = c_prod.multiply(h_prod.modInverse(p)).mod(p);
+
+        BigInteger u = bold_u.stream().reduce(multiplyMod(q))
+                .orElseThrow(exceptionSupplier());
+
+        BigInteger c_circ = bold_c_circ.get(N - 1).multiply(h.modPow(u.negate(), p));
+        BigInteger c_tilde = IntStream.range(0, N).mapToObj(i -> bold_c.get(i).modPow(bold_u.get(i), p))
+                .reduce(multiplyMod(p))
+                .orElseThrow(exceptionSupplier());
+
+        BigInteger e_prime_1 = IntStream.range(0, N).mapToObj(i -> bold_e.get(i).getA().modPow(bold_u.get(i), p))
+                .reduce(multiplyMod(p))
+                .orElseThrow(exceptionSupplier());
+        BigInteger e_prime_2 = IntStream.range(0, N).mapToObj(i -> bold_e.get(i).getB().modPow(bold_u.get(i), p))
+                .reduce(multiplyMod(p))
+                .orElseThrow(exceptionSupplier());
+
+        BigInteger t_prime_1 = c_bar.modPow(c.negate(), p).multiply(g.modPow(s_1, p)).mod(p);
+        BigInteger t_prime_2 = c_circ.modPow(c.negate(), p).multiply(g.modPow(s_2, p)).mod(p);
+        BigInteger h_i_s_prime_i = IntStream.range(0, N).mapToObj(i -> bold_h.get(i).modPow(s_prime.get(i), p))
+                .reduce(multiplyMod(p))
+                .orElseThrow(exceptionSupplier());
+        BigInteger t_prime_3 = c_tilde.modPow(c.negate(), p).multiply(g.modPow(s_3, p)).multiply(h_i_s_prime_i).mod(p);
+
+        BigInteger a_prime_i_s_prime_i = IntStream.range(0, N)
+                .mapToObj(i -> bold_e_prime.get(i).getA().modPow(s_prime.get(i), p))
+                .reduce(multiplyMod(p))
+                .orElseThrow(exceptionSupplier());
+        BigInteger t_prime_4_1 = e_prime_1.modPow(c.negate(), p)
+                .multiply(pk.modPow(s_4.negate(), p))
+                .multiply(a_prime_i_s_prime_i)
+                .mod(p);
+        BigInteger b_prime_i_s_prime_i = IntStream.range(0, N)
+                .mapToObj(i -> bold_e_prime.get(i).getB().modPow(s_prime.get(i), p))
+                .reduce(multiplyMod(p))
+                .orElseThrow(exceptionSupplier());
+        BigInteger t_prime_4_2 = e_prime_2.modPow(c.negate(), p)
+                .multiply(g.modPow(s_4.negate(), p))
+                .multiply(b_prime_i_s_prime_i)
+                .mod(p);
+
+        List<BigInteger> t_circ_prime = new ArrayList<>();
+        // add c_circ_0: h, thus offsetting the indices for c_circ by 1.
+        bold_c_circ.add(0, h);
+        for (int i = 0; i < N; i++) {
+            BigInteger t_circ_prime_i = bold_c_circ.get(i + 1).modPow(c.negate(), p)
+                    .multiply(g.modPow(s_circ.get(i), p))
+                    .multiply(bold_c_circ.get(i).modPow(s_prime.get(i), p))
+                    .mod(p);
+            t_circ_prime.add(t_circ_prime_i);
+        }
+
+        return t_1.compareTo(t_prime_1) == 0 &&
+                t_2.compareTo(t_prime_2) == 0 &&
+                t_3.compareTo(t_prime_3) == 0 &&
+                t_4.get(0).compareTo(t_prime_4_1) == 0 &&
+                t_4.get(1).compareTo(t_prime_4_2) == 0 &&
+                IntStream.range(0, N).map(i -> t_circ.get(i).compareTo(t_circ_prime.get(i))).allMatch(i -> i == 0);
     }
 
     /**

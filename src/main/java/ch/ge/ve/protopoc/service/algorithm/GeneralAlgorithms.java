@@ -106,14 +106,15 @@ public class GeneralAlgorithms {
      */
     public List<BigInteger> getGenerators(int n) {
         List<BigInteger> h = new ArrayList<>();
-        int i = 1;
-        while (h.size() < n) {
+
+        for (int i = 0; i < n; i++) {
             BigInteger h_i;
             int x = 0;
             do {
                 x++;
                 byte[] bytes = hash.hash("chVote", BigInteger.valueOf(i), BigInteger.valueOf(x));
                 h_i = conversion.toInteger(bytes).mod(encryptionGroup.getP());
+                h_i = h_i.multiply(h_i).mod(encryptionGroup.getP());
             } while (h_i.equals(BigInteger.ONE)); // Very unlikely, but needs to be avoided
             h.add(h_i);
         }

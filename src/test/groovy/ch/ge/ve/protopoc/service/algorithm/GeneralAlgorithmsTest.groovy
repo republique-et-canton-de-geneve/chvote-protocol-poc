@@ -18,7 +18,7 @@ class GeneralAlgorithmsTest extends Specification {
     GeneralAlgorithms generalAlgorithms
     JacobiSymbol jacobiSymbol = Mock()
     Hash hash = Mock()
-    Conversion conversion = Mock()
+    Conversion conversion = new Conversion()
 
     def static ELEVEN = BigInteger.valueOf(11L)
 
@@ -28,7 +28,7 @@ class GeneralAlgorithmsTest extends Specification {
         generalAlgorithms = new GeneralAlgorithms(jacobiSymbol, hash, conversion, eg)
 
         eg.p >> ELEVEN
-        eg.q >> SEVEN
+        eg.q >> FIVE
         eg.g >> THREE
         eg.h >> FIVE
     }
@@ -95,9 +95,13 @@ class GeneralAlgorithmsTest extends Specification {
         def generators = generalAlgorithms.getGenerators(3)
 
         then:
-        4 * conversion.toInteger(_) >>> [FIVE, THREE, ONE, SEVEN]
-        4 * hash.hash(_ as Object[]) >> ([] as byte[])
-        generators.containsAll(FIVE, THREE, SEVEN)
+        4 * hash.hash(_ as Object[]) >>> [
+                [0x04] as byte[],
+                [0x05] as byte[],
+                [0x01] as byte[],
+                [0x02] as byte[]
+        ]
+        generators.containsAll(FIVE, THREE, FOUR)
     }
 
     def "getProofChallenge"() {
@@ -109,8 +113,7 @@ class GeneralAlgorithmsTest extends Specification {
         def challenge = generalAlgorithms.getNIZKPChallenge(v, t, ELEVEN)
 
         then:
-        1 * hash.hash(v, t) >> ([0x0D] as byte[])
-        1 * conversion.toInteger([0x0D] as byte[]) >> BigInteger.valueOf(14)
+        1 * hash.hash(v, t) >> ([0x0E] as byte[])
         challenge == THREE
     }
 
@@ -122,11 +125,8 @@ class GeneralAlgorithmsTest extends Specification {
 
         then:
         1 * hash.hash(v, ONE) >> ([0x0A] as byte[])
-        1 * conversion.toInteger([0x0A] as byte[]) >> TEN
         1 * hash.hash(v, TWO) >> ([0x03] as byte[])
-        1 * conversion.toInteger([0x03] as byte[]) >> THREE
         1 * hash.hash(v, THREE) >> ([0x1F] as byte[])
-        1 * conversion.toInteger([0x1F] as byte[]) >> BigInteger.valueOf(31)
 
         challenges.containsAll(TEN, THREE, BigInteger.valueOf(9L))
     }

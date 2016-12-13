@@ -14,13 +14,13 @@ public class ShuffleProof {
     private final T t;
     private final S s;
     private final List<BigInteger> bold_c;
-    private final List<BigInteger> bold_c_prime;
+    private final List<BigInteger> bold_c_circ;
 
     public ShuffleProof(T t, S s, List<BigInteger> bold_c, List<BigInteger> bold_c_circ) {
         this.t = t;
         this.s = s;
         this.bold_c = bold_c;
-        this.bold_c_prime = bold_c_circ;
+        this.bold_c_circ = bold_c_circ;
     }
 
     public T getT() {
@@ -35,8 +35,8 @@ public class ShuffleProof {
         return bold_c;
     }
 
-    public List<BigInteger> getBold_c_prime() {
-        return bold_c_prime;
+    public List<BigInteger> getBold_c_circ() {
+        return bold_c_circ;
     }
 
     @Override
@@ -47,12 +47,12 @@ public class ShuffleProof {
         return Objects.equals(t, that.t) &&
                 Objects.equals(s, that.s) &&
                 Objects.equals(bold_c, that.bold_c) &&
-                Objects.equals(bold_c_prime, that.bold_c_prime);
+                Objects.equals(bold_c_circ, that.bold_c_circ);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(t, s, bold_c, bold_c_prime);
+        return Objects.hash(t, s, bold_c, bold_c_circ);
     }
 
     public static class T implements Hash.Hashable {

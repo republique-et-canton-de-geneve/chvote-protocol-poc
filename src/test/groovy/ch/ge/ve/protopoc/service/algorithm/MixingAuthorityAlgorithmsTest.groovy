@@ -24,9 +24,9 @@ class MixingAuthorityAlgorithmsTest extends Specification {
     void setup() {
         publicParameters.encryptionGroup >> encryptionGroup
         encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> SEVEN
-        encryptionGroup.g >> TWO
-        encryptionGroup.h >> THREE
+        encryptionGroup.q >> FIVE // G_q = (1, 3, 4, 5, 9)
+        encryptionGroup.g >> THREE
+        encryptionGroup.h >> FOUR
 
         mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, generalAlgorithms, voteConfirmationAuthorityAlgorithms, randomGenerator)
     }
@@ -34,10 +34,10 @@ class MixingAuthorityAlgorithmsTest extends Specification {
     def "getEncryptions should retrieve a list of valid, confirmed encryptions"() {
         given:
         def B = [
-                new BallotEntry(1, new BallotAndQuery(null, [TWO, FOUR, SIX], ONE, null), null),
-                new BallotEntry(2, new BallotAndQuery(null, [THREE, FIVE, ONE], TWO, null), null),
-                new BallotEntry(3, new BallotAndQuery(null, [TWO, FIVE, THREE], FOUR, null), null),
-                new BallotEntry(6, new BallotAndQuery(null, [ONE, SIX, SEVEN], EIGHT, null), null)
+                new BallotEntry(1, new BallotAndQuery(null, [ONE, FOUR, NINE], ONE, null), null),
+                new BallotEntry(2, new BallotAndQuery(null, [THREE, FIVE, ONE], THREE, null), null),
+                new BallotEntry(3, new BallotAndQuery(null, [FOUR, FIVE, THREE], FOUR, null), null),
+                new BallotEntry(6, new BallotAndQuery(null, [ONE, NINE, FIVE], NINE, null), null)
         ]
         def C = [
                 new ConfirmationEntry(1, null),
@@ -51,18 +51,18 @@ class MixingAuthorityAlgorithmsTest extends Specification {
 
         expect:
         mixingAuthorityAlgorithms.getEncryptions(B, C).containsAll([
-                new Encryption(FOUR, ONE),
-                new Encryption(EIGHT, FOUR)
+                new Encryption(THREE, ONE),
+                new Encryption(FIVE, FOUR)
         ])
     }
 
     def "genShuffle should generate a valid shuffle"() {
         given:
         randomGenerator.randomIntInRange(_, _) >>> [1, 1, 2] // psy = [1, 0, 2]
-        randomGenerator.randomInZq(SEVEN) >>> [SIX, FOUR, TWO]
+        randomGenerator.randomInZq(FIVE) >>> [ONE, FOUR, TWO]
         def bold_e = [
-                new Encryption(FIVE, TWO),
-                new Encryption(THREE, ONE),
+                new Encryption(FIVE, ONE),
+                new Encryption(THREE, FOUR),
                 new Encryption(FIVE, NINE)
         ]
         def publicKey = new EncryptionPublicKey(THREE, encryptionGroup)
@@ -71,10 +71,10 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         mixingAuthorityAlgorithms.genShuffle(bold_e, publicKey) == new Shuffle(
                 [
                         new Encryption(ONE, FIVE),
-                        new Encryption(FOUR, SEVEN),
-                        new Encryption(ONE, THREE)
+                        new Encryption(FOUR, THREE),
+                        new Encryption(ONE, FOUR)
                 ],
-                [SIX, FOUR, TWO],
+                [ONE, FOUR, TWO],
                 [1, 0, 2]
         )
 
@@ -98,41 +98,41 @@ class MixingAuthorityAlgorithmsTest extends Specification {
     def "genReEncryption should correctly re-encrypt the ballot"() {
         given:
         def pk = new EncryptionPublicKey(THREE, encryptionGroup)
-        randomGenerator.randomInZq(SEVEN) >> r_prime
+        randomGenerator.randomInZq(FIVE) >> r_prime
 
         expect:
         mixingAuthorityAlgorithms.genReEncryption(new Encryption(a, b), pk) ==
                 new ReEncryption(new Encryption(a_prime, b_prime), r_prime)
 
         where:
-        a     | b   | r_prime || a_prime | b_prime
-        FIVE  | TWO | SIX     || FOUR    | SEVEN
-        THREE | ONE | FOUR    || ONE     | FIVE
+        a     | b    | r_prime || a_prime | b_prime
+        FIVE  | NINE | SIX     || FOUR    | FIVE
+        THREE | ONE  | FOUR    || ONE     | FOUR
     }
 
     def "genShuffleProof should generate a valid shuffle proof"() {
         given:
         def bold_e = [
-                new Encryption(FIVE, TWO),
-                new Encryption(THREE, ONE),
+                new Encryption(FIVE, ONE),
+                new Encryption(THREE, FOUR),
                 new Encryption(FIVE, NINE)
         ]
         def bold_e_prime = [
                 new Encryption(ONE, FIVE),
-                new Encryption(FOUR, SEVEN),
-                new Encryption(ONE, THREE)
+                new Encryption(FOUR, THREE),
+                new Encryption(ONE, FOUR)
         ]
-        def bold_r_prime = [SIX, FOUR, TWO]
+        def bold_r_prime = [ONE, FOUR, TWO]
         def psy = [1, 0, 2]
         def pk = new EncryptionPublicKey(THREE, encryptionGroup)
-        generalAlgorithms.getGenerators(3) >> [TWO, THREE, FIVE]
-        randomGenerator.randomInZq(SEVEN) >>> [
+        generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
+        randomGenerator.randomInZq(FIVE) >>> [
                 ONE, // genPermutationCommitment, r_1
                 TWO, // genPermutationCommitment, r_2
                 THREE, // genPermutationCommitment, r_3
                 FOUR, // genCommitmentChain, r_circ_1
-                FIVE, // genCommitmentChain, r_circ_2
-                SIX, // genCommitmentChain, r_circ_3
+                ZERO, // genCommitmentChain, r_circ_2
+                ONE, // genCommitmentChain, r_circ_3
                 ONE, // omega_1
                 TWO, // omega_2
                 THREE, // omega_3
@@ -140,54 +140,82 @@ class MixingAuthorityAlgorithmsTest extends Specification {
                 TWO, // omega_circ_1
                 THREE, // omega_prime_1
                 FOUR, // omega_circ_2
-                FIVE, // omega_prime_2
-                SIX, // omega_circ_3
+                ZERO, // omega_prime_2
+                ONE, // omega_circ_3
                 ONE, // omega_prime_3
         ]
-        generalAlgorithms.getChallenges(3, [bold_e, bold_e_prime, [SIX, EIGHT, SEVEN]] as List[], SEVEN) >>
-                [TWO, FOUR, SIX]
-        generalAlgorithms.getNIZKPChallenge(_, _, _) >> FIVE
+        generalAlgorithms.getChallenges(3, [bold_e, bold_e_prime, [NINE, THREE, THREE]] as List[], FIVE) >>
+                [TWO, FOUR, THREE]
+        generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
 
         when:
         def proof = mixingAuthorityAlgorithms.genShuffleProof(bold_e, bold_e_prime, bold_r_prime, psy, pk)
 
         then: "the values in the proof match those computed by hand"
-        proof.t.t_1 == TWO
-        proof.t.t_2 == FOUR
-        proof.t.t_3 == ONE
-        proof.t.t_4 == [THREE, TWO]
-        proof.t.t_circ == [NINE, FIVE, EIGHT]
-        proof.s.s_1 == THREE
-        proof.s.s_2 == ZERO
-        proof.s.s_3 == THREE
-        proof.s.s_4 == ONE
-        proof.s.s_circ == [ONE, ONE, ONE]
-        proof.s.s_prime == [TWO, ONE, THREE]
-        proof.bold_c == [SIX, EIGHT, SEVEN]
-        proof.bold_c_prime == [NINE, SEVEN, THREE]
+        proof.t.t_1 == THREE
+        proof.t.t_2 == NINE
+        proof.t.t_3 == FIVE
+        proof.t.t_4 == [THREE, FOUR]
+        proof.t.t_circ == [FOUR, FOUR, THREE]
+        proof.s.s_1 == ZERO
+        proof.s.s_2 == TWO
+        proof.s.s_3 == FOUR
+        proof.s.s_4 == ZERO
+        proof.s.s_circ == [THREE, FOUR, ZERO]
+        proof.s.s_prime == [FOUR, THREE, THREE]
+        proof.bold_c == [NINE, THREE, THREE]
+        proof.bold_c_circ == [ONE, ONE, THREE]
+    }
+
+    def "checkShuffleProof should correctly validate a shuffle proof"() {
+        given:
+        def bold_e = [
+                new Encryption(FIVE, ONE),
+                new Encryption(THREE, FOUR),
+                new Encryption(FIVE, NINE)
+        ]
+        def bold_e_prime = [
+                new Encryption(ONE, FIVE),
+                new Encryption(FOUR, THREE),
+                new Encryption(ONE, FOUR)
+        ]
+        def pk = new EncryptionPublicKey(THREE, encryptionGroup)
+        def t = new ShuffleProof.T(THREE, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
+        def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
+        def bold_c = [NINE, THREE, THREE]
+        def bold_c_circ = [ONE, ONE, THREE]
+        def pi = new ShuffleProof(t, s, bold_c, bold_c_circ)
+
+        generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
+        generalAlgorithms.getChallenges(3, [bold_e, bold_e_prime, [NINE, THREE, THREE]] as List[], FIVE) >>
+                [TWO, FOUR, THREE]
+        generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
+
+        expect:
+        mixingAuthorityAlgorithms.checkShuffleProof(pi, bold_e, bold_e_prime, pk) // == true implied
     }
 
     def "genPermutationCommitment should generate a valid permutation commitment"() {
         given:
-        randomGenerator.randomInZq(SEVEN) >>> random
+        randomGenerator.randomInZq(FIVE) >>> random
 
         expect:
         mixingAuthorityAlgorithms.genPermutationCommitment(psy, bold_h) == new PermutationCommitment(bold_c, random)
 
         where:
-        psy       | bold_h             | random            || bold_c
-        [1, 0, 2] | [TWO, THREE, FIVE] | [ONE, TWO, THREE] || [SIX, EIGHT, SEVEN]
+        psy       | bold_h              | random            || bold_c
+        [1, 0, 2] | [FOUR, THREE, FIVE] | [ONE, TWO, THREE] || [NINE, THREE, THREE]
     }
 
     def "genCommitmentChain should generate a valid commitment chain"() {
         given:
-        randomGenerator.randomInZq(SEVEN) >>> bold_r
+        randomGenerator.randomInZq(FIVE) >>> bold_r
 
         expect:
-        mixingAuthorityAlgorithms.genCommitmentChain(THREE, bold_u_prime) == new CommitmentChain(bold_c, bold_r)
+        mixingAuthorityAlgorithms.genCommitmentChain(FOUR, bold_u_prime) == new CommitmentChain(bold_c, bold_r)
 
         where:
         bold_u_prime       | bold_r            || bold_c
-        [FIVE, ONE, THREE] | [ONE, TWO, THREE] || [TWO, EIGHT, FOUR]
+        [FOUR, TWO, THREE] | [FOUR, ZERO, ONE] || [ONE, ONE, THREE]
     }
 }
