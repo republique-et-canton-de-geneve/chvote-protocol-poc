@@ -21,7 +21,7 @@ depend on the quality of the randomness.
 
 #### Algorithm execution
 
-1. `psy = (0, 1, 2)` _(simulated randomness)_
+1. `psy = (1, 0, 2)` _(simulated randomness)_
 2. `i = 0` -> GenReEncryption
     1. `r'_0 = 1` _(simulated randomness)_
     2. `a'_0 = a_0 * pk ^ r'_0 mod 11 = 5 * 3 ^ 1 mod 11 = 15 mod 11 = 4`
@@ -151,17 +151,19 @@ We use the input and the proof given in the test above
 #### Input
 
 - `pi = (t, s, bold_c, bold_c_circ)`
-    - `t = (t_1, t_2, t_3, (t_{4,1}, t_{4,2}), (t_circ_0, ..., t_circ_{N-1}))`
+    - `t = (t_1, t_2, t_3, (t_{4,1}, t_{4,2}), (t_circ_0, ..., t_circ_2))`
         - `t_1 = 3`
         - `t_2 = 9`
         - `t_3 = 5`
         - `(t_{4,1}, t_{4,2}) = (3, 4)`
-        - `(t_circ_0, ..., t_circ_{N-1}) = (4, 4, 3)`
-    - `s = (s_1, s_2, s_3, s_4, (s_circ_0, ..., s_circ_{N-1}), (s'_0, ..., s'_{N-1}))`
+        - `(t_circ_0, ..., t_circ_2) = (4, 4, 3)`
+    - `s = (s_1, s_2, s_3, s_4, (s_circ_0, ..., s_circ_2), (s'_0, ..., s'_2))`
         - `s_1 = 0`
         - `s_2 = 2`
         - `s_3 = 4`
         - `s_4 = 0`
+        - `(s_circ_0, ..., s_circ_2}) = (3, 4, 0)`
+        - `(s'_0, ..., s'_2) = (4, 3, 3)`
     - `bold_c = (9, 3, 3)`
     - `bold_c_circ = (1, 1, 3)`
 - `bold_e = ([5, 1], [3, 4], [5, 9])`
