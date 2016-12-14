@@ -28,9 +28,9 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray()
 
         publicParameters.encryptionGroup >> encryptionGroup
-        encryptionGroup.p >> SEVEN
-        encryptionGroup.q >> THREE
-        encryptionGroup.g >> TWO
+        encryptionGroup.p >> ELEVEN
+        encryptionGroup.q >> FIVE
+        encryptionGroup.g >> THREE
         publicParameters.identificationGroup >> identificationGroup
         identificationGroup.p_circ >> ELEVEN
         identificationGroup.q_circ >> FIVE
@@ -48,7 +48,6 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
 
     def "genConfirmation should generate the expected confirmation"() {
         given: "a given set of parameters"
-        def voterIndex = 0
         def confirmationCode = "cA" // ToInteger(Y) = 154
         def bold_P = [
                 [new Point(FOUR, TWO)],

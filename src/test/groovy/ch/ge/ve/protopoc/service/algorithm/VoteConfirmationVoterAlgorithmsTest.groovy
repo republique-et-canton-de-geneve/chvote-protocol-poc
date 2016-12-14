@@ -3,7 +3,7 @@ package ch.ge.ve.protopoc.service.algorithm
 import spock.lang.Specification
 
 /**
- * Missing javadoc!
+ * Tests on the vote confirmation algorithms performed by the voter
  */
 class VoteConfirmationVoterAlgorithmsTest extends Specification {
     VoteConfirmationVoterAlgorithms voteConfirmationVoter

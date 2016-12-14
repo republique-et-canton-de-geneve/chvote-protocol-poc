@@ -57,7 +57,7 @@ public class VoteCastingClientAlgorithms {
         BigInteger x = conversion.toInteger(X, publicParameters.getA_x());
         BigInteger x_circ = g_circ.modPow(x, p_circ);
 
-        List<BigInteger> bold_q = computeBoldU(bold_s);
+        List<BigInteger> bold_q = computeBoldQ(bold_s);
         BigInteger m = computeM(bold_q, p);
         ObliviousTransferQuery query = genQuery(bold_q, pk);
         BigInteger a = computeA(query, p);
@@ -69,23 +69,23 @@ public class VoteCastingClientAlgorithms {
         return new BallotQueryAndRand(alpha, query.getBold_r());
     }
 
-    private List<BigInteger> computeBoldU(List<Integer> bold_s) throws IncompatibleParametersException {
-        List<BigInteger> bold_u;
+    private List<BigInteger> computeBoldQ(List<Integer> bold_s) throws IncompatibleParametersException {
+        List<BigInteger> bold_q;
         try {
-            bold_u = generalAlgorithms.getSelectedPrimes(bold_s);
+            bold_q = generalAlgorithms.getSelectedPrimes(bold_s);
         } catch (NotEnoughPrimesInGroupException e) {
             throw new IncompatibleParametersException("Encryption Group too small for selection");
         }
-        return bold_u;
+        return bold_q;
     }
 
     private BigInteger computeM(List<BigInteger> bold_q, BigInteger p) throws IncompatibleParametersException {
-        BigInteger u = bold_q.stream().reduce(BigInteger::multiply)
+        BigInteger m = bold_q.stream().reduce(BigInteger::multiply)
                 .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"));
-        if (u.compareTo(p) >= 0) {
+        if (m.compareTo(p) >= 0) {
             throw new IncompatibleParametersException("(k,n) is incompatible with p");
         }
-        return u;
+        return m;
     }
 
     private BigInteger computeA(ObliviousTransferQuery query, BigInteger p) {

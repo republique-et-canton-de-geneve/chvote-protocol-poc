@@ -27,9 +27,9 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
 
     void setup() {
         publicParameters.encryptionGroup >> encryptionGroup
-        encryptionGroup.p >> SEVEN
-        encryptionGroup.q >> THREE
-        encryptionGroup.g >> TWO
+        encryptionGroup.p >> ELEVEN
+        encryptionGroup.q >> FIVE
+        encryptionGroup.g >> THREE
         publicParameters.identificationGroup >> identificationGroup
         identificationGroup.p_circ >> ELEVEN
         identificationGroup.q_circ >> FIVE
@@ -45,7 +45,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
 
     def "checkConfirmation should verify if a given confirmation is valid"() {
         given: "a list of public credentials"
-        def bold_y_circ = [THREE, ONE, TWO, FOUR]
+        def bold_y_circ = [THREE, ONE, NINE, FOUR]
         and: "a mocked ballot list"
         List<BallotEntry> ballotList = Mock()
         and: "a confirmation list"
@@ -71,7 +71,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         i | y_circ | t       | s       || result
         0 | THREE  | [THREE] | [TWO]   || false // hasBallot(0, B) is false
         1 | ONE    | [FIVE]  | [THREE] || true // everything should be ok
-        2 | TWO    | [THREE] | [FIVE]  || false // hasConfirmation(2, C) is true -->
+        2 | NINE   | [THREE] | [FIVE]  || false // hasConfirmation(2, C) is true -->
         3 | FOUR   | [FIVE]  | [THREE] || false // the proof is not valid
     }
 
@@ -110,7 +110,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         [FIVE] | [THREE] | ONE    || true
         [FOUR] | [THREE] | ONE    || false
         [FIVE] | [TWO]   | ONE    || false
-        [FIVE] | [THREE] | TWO    || false
+        [FIVE] | [THREE] | THREE  || false
     }
 
     def "getFinalization should hash the correct points and return the adequate values"() {
