@@ -46,7 +46,7 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
                 new Encryption(ONE, FIVE),
                 new Encryption(NINE, THREE),
                 new Encryption(FOUR, FOUR),
-                new Encryption(FIVE, NINE)
+                new Encryption(FOUR, NINE)
         ]
         def bold_B_prime = [
                 [FOUR, FIVE, NINE, THREE],
@@ -66,12 +66,29 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
                 new Encryption(ONE, FIVE),
                 new Encryption(NINE, THREE),
                 new Encryption(FOUR, FOUR),
-                new Encryption(FIVE, NINE)
+                new Encryption(FOUR, NINE)
         ]
         def bold_b_prime = [FOUR, FIVE, NINE, THREE]
         generalAlgorithms.getNIZKPChallenge(*_) >> ONE
 
         expect:
         tallyingAuthoritiesAlgorithm.checkDecryptionProof(pi_prime, pk_j, bold_e, bold_b_prime)
+    }
+
+    def "getDecryptions should properly retrieve the original plaintext messages"() {
+        given:
+        def bold_e = [
+                new Encryption(ONE, FIVE),
+                new Encryption(NINE, THREE),
+                new Encryption(FOUR, FOUR),
+                new Encryption(FOUR, NINE)
+        ]
+        def bold_B_prime = [
+                [FOUR, FIVE, NINE, THREE],
+                [FIVE, THREE, FOUR, NINE]
+        ]
+
+        expect:
+        tallyingAuthoritiesAlgorithm.getDecryptions(bold_e, bold_B_prime) == [FIVE, FIVE, FIVE, THREE]
     }
 }

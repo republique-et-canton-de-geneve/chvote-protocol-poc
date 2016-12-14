@@ -75,4 +75,28 @@ public class TallyingAuthoritiesAlgorithm {
 
         return IntStream.range(0, t_prime.size()).allMatch(i -> pi_prime.getT().get(i).compareTo(t_prime.get(i)) == 0);
     }
+
+    /**
+     * Algorithm 5.43: GetDecryptions
+     *
+     * @param bold_e       the ElGamal encryptions of the ballots
+     * @param bold_B_prime the matrix of partial decryptions, per authority, per ballot
+     * @return the list of decryptions, by assembling the partial decryptions obtained from the authorities
+     */
+    public List<BigInteger> getDecryptions(List<Encryption> bold_e, List<List<BigInteger>> bold_B_prime) {
+        int N = bold_e.size();
+        int s = publicParameters.getS();
+        BigInteger p = publicParameters.getEncryptionGroup().getP();
+        Preconditions.checkArgument(bold_B_prime.size() == s,
+                "There should be one row in bold_B_prime per authority");
+        Preconditions.checkArgument(bold_B_prime.stream().map(List::size).allMatch(l -> l == N),
+                "Each row of bold_B_prime should contain one partial decryption per ballot");
+        return IntStream.range(0, N).mapToObj(i -> {
+            BigInteger b_prime_i = IntStream.range(0, s).mapToObj(j -> bold_B_prime.get(j).get(i))
+                    .reduce(BigInteger::multiply)
+                    .orElseThrow(() -> new IllegalStateException("Should never happen if s > 0"))
+                    .mod(p);
+            return bold_e.get(i).getA().multiply(b_prime_i.modInverse(p)).mod(p);
+        }).collect(Collectors.toList());
+    }
 }
