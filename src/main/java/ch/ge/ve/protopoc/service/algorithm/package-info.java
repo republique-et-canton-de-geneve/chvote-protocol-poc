@@ -13,6 +13,9 @@
  * <li>Algorithms 5.29-5.30 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationVoterAlgorithms}</li>
  * <li>Algorithms 5.31-5.35 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationClientAlgorithms}</li>
  * <li>Algorithms 5.36-5.39 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationAuthorityAlgorithms}</li>
+ * <li>Algorithms 5.40-5.47 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.MixingAuthorityAlgorithms}</li>
+ * <li>Algorithms 5.48-5.50 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.DecryptionAuthorityAlgorithms}</li>
+ * <li>Algorithms 5.51-5.54 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.TallyingAuthoritiesAlgorithm}</li>
  * </ul>
  */
 package ch.ge.ve.protopoc.service.algorithm;

@@ -21,6 +21,7 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
     // Secondary Mocks
     EncryptionGroup encryptionGroup = Mock()
 
+    // Class under test
     DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms
 
     void setup() {
