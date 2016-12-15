@@ -8,9 +8,11 @@
     </appender>
 
     <logger name="ch.ge.ve.protopoc.service.simulation" level="INFO"/>
+    <logger name="ch.ge.ve.protopoc.service.protocol.DefaultAuthority" level="DEBUG"/>
+    <logger name="ch.ge.ve.protopoc.service.algorithm.MixingAuthorityAlgorithms" level="DEBUG"/>
 
 
-    <root level="debug">
+    <root level="WARN">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

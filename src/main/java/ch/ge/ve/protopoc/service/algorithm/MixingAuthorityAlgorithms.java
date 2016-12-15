@@ -3,6 +3,8 @@ package ch.ge.ve.protopoc.service.algorithm;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import java.util.stream.IntStream;
  * Algorithms performed during the mixing phase, by the autorities
  */
 public class MixingAuthorityAlgorithms {
+    private static final Logger log = LoggerFactory.getLogger(MixingAuthorityAlgorithms.class);
     private final PublicParameters publicParameters;
     private final GeneralAlgorithms generalAlgorithms;
     private final VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms;
@@ -183,6 +186,7 @@ public class MixingAuthorityAlgorithms {
         ShuffleProof.S s = computeS(bold_r_prime, N, q, bold_r, bold_u, bold_u_prime, bold_r_circ,
                 omega_1, omega_2, omega_3, omega_4, bold_omega_circ, bold_omega_prime, c);
 
+        log.info("Shuffle proof generated");
         return new ShuffleProof(t, s, bold_c, bold_c_circ);
     }
 
@@ -378,6 +382,7 @@ public class MixingAuthorityAlgorithms {
                 .orElseThrow(exceptionSupplier());
         BigInteger t_prime_4_1 = e_prime_1.modPow(c.negate(), p)
                 .multiply(pk.modPow(s_4.negate(), p))
+                .mod(p)
                 .multiply(a_prime_i_s_prime_i)
                 .mod(p);
         BigInteger b_prime_i_s_prime_i = IntStream.range(0, N)
@@ -400,12 +405,16 @@ public class MixingAuthorityAlgorithms {
             t_circ_prime.add(t_circ_prime_i);
         }
 
-        return t_1.compareTo(t_prime_1) == 0 &&
+        boolean isProofValid = t_1.compareTo(t_prime_1) == 0 &&
                 t_2.compareTo(t_prime_2) == 0 &&
                 t_3.compareTo(t_prime_3) == 0 &&
                 t_4.get(0).compareTo(t_prime_4_1) == 0 &&
                 t_4.get(1).compareTo(t_prime_4_2) == 0 &&
                 IntStream.range(0, N).map(i -> t_circ.get(i).compareTo(t_circ_prime.get(i))).allMatch(i -> i == 0);
+        if (!isProofValid) {
+            log.error("Invalid proof found");
+        }
+        return isProofValid;
     }
 
     /**

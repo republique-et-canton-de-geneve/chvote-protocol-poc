@@ -26,6 +26,7 @@ public class RandomGenerator {
      */
     public int randomIntInRange(int from, int to) {
         Preconditions.checkArgument(from <= to, "The lowerbound must be less or equal to the upperbound");
+        if (from == to) return from;
         return secureRandom.nextInt(to - from) + from;
     }
 

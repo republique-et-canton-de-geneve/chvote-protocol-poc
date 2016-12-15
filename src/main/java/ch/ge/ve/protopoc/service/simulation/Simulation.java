@@ -1,6 +1,7 @@
 package ch.ge.ve.protopoc.service.simulation;
 
 import ch.ge.ve.protopoc.service.algorithm.*;
+import ch.ge.ve.protopoc.service.exception.InvalidDecryptionProofException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.protocol.AuthorityService;
 import ch.ge.ve.protopoc.service.protocol.DefaultAuthority;
@@ -53,13 +54,17 @@ public class Simulation {
     private VoteConfirmationVoterAlgorithms voteConfirmationVoterAlgorithms;
     private List<VoterSimulator> voterSimulators;
     private List<Character> defaultAlphabet = getDefaultAlphabet();
+    private MixingAuthorityAlgorithms mixingAuthorityAlgorithms;
+    private DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms;
+    private TallyingAuthoritiesAlgorithm tallyingAuthoritiesAlgorithm;
+    private ElectionAdministrationSimulator electionAdministrationSimulator;
 
     public Simulation() throws NoSuchProviderException, NoSuchAlgorithmException {
         secureRandom = SecureRandom.getInstance("SHA1PRNG", "SUN");
         randomGenerator = new RandomGenerator(secureRandom);
     }
 
-    public static void main(String[] args) throws NoSuchProviderException, NoSuchAlgorithmException {
+    public static void main(String[] args) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidDecryptionProofException {
         log.info("Starting simulation");
         Simulation simulation = new Simulation();
 
@@ -74,7 +79,7 @@ public class Simulation {
         simulation.run();
     }
 
-    private void run() {
+    private void run() throws InvalidDecryptionProofException {
         log.info("publishing public parameters");
         bulletinBoardService.publishPublicParameters(publicParameters);
 
@@ -100,6 +105,20 @@ public class Simulation {
         voterSimulators.forEach(VoterSimulator::vote);
 
         log.info("all votes have been cast and confirmed");
+
+        log.info("starting the mixing");
+        authorities.get(0).startMixing();
+        for (int i = 1; i < publicParameters.getS(); i++) {
+            authorities.get(i).mixAgain();
+        }
+
+        log.info("starting decryption");
+        authorities.forEach(AuthorityService::startPartialDecryption);
+
+        log.info("tallying votes");
+        List<Long> tally = electionAdministrationSimulator.getTally();
+
+        log.info("Tally is: " + tally);
     }
 
     private void createComponents() {
@@ -129,6 +148,9 @@ public class Simulation {
                 .collect(Collectors.toList());
 
         printingAuthoritySimulator.setVoterSimulators(voterSimulators);
+
+        electionAdministrationSimulator = new ElectionAdministrationSimulator(electionSet.getCandidates().size(),
+                bulletinBoardService, tallyingAuthoritiesAlgorithm);
         log.info("all simulators created");
     }
 
@@ -137,7 +159,8 @@ public class Simulation {
         bulletinBoardService = new DefaultBulletinBoard();
         authorities = IntStream.range(0, publicParameters.getS()).mapToObj(i ->
                 new DefaultAuthority(i, bulletinBoardService, keyEstablishmentAlgorithms, electionPreparationAlgorithms,
-                        voteCastingAuthorityAlgorithms, voteConfirmationAuthorityAlgorithms)).collect(Collectors.toList());
+                        voteCastingAuthorityAlgorithms, voteConfirmationAuthorityAlgorithms, mixingAuthorityAlgorithms,
+                        decryptionAuthorityAlgorithms)).collect(Collectors.toList());
         bulletinBoardService.setAuthorities(authorities);
         log.info("created all services");
     }
@@ -153,6 +176,9 @@ public class Simulation {
         voteCastingClientAlgorithms = new VoteCastingClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);
         voteConfirmationClientAlgorithms = new VoteConfirmationClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);
         voteConfirmationVoterAlgorithms = new VoteConfirmationVoterAlgorithms();
+        mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, generalAlgorithms, voteConfirmationAuthorityAlgorithms, randomGenerator);
+        decryptionAuthorityAlgorithms = new DecryptionAuthorityAlgorithms(publicParameters, generalAlgorithms, mixingAuthorityAlgorithms, randomGenerator);
+        tallyingAuthoritiesAlgorithm = new TallyingAuthoritiesAlgorithm(publicParameters, generalAlgorithms);
         log.info("instantiated all algorithm classes");
     }
 
@@ -172,7 +198,7 @@ public class Simulation {
         DomainOfInfluence canton = new DomainOfInfluence("canton");
         DomainOfInfluence municipality1 = new DomainOfInfluence("municipality1");
 
-        List<Voter> voters = IntStream.range(0, 100).mapToObj(i -> new Voter()).collect(Collectors.toList());
+        List<Voter> voters = IntStream.range(0, 10).mapToObj(i -> new Voter()).collect(Collectors.toList());
         voters.forEach(v -> v.addDomainsOfInfluence(canton));
         voters.subList(0, 10).forEach(v -> v.addDomainsOfInfluence(municipality1));
 

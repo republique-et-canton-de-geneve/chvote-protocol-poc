@@ -1,12 +1,14 @@
 package ch.ge.ve.protopoc.service.model;
 
+import ch.ge.ve.protopoc.service.support.Hash;
+
 import java.math.BigInteger;
 import java.util.Objects;
 
 /**
  * Model class containing one encryption of one ballot
  */
-public class Encryption {
+public class Encryption implements Hash.Hashable {
     private final BigInteger a;
     private final BigInteger b;
 
@@ -43,5 +45,10 @@ public class Encryption {
                 "a=" + a +
                 ", b=" + b +
                 '}';
+    }
+
+    @Override
+    public Object[] elementsToHash() {
+        return new BigInteger[]{a, b};
     }
 }

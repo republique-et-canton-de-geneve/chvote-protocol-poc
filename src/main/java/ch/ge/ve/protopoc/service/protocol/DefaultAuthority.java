@@ -1,12 +1,10 @@
 package ch.ge.ve.protopoc.service.protocol;
 
-import ch.ge.ve.protopoc.service.algorithm.ElectionPreparationAlgorithms;
-import ch.ge.ve.protopoc.service.algorithm.KeyEstablishmentAlgorithms;
-import ch.ge.ve.protopoc.service.algorithm.VoteCastingAuthorityAlgorithms;
-import ch.ge.ve.protopoc.service.algorithm.VoteConfirmationAuthorityAlgorithms;
+import ch.ge.ve.protopoc.service.algorithm.*;
 import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException;
 import ch.ge.ve.protopoc.service.exception.IncorrectBallotException;
 import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationException;
+import ch.ge.ve.protopoc.service.exception.InvalidShuffleProofException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import com.google.common.base.Preconditions;
@@ -30,6 +28,8 @@ public class DefaultAuthority implements AuthorityService {
     private final ElectionPreparationAlgorithms electionPreparationAlgorithms;
     private final VoteCastingAuthorityAlgorithms voteCastingAuthorityAlgorithms;
     private final VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms;
+    private final MixingAuthorityAlgorithms mixingAuthorityAlgorithms;
+    private final DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms;
     private EncryptionPublicKey myPublicKey;
     private EncryptionPrivateKey myPrivateKey;
     private EncryptionPublicKey systemPublicKey;
@@ -44,13 +44,17 @@ public class DefaultAuthority implements AuthorityService {
                             KeyEstablishmentAlgorithms keyEstablishmentAlgorithms,
                             ElectionPreparationAlgorithms electionPreparationAlgorithms,
                             VoteCastingAuthorityAlgorithms voteCastingAuthorityAlgorithms,
-                            VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms) {
+                            VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms,
+                            MixingAuthorityAlgorithms mixingAuthorityAlgorithms,
+                            DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms) {
         this.j = j;
         this.bulletinBoardService = bulletinBoardService;
         this.keyEstablishmentAlgorithms = keyEstablishmentAlgorithms;
         this.electionPreparationAlgorithms = electionPreparationAlgorithms;
         this.voteCastingAuthorityAlgorithms = voteCastingAuthorityAlgorithms;
         this.voteConfirmationAuthorityAlgorithms = voteConfirmationAuthorityAlgorithms;
+        this.mixingAuthorityAlgorithms = mixingAuthorityAlgorithms;
+        this.decryptionAuthorityAlgorithms = decryptionAuthorityAlgorithms;
     }
 
     @Override
@@ -136,5 +140,51 @@ public class DefaultAuthority implements AuthorityService {
         confirmationEntries.add(new ConfirmationEntry(voterIndex, confirmation));
 
         return voteConfirmationAuthorityAlgorithms.getFinalization(voterIndex, electorateData.getP(), ballotEntries);
+    }
+
+    @Override
+    public void startMixing() {
+        log.info("Authority " + j + " started mixing");
+        List<Encryption> encryptions = mixingAuthorityAlgorithms.getEncryptions(ballotEntries, confirmationEntries);
+        mixAndPublish(encryptions);
+    }
+
+    @Override
+    public void mixAgain() {
+        log.info("Authority " + j + " performing additional shuffle");
+        List<Encryption> previousShuffle = bulletinBoardService.getPreviousShuffle(j - 1);
+        mixAndPublish(previousShuffle);
+    }
+
+    private void mixAndPublish(List<Encryption> encryptions) {
+        Shuffle shuffle = mixingAuthorityAlgorithms.genShuffle(encryptions, myPublicKey);
+        ShuffleProof shuffleProof = mixingAuthorityAlgorithms.genShuffleProof(encryptions,
+                shuffle.getBold_e_prime(), shuffle.getBold_r_prime(), shuffle.getPsy(), systemPublicKey);
+
+        bulletinBoardService.publishShuffleAndProof(j, shuffle.getBold_e_prime(), shuffleProof);
+    }
+
+    @Override
+    public void startPartialDecryption() {
+        log.info("Authority " + j + " starting decryption");
+        ShufflesAndProofs shufflesAndProofs = bulletinBoardService.getShufflesAndProofs();
+        List<Encryption> encryptions = mixingAuthorityAlgorithms.getEncryptions(ballotEntries, confirmationEntries);
+
+        List<ShuffleProof> shuffleProofs = shufflesAndProofs.getShuffleProofs();
+        List<List<Encryption>> shuffles = shufflesAndProofs.getShuffles();
+        if (!decryptionAuthorityAlgorithms.checkShuffleProofs(shuffleProofs, encryptions, shuffles, systemPublicKey, j)) {
+            throw new InvalidShuffleProofException("At least one shuffle proof was invalid");
+        }
+
+        BigInteger secretKey = myPrivateKey.getPrivateKey();
+        List<Encryption> finalShuffle = shuffles.get(publicParameters.getS());
+        List<BigInteger> partialDecryptions = decryptionAuthorityAlgorithms
+                .getPartialDecryptions(finalShuffle, secretKey);
+
+        BigInteger publicKey = myPublicKey.getPublicKey();
+        DecryptionProof decryptionProof = decryptionAuthorityAlgorithms
+                .genDecryptionProof(secretKey, publicKey, finalShuffle, partialDecryptions);
+
+        bulletinBoardService.publishPartialDecryptionAndProof(j, partialDecryptions, decryptionProof);
     }
 }

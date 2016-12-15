@@ -24,4 +24,10 @@ public interface AuthorityService {
     ObliviousTransferResponse handleBallot(Integer voterIndex, BallotAndQuery ballotAndQuery) throws IncompatibleParametersException, IncorrectBallotException;
 
     FinalizationCodePart handleConfirmation(Integer voterIndex, Confirmation confirmation) throws IncorrectConfirmationException;
+
+    void startMixing();
+
+    void mixAgain();
+
+    void startPartialDecryption();
 }

@@ -18,7 +18,7 @@ This prototype consists of:
     - a simulation program, for an estimation of the performance of the protocol, and as an early
     verification proof of concept for the protocol
     - the required REST services to operate the frontend
-- a _frontend_ (currenty not published), with the following features
+- a _frontend_ (currently not published), with the following features
     - system initialization (creation of a set of authorities and their respective keys)
     - election administration (creation of an election operation)
     - a simulation of a printing authority (for the display of the code sheet to the voter)
@@ -46,9 +46,9 @@ The table below contains information on the progress of the project for the _bac
 | - Electoral data                        | done                 |
 | - Code sheet printing                   | done                 |
 | - Vote casting                          | done                 |
-| - Mixing                                | todo                 |
-| - Decryption                            | todo                 |
-| - Tallying                              | todo                 |
+| - Mixing                                | done                 |
+| - Decryption                            | done                 |
+| - Tallying                              | done                 |
 | **_Rest services_**                     | **_todo_**           |
 | - Scaffolding                           | done                 |
 | - Initialization                        | todo                 |
@@ -57,6 +57,11 @@ The table below contains information on the progress of the project for the _bac
 | - Vote casting                          | todo                 |
 | - Decryption                            | todo                 |
 | - Tallying                              | todo                 |
+
+#### Known issues
+
+- At this stage, the simulation always fails on shuffle proof verification, 
+because `t_prime_{4,1}` is never equal to `t_{4,1}`.
 
 ### Sequence diagrams
 
