@@ -1,19 +1,27 @@
 package ch.ge.ve.protopoc.service.algorithm;
 
+import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
+import ch.ge.ve.protopoc.service.exception.TallyingRuntimeException;
 import ch.ge.ve.protopoc.service.model.DecryptionProof;
 import ch.ge.ve.protopoc.service.model.Encryption;
 import ch.ge.ve.protopoc.service.model.PublicParameters;
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.math.BigInteger.ZERO;
+
 /**
  * Algorithms performed during the tallying of the results
  */
 public class TallyingAuthoritiesAlgorithm {
+    private final static Logger log = LoggerFactory.getLogger(TallyingAuthoritiesAlgorithm.class);
+
     private final PublicParameters publicParameters;
     private final GeneralAlgorithms generalAlgorithms;
 
@@ -98,5 +106,26 @@ public class TallyingAuthoritiesAlgorithm {
                     .mod(p);
             return bold_e.get(i).getA().multiply(b_prime_i.modInverse(p)).mod(p);
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * Algorithm 5.54: GetTally
+     *
+     * @param bold_m the products of encoded selections
+     * @param n      the number of candidates
+     * @return the final tally <tt>t = (t_0, ..., t_n)</tt>, where t_i is the number of votes candidate i received
+     */
+    public List<Long> getTally(List<BigInteger> bold_m, int n) {
+        List<BigInteger> bold_p;
+        try {
+            bold_p = generalAlgorithms.getPrimes(n);
+        } catch (NotEnoughPrimesInGroupException e) {
+            log.error("Error while tallying the votes", e);
+            throw new TallyingRuntimeException(e);
+        }
+
+        return bold_p.stream()
+                .map(p_j -> bold_m.stream().filter(m_i -> m_i.mod(p_j).compareTo(ZERO) == 0).count())
+                .collect(Collectors.toList());
     }
 }
