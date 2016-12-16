@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.math.BigInteger.ONE;
+import static java.math.BigInteger.ZERO;
+
 /**
  * Algorithms related to the vote casting phase
  */
@@ -81,7 +84,7 @@ public class VoteCastingClientAlgorithms {
 
     private BigInteger computeM(List<BigInteger> bold_q, BigInteger p) throws IncompatibleParametersException {
         BigInteger m = bold_q.stream().reduce(BigInteger::multiply)
-                .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"));
+                .orElse(ONE);
         if (m.compareTo(p) >= 0) {
             throw new IncompatibleParametersException("(k,n) is incompatible with p");
         }
@@ -90,13 +93,13 @@ public class VoteCastingClientAlgorithms {
 
     private BigInteger computeA(ObliviousTransferQuery query, BigInteger p) {
         return query.getBold_a().stream().reduce(BigInteger::multiply)
-                .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"))
+                .orElse(ONE)
                 .mod(p);
     }
 
     private BigInteger computeR(ObliviousTransferQuery query, BigInteger q) {
         return query.getBold_r().stream().reduce(BigInteger::add)
-                .orElseThrow(() -> new IllegalArgumentException("can't occur if bold_s is not empty"))
+                .orElse(ZERO)
                 .mod(q);
     }
 

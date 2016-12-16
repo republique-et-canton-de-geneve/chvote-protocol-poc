@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.math.BigInteger.ONE;
+
 /**
  * Algorithms related to the vote casting phase, performed by the authorities
  */
@@ -60,7 +62,7 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger x_circ_i = bold_x_circ.get(i);
         if (!hasBallot(i, B) && alpha.getX_circ().compareTo(x_circ_i) == 0) {
             BigInteger a = alpha.getBold_a().stream().reduce(BigInteger::multiply)
-                    .orElseThrow(() -> new IllegalArgumentException("can't happen if bold_a is not empty"))
+                    .orElse(ONE)
                     .mod(p);
             return checkBallotProof(alpha.getPi(), alpha.getX_circ(), a, alpha.getB(), pk);
         }

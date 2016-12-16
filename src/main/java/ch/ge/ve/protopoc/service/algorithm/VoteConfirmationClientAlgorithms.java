@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.math.BigInteger.ZERO;
 import static java.util.Collections.singletonList;
 
 /**
@@ -60,8 +61,7 @@ public class VoteConfirmationClientAlgorithms {
             y_js.add(y_j);
         }
         BigInteger y = conversion.toInteger(Y, publicParameters.getA_y()).add(
-                y_js.stream().reduce(BigInteger::add).orElseThrow(
-                        () -> new IllegalArgumentException("Can't happen if s > 0"))
+                y_js.stream().reduce(BigInteger::add).orElse(ZERO)
         ).mod(q_circ);
         BigInteger y_circ = g_circ.modPow(y, p_circ);
         NonInteractiveZKP pi = genConfirmationProof(y, y_circ);
@@ -97,7 +97,7 @@ public class VoteConfirmationClientAlgorithms {
     public BigInteger getValue(List<Point> bold_p) {
         BigInteger p_prime = publicParameters.getPrimeField().getP_prime();
 
-        BigInteger y = BigInteger.ZERO;
+        BigInteger y = ZERO;
         for (int i = 0; i < bold_p.size(); i++) {
             BigInteger n = BigInteger.ONE;
             BigInteger d = BigInteger.ONE;
@@ -151,6 +151,6 @@ public class VoteConfirmationClientAlgorithms {
         Preconditions.checkArgument(finalizationCodeParts.size() == publicParameters.getS());
         return finalizationCodeParts.stream().map(FinalizationCodePart::getF).reduce(ByteArrayUtils::xor)
                 .map(b -> conversion.toString(b, publicParameters.getA_f()))
-                .orElseThrow(() -> new IllegalArgumentException("Can't happen if s > 0"));
+                .orElse("");
     }
 }

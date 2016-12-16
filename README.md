@@ -49,6 +49,7 @@ The table below contains information on the progress of the project for the _bac
 | - Mixing                                | done                 |
 | - Decryption                            | done                 |
 | - Tallying                              | done                 |
+| - performance measurements              | todo                 |
 | **_Rest services_**                     | **_todo_**           |
 | - Scaffolding                           | done                 |
 | - Initialization                        | todo                 |

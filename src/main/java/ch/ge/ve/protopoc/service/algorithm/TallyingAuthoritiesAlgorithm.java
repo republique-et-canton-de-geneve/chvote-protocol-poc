@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.ZERO;
 
 /**
@@ -106,7 +107,7 @@ public class TallyingAuthoritiesAlgorithm {
         return IntStream.range(0, N).mapToObj(i -> {
             BigInteger b_prime_i = IntStream.range(0, s).mapToObj(j -> bold_B_prime.get(j).get(i))
                     .reduce(BigInteger::multiply)
-                    .orElseThrow(() -> new IllegalStateException("Should never happen if s > 0"))
+                    .orElse(ONE)
                     .mod(p);
             return bold_e.get(i).getA().multiply(b_prime_i.modInverse(p)).mod(p);
         }).collect(Collectors.toList());

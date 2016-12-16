@@ -11,9 +11,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BinaryOperator;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.math.BigInteger.ONE;
+import static java.math.BigInteger.ZERO;
 
 /**
  * Algorithms performed during the mixing phase, by the autorities
@@ -47,7 +49,7 @@ public class MixingAuthorityAlgorithms {
                 .map(B -> {
                     BigInteger a_j = B.getAlpha().getBold_a().stream()
                             .reduce(BigInteger::multiply)
-                            .orElseThrow(() -> new IllegalArgumentException("can't happen if protocol was followed"))
+                            .orElse(ONE)
                             .mod(p);
                     return new Encryption(a_j, B.getAlpha().getB());
                 })
@@ -219,14 +221,14 @@ public class MixingAuthorityAlgorithms {
         BigInteger r_circ = IntStream.range(0, N)
                 .mapToObj(i -> bold_r_circ.get(i).multiply(v.get(i)).mod(q))
                 .reduce(BigInteger::add)
-                .orElseThrow(exceptionSupplier())
+                .orElse(ZERO)
                 .mod(q);
         return omega_2.add(c.multiply(r_circ)).mod(q);
     }
 
     private List<BigInteger> computeV(int N, BigInteger q, List<BigInteger> bold_u_prime) {
         List<BigInteger> v = new ArrayList<>();
-        v.add(BigInteger.ONE);
+        v.add(ONE);
         for (int i = N - 2; i >= 0; i--) {
             // inserting always at index 0 means that index 0 always contains the previous value
             // and that values will be held in reverse order to the insertion order, which is equivalent to the
@@ -240,7 +242,7 @@ public class MixingAuthorityAlgorithms {
     private BigInteger computeS1(BigInteger q, List<BigInteger> bold_r, BigInteger omega_1, BigInteger c) {
         BigInteger r_bar = bold_r.stream()
                 .reduce(BigInteger::add)
-                .orElseThrow(exceptionSupplier())
+                .orElse(ZERO)
                 .mod(q);
         return omega_1.add(c.multiply(r_bar)).mod(q);
     }
@@ -277,14 +279,14 @@ public class MixingAuthorityAlgorithms {
         return IntStream.range(0, N)
                 .mapToObj(i -> bold_e_prime.get(i).getB().modPow(bold_omega_prime.get(i), p))
                 .reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
+                .orElse(ONE);
     }
 
     private BigInteger getAPrimeProd(List<Encryption> bold_e_prime, int N, BigInteger p, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, N)
                 .mapToObj(i -> bold_e_prime.get(i).getA().modPow(bold_omega_prime.get(i), p))
                 .reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
+                .orElse(ONE);
     }
 
     /**
@@ -297,15 +299,11 @@ public class MixingAuthorityAlgorithms {
         return (a, b) -> a.multiply(b).mod(m);
     }
 
-    private Supplier<IllegalStateException> exceptionSupplier() {
-        return () -> new IllegalStateException("Should not happen, if N > 0");
-    }
-
     private BigInteger getBoldHProduct(int n, BigInteger p, List<BigInteger> bold_h, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, n)
                 .mapToObj(i -> bold_h.get(i).modPow(bold_omega_prime.get(i), p))
                 .reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
+                .orElse(ONE);
     }
 
     public boolean checkShuffleProof(ShuffleProof pi, List<Encryption> bold_e, List<Encryption> bold_e_prime,
@@ -350,47 +348,37 @@ public class MixingAuthorityAlgorithms {
         Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_circ, pk};
         BigInteger c = generalAlgorithms.getNIZKPChallenge(y, pi.getT().elementsToHash(), q);
 
-        BigInteger c_prod = bold_c.stream().reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
-        BigInteger h_prod = bold_h.stream().reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
+        BigInteger c_prod = bold_c.stream().reduce(multiplyMod(p)).orElse(ONE);
+        BigInteger h_prod = bold_h.stream().reduce(multiplyMod(p)).orElse(ONE);
         BigInteger c_bar = c_prod.multiply(h_prod.modInverse(p)).mod(p);
 
-        BigInteger u = bold_u.stream().reduce(multiplyMod(q))
-                .orElseThrow(exceptionSupplier());
+        BigInteger u = bold_u.stream().reduce(multiplyMod(q)).orElse(ONE);
 
         BigInteger c_circ = bold_c_circ.get(N - 1).multiply(h.modPow(u.negate(), p));
         BigInteger c_tilde = IntStream.range(0, N).mapToObj(i -> bold_c.get(i).modPow(bold_u.get(i), p))
-                .reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
+                .reduce(multiplyMod(p)).orElse(ONE);
 
         BigInteger e_prime_1 = IntStream.range(0, N).mapToObj(i -> bold_e.get(i).getA().modPow(bold_u.get(i), p))
-                .reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
+                .reduce(multiplyMod(p)).orElse(ONE);
         BigInteger e_prime_2 = IntStream.range(0, N).mapToObj(i -> bold_e.get(i).getB().modPow(bold_u.get(i), p))
-                .reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
+                .reduce(multiplyMod(p)).orElse(ONE);
 
         BigInteger t_prime_1 = c_bar.modPow(c.negate(), p).multiply(g.modPow(s_1, p)).mod(p);
         BigInteger t_prime_2 = c_circ.modPow(c.negate(), p).multiply(g.modPow(s_2, p)).mod(p);
         BigInteger h_i_s_prime_i = IntStream.range(0, N).mapToObj(i -> bold_h.get(i).modPow(s_prime.get(i), p))
-                .reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
+                .reduce(multiplyMod(p)).orElse(ONE);
         BigInteger t_prime_3 = c_tilde.modPow(c.negate(), p).multiply(g.modPow(s_3, p)).multiply(h_i_s_prime_i).mod(p);
 
         BigInteger a_prime_i_s_prime_i = IntStream.range(0, N)
                 .mapToObj(i -> bold_e_prime.get(i).getA().modPow(s_prime.get(i), p))
-                .reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
+                .reduce(multiplyMod(p)).orElse(ONE);
         BigInteger t_prime_4_1 = e_prime_1.modPow(c.negate(), p)
                 .multiply(pk.modPow(s_4.negate(), p))
-                .mod(p)
                 .multiply(a_prime_i_s_prime_i)
                 .mod(p);
         BigInteger b_prime_i_s_prime_i = IntStream.range(0, N)
                 .mapToObj(i -> bold_e_prime.get(i).getB().modPow(s_prime.get(i), p))
-                .reduce(multiplyMod(p))
-                .orElseThrow(exceptionSupplier());
+                .reduce(multiplyMod(p)).orElse(ONE);
         BigInteger t_prime_4_2 = e_prime_2.modPow(c.negate(), p)
                 .multiply(g.modPow(s_4.negate(), p))
                 .multiply(b_prime_i_s_prime_i)
