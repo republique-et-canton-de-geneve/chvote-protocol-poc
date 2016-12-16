@@ -40,7 +40,7 @@ public class VoterSimulator {
         this.codeSheet = codeSheet;
     }
 
-    public void vote() {
+    public List<Integer> vote() {
         Preconditions.checkState(codeSheet != null,
                 "The voter needs their code sheet to vote");
 
@@ -81,6 +81,8 @@ public class VoterSimulator {
         }
 
         log.info(String.format("Voter %d done voting", voterIndex));
+
+        return selections;
     }
 
     private List<Integer> pickAtRandom(List<Integer> selectionCounts, List<Integer> candidateCounts) {

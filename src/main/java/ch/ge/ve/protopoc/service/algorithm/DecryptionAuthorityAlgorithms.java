@@ -5,6 +5,7 @@ import ch.ge.ve.protopoc.service.support.RandomGenerator;
 import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,11 +49,13 @@ public class DecryptionAuthorityAlgorithms {
                 "The index of the authority should be valid with respect to the number of authorities");
 
         // insert e_0 at index 0, thus offsetting all indices for bold_E by 1
-        bold_E.add(0, e_0);
+        List<List<Encryption>> tmp_bold_e = new ArrayList<>();
+        tmp_bold_e.add(0, e_0);
+        tmp_bold_e.addAll(bold_E);
         for (int i = 0; i < s; i++) {
             if (i != j) {
                 if (!mixingAuthorityAlgorithms.checkShuffleProof(
-                        bold_pi.get(i), bold_E.get(i), bold_E.get(i + 1), publicKey)) {
+                        bold_pi.get(i), tmp_bold_e.get(i), tmp_bold_e.get(i + 1), publicKey)) {
                     return false;
                 }
             }

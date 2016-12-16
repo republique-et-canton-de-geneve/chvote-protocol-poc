@@ -81,7 +81,11 @@ public class TallyingAuthoritiesAlgorithm {
                 .collect(Collectors.toList());
         t_prime.add(0, t_prime_0);
 
-        return IntStream.range(0, t_prime.size()).allMatch(i -> pi_prime.getT().get(i).compareTo(t_prime.get(i)) == 0);
+        boolean isProofValid = IntStream.range(0, t_prime.size()).allMatch(i -> pi_prime.getT().get(i).compareTo(t_prime.get(i)) == 0);
+        if (!isProofValid) {
+            log.error("Invalid decryption proof found");
+        }
+        return isProofValid;
     }
 
     /**

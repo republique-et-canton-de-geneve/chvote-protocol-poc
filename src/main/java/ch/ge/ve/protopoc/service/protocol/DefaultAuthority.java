@@ -157,7 +157,7 @@ public class DefaultAuthority implements AuthorityService {
     }
 
     private void mixAndPublish(List<Encryption> encryptions) {
-        Shuffle shuffle = mixingAuthorityAlgorithms.genShuffle(encryptions, myPublicKey);
+        Shuffle shuffle = mixingAuthorityAlgorithms.genShuffle(encryptions, systemPublicKey);
         ShuffleProof shuffleProof = mixingAuthorityAlgorithms.genShuffleProof(encryptions,
                 shuffle.getBold_e_prime(), shuffle.getBold_r_prime(), shuffle.getPsy(), systemPublicKey);
 
@@ -177,7 +177,7 @@ public class DefaultAuthority implements AuthorityService {
         }
 
         BigInteger secretKey = myPrivateKey.getPrivateKey();
-        List<Encryption> finalShuffle = shuffles.get(publicParameters.getS());
+        List<Encryption> finalShuffle = shuffles.get(publicParameters.getS() - 1);
         List<BigInteger> partialDecryptions = decryptionAuthorityAlgorithms
                 .getPartialDecryptions(finalShuffle, secretKey);
 

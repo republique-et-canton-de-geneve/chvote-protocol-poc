@@ -130,7 +130,6 @@ public class GeneralAlgorithms {
      * @return the computed challenge
      */
     public BigInteger getNIZKPChallenge(Object[] y, Object[] t, BigInteger c_ub) {
-        Preconditions.checkArgument(y.length == t.length, "The lengths of y and t should be identical");
         return conversion.toInteger(hash.hash(y, t)).mod(c_ub);
     }
 

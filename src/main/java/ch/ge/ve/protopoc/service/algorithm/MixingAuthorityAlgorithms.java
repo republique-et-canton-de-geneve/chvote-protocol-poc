@@ -262,12 +262,14 @@ public class MixingAuthorityAlgorithms {
         BigInteger t_4_2 = g.modPow(omega_4.negate(), p).multiply(b_prime_prod).mod(p);
 
         // insert c_circ_0, thus offsetting c_circ indices by 1...
-        bold_c_circ.add(0, h);
+        List<BigInteger> tmp_bold_c_circ = new ArrayList<>();
+        tmp_bold_c_circ.add(0, h);
+        tmp_bold_c_circ.addAll(bold_c_circ);
         List<BigInteger> bold_t_circ = IntStream.range(0, N)
                 .mapToObj(i -> g.modPow(bold_omega_circ.get(i), p)
-                        .multiply(bold_c_circ.get(i).modPow(bold_omega_prime.get(i), p))
+                        .multiply(tmp_bold_c_circ.get(i).modPow(bold_omega_prime.get(i), p))
                         .mod(p)).collect(Collectors.toList());
-        bold_c_circ.remove(0); // restore c_circ to its former state
+        tmp_bold_c_circ.remove(0); // restore c_circ to its former state
         return new ShuffleProof.T(t_1, t_2, t_3, Arrays.asList(t_4_1, t_4_2), bold_t_circ);
     }
 
@@ -396,12 +398,15 @@ public class MixingAuthorityAlgorithms {
 
         List<BigInteger> t_circ_prime = new ArrayList<>();
         // add c_circ_0: h, thus offsetting the indices for c_circ by 1.
-        bold_c_circ.add(0, h);
+        List<BigInteger> tmp_bold_c_circ = new ArrayList<>();
+        tmp_bold_c_circ.add(0, h);
+        tmp_bold_c_circ.addAll(bold_c_circ);
         for (int i = 0; i < N; i++) {
-            BigInteger t_circ_prime_i = bold_c_circ.get(i + 1).modPow(c.negate(), p)
-                    .multiply(g.modPow(s_circ.get(i), p))
-                    .multiply(bold_c_circ.get(i).modPow(s_prime.get(i), p))
-                    .mod(p);
+            BigInteger t_circ_prime_i =
+                    tmp_bold_c_circ.get(i + 1).modPow(c.negate(), p)
+                            .multiply(g.modPow(s_circ.get(i), p))
+                            .multiply(tmp_bold_c_circ.get(i).modPow(s_prime.get(i), p))
+                            .mod(p);
             t_circ_prime.add(t_circ_prime_i);
         }
 

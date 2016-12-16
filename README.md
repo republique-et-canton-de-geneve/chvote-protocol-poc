@@ -58,11 +58,6 @@ The table below contains information on the progress of the project for the _bac
 | - Decryption                            | todo                 |
 | - Tallying                              | todo                 |
 
-#### Known issues
-
-- At this stage, the simulation always fails on shuffle proof verification, 
-because `t_prime_{4,1}` is never equal to `t_{4,1}`.
-
 ### Sequence diagrams
 
 This section introduces the sequence diagrams of the simulation process and will need to be adjusted for

@@ -2,6 +2,7 @@ package ch.ge.ve.protopoc.service.model;
 
 import ch.ge.ve.protopoc.service.support.Hash;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -96,11 +97,11 @@ public class ShuffleProof {
         }
 
         public List<BigInteger> getT_4() {
-            return t_4;
+            return ImmutableList.copyOf(t_4);
         }
 
         public List<BigInteger> getT_circ() {
-            return t_circ;
+            return ImmutableList.copyOf(t_circ);
         }
 
         @Override
@@ -165,11 +166,11 @@ public class ShuffleProof {
         }
 
         public List<BigInteger> getS_circ() {
-            return s_circ;
+            return ImmutableList.copyOf(s_circ);
         }
 
         public List<BigInteger> getS_prime() {
-            return s_prime;
+            return ImmutableList.copyOf(s_prime);
         }
 
         @Override

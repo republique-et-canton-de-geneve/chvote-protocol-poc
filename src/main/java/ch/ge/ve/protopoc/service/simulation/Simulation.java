@@ -18,9 +18,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -102,7 +100,12 @@ public class Simulation {
         printingAuthoritySimulator.print();
 
         log.info("stating the voting phase");
-        voterSimulators.forEach(VoterSimulator::vote);
+        List<List<Integer>> votes = voterSimulators.stream().map(VoterSimulator::vote).collect(Collectors.toList());
+        Map<Integer, Long> expectedVoteCounts = new HashMap<>();
+        votes.forEach(l -> l.forEach(i -> expectedVoteCounts.compute(i - 1, (k, v) -> (v == null) ? 1 : v + 1)));
+        List<Long> expectedTally = IntStream.range(0, electionSet.getCandidates().size())
+                .mapToObj(i -> expectedVoteCounts.computeIfAbsent(i, k -> 0L)).collect(Collectors.toList());
+        log.info("Expected results are: " + expectedTally);
 
         log.info("all votes have been cast and confirmed");
 
@@ -119,6 +122,12 @@ public class Simulation {
         List<Long> tally = electionAdministrationSimulator.getTally();
 
         log.info("Tally is: " + tally);
+
+        if (tally.equals(expectedTally)) {
+            log.info("Vote simulation successful");
+        } else {
+            log.error("Vote simulation failed");
+        }
     }
 
     private void createComponents() {
@@ -198,7 +207,7 @@ public class Simulation {
         DomainOfInfluence canton = new DomainOfInfluence("canton");
         DomainOfInfluence municipality1 = new DomainOfInfluence("municipality1");
 
-        List<Voter> voters = IntStream.range(0, 10).mapToObj(i -> new Voter()).collect(Collectors.toList());
+        List<Voter> voters = IntStream.range(0, 100).mapToObj(i -> new Voter()).collect(Collectors.toList());
         voters.forEach(v -> v.addDomainsOfInfluence(canton));
         voters.subList(0, 10).forEach(v -> v.addDomainsOfInfluence(municipality1));
 
@@ -256,8 +265,7 @@ public class Simulation {
     private void createSecurityLevel1Parameters() {
         SecurityParameters securityParameters = new SecurityParameters(80, 80, 160, 0.999);
 
-        EncryptionGroup encryptionGroup = new EncryptionGroup(SimulationConstants.p_RC1e, SimulationConstants.q_RC1e,
-                SimulationConstants.g_RC1e, SimulationConstants.h_RC1e);
+        EncryptionGroup encryptionGroup = createEncryptionGroup(SimulationConstants.p_RC1e);
         IdentificationGroup identificationGroup = new IdentificationGroup(SimulationConstants.p_circ_RC1s,
                 SimulationConstants.q_circ_RC1s, SimulationConstants.g_circ_RC1s);
         PrimeField primeField = createPrimeField(securityParameters);
