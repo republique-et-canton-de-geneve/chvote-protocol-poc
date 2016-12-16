@@ -40,7 +40,7 @@ The table below contains information on the progress of the project for the _bac
 | - Mixing                                | done                 |
 | - Decryption                            | done                 |
 | - Tallying                              | done                 |
-| **_Simulation program_**                | **_in progress_**    |
+| **_Simulation program_**                | **_done_**           |
 | - Initialization                        | done                 |
 | - Key generation                        | done                 |
 | - Electoral data                        | done                 |
@@ -49,7 +49,7 @@ The table below contains information on the progress of the project for the _bac
 | - Mixing                                | done                 |
 | - Decryption                            | done                 |
 | - Tallying                              | done                 |
-| - performance measurements              | todo                 |
+| - performance measurements              | done                 |
 | **_Rest services_**                     | **_todo_**           |
 | - Scaffolding                           | done                 |
 | - Initialization                        | todo                 |

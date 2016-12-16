@@ -11,6 +11,9 @@ import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
 import ch.ge.ve.protopoc.service.support.JacobiSymbol;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
+import com.google.common.base.Joiner;
+import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -34,6 +38,7 @@ public class Simulation {
 
     private final SecureRandom secureRandom;
     private final RandomGenerator randomGenerator;
+    private final PerformanceStats performanceStats = new PerformanceStats();
     private PublicParameters publicParameters;
     private ElectionSet electionSet;
     private DefaultBulletinBoard bulletinBoardService;
@@ -79,47 +84,67 @@ public class Simulation {
 
     private void run() throws InvalidDecryptionProofException {
         log.info("publishing public parameters");
+        performanceStats.start(performanceStats.publishingParameters);
         bulletinBoardService.publishPublicParameters(publicParameters);
+        performanceStats.stop(performanceStats.publishingParameters);
 
         log.info("generating authorities keys");
+        performanceStats.start(performanceStats.keyGeneration);
         authorities.forEach(AuthorityService::generateKeys);
+        performanceStats.stop(performanceStats.keyGeneration);
 
         log.info("building public keys");
+        performanceStats.start(performanceStats.publicKeyBuilding);
         authorities.forEach(AuthorityService::buildPublicKey);
+        performanceStats.stop(performanceStats.publicKeyBuilding);
 
         log.info("publishing election set");
+        performanceStats.start(performanceStats.publishElectionSet);
         bulletinBoardService.publishElectionSet(electionSet);
+        performanceStats.stop(performanceStats.publishElectionSet);
 
         log.info("generating electorate data");
+        performanceStats.start(performanceStats.generatingElectoralData);
         authorities.forEach(AuthorityService::generateElectorateData);
+        performanceStats.stop(performanceStats.generatingElectoralData);
 
         log.info("building public credentials");
+        performanceStats.start(performanceStats.buildPublicCredentials);
         authorities.forEach(AuthorityService::buildPublicCredentials);
+        performanceStats.stop(performanceStats.buildPublicCredentials);
 
         log.info("printing code sheets");
+        performanceStats.start(performanceStats.printingCodeSheets);
         printingAuthoritySimulator.print();
+        performanceStats.stop(performanceStats.printingCodeSheets);
 
         log.info("stating the voting phase");
+        performanceStats.start(performanceStats.votingPhase);
         List<List<Integer>> votes = voterSimulators.stream().map(VoterSimulator::vote).collect(Collectors.toList());
+        performanceStats.stop(performanceStats.votingPhase);
         Map<Integer, Long> expectedVoteCounts = new HashMap<>();
         votes.forEach(l -> l.forEach(i -> expectedVoteCounts.compute(i - 1, (k, v) -> (v == null) ? 1 : v + 1)));
         List<Long> expectedTally = IntStream.range(0, electionSet.getCandidates().size())
                 .mapToObj(i -> expectedVoteCounts.computeIfAbsent(i, k -> 0L)).collect(Collectors.toList());
         log.info("Expected results are: " + expectedTally);
 
-        log.info("all votes have been cast and confirmed");
-
         log.info("starting the mixing");
+        performanceStats.start(performanceStats.mixing);
         authorities.get(0).startMixing();
         for (int i = 1; i < publicParameters.getS(); i++) {
             authorities.get(i).mixAgain();
         }
+        performanceStats.stop(performanceStats.mixing);
 
         log.info("starting decryption");
+        performanceStats.start(performanceStats.decryption);
         authorities.forEach(AuthorityService::startPartialDecryption);
+        performanceStats.stop(performanceStats.decryption);
 
         log.info("tallying votes");
+        performanceStats.start(performanceStats.tallying);
         List<Long> tally = electionAdministrationSimulator.getTally();
+        performanceStats.stop(performanceStats.tallying);
 
         log.info("Tally is: " + tally);
 
@@ -128,6 +153,10 @@ public class Simulation {
         } else {
             log.error("Vote simulation failed");
         }
+
+        performanceStats.stop(performanceStats.totalSimulation);
+
+        performanceStats.logStatSummary();
     }
 
     private void createComponents() {
@@ -197,9 +226,14 @@ public class Simulation {
     }
 
     private void initializeSettings(int level) {
+        performanceStats.start(performanceStats.totalSimulation);
         log.info("Initializing settings");
+        performanceStats.start(performanceStats.creatingPublicParameters);
         createPublicParameters(level);
+        performanceStats.stop(performanceStats.creatingPublicParameters);
+        performanceStats.start(performanceStats.creatingElectionSet);
         createElectionSet();
+        performanceStats.stop(performanceStats.creatingElectionSet);
         log.info("Settings initialiazed");
     }
 
@@ -404,5 +438,54 @@ public class Simulation {
         }
 
         return alphabet;
+    }
+
+    private class PerformanceStats {
+        final String creatingPublicParameters = "creating public parameters";
+        final String creatingElectionSet = "creating election set";
+        final String publishingParameters = "publishing parameters";
+        final String keyGeneration = "key generation";
+        final String publicKeyBuilding = "public key building";
+        final String publishElectionSet = "publish election set";
+        final String generatingElectoralData = "generating electoral data";
+        final String buildPublicCredentials = "build public credentials";
+        final String printingCodeSheets = "printing code sheets";
+        final String votingPhase = "voting phase";
+        final String mixing = "mixing";
+        final String decryption = "decryption";
+        final String tallying = "tallying";
+        final String totalSimulation = "total simulation time";
+
+        private final Map<String, Stopwatch> stopwatches = new HashMap<>();
+
+        void start(String name) {
+            stopwatches.compute(name, (k, v) -> (v == null) ? Stopwatch.createStarted() : v.start());
+        }
+
+        void stop(String name) {
+            stopwatches.compute(name, (k, v) -> (v == null) ? Stopwatch.createUnstarted() : v.stop());
+        }
+
+        private long getElapsed(String name, TimeUnit timeUnit) {
+            return stopwatches.compute(name, (k, v) -> (v == null) ? Stopwatch.createUnstarted() : v).elapsed(timeUnit);
+        }
+
+        void logStatSummary() {
+            List<String> elements = Arrays.asList(creatingPublicParameters, creatingElectionSet, publishingParameters,
+                    keyGeneration, publicKeyBuilding, publishElectionSet, generatingElectoralData,
+                    buildPublicCredentials, printingCodeSheets, votingPhase, mixing, decryption, tallying,
+                    totalSimulation);
+            log.info("### Performance statistics");
+            log.info("");
+            log.info("- length of p: " + publicParameters.getEncryptionGroup().getP().bitLength());
+            log.info("- number of voters: " + electionSet.getVoters().size());
+            List<Integer> candidateCounts = electionSet.getElections().stream()
+                    .map(Election::getNumberOfCandidates).collect(Collectors.toList());
+            log.info("- number of candidates per election: " + Joiner.on(",").join(candidateCounts));
+            log.info("");
+            log.info(String.format("| %30s | %15s |", "Step name", "Time taken (ms)"));
+            log.info(String.format("| %30s | %15s |", Strings.repeat("-", 30), Strings.repeat("-", 15)));
+            elements.forEach(k -> log.info(String.format("| %30s | %15d |", k, getElapsed(k, TimeUnit.MILLISECONDS))));
+        }
     }
 }
