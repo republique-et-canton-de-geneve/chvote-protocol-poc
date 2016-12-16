@@ -6,6 +6,8 @@ import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
+
 /**
  * This class
  */
@@ -64,6 +66,6 @@ public class RandomGenerator {
      */
     public BigInteger randomInGq(EncryptionGroup encryptionGroup) {
         BigInteger x = randomInZq(encryptionGroup.getQ());
-        return encryptionGroup.getG().modPow(x, encryptionGroup.getP());
+        return modExp(encryptionGroup.getG(), x, encryptionGroup.getP());
     }
 }

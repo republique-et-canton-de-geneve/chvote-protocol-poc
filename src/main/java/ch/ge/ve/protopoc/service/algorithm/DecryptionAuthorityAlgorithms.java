@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
+
 /**
  * Algorithms related to the decryption of ballots
  */
@@ -72,7 +74,7 @@ public class DecryptionAuthorityAlgorithms {
      */
     public List<BigInteger> getPartialDecryptions(List<Encryption> bold_e, BigInteger sk_j) {
         BigInteger p = publicParameters.getEncryptionGroup().getP();
-        return bold_e.stream().map(e_i -> e_i.getB().modPow(sk_j, p)).collect(Collectors.toList());
+        return bold_e.stream().map(e_i -> modExp(e_i.getB(), sk_j, p)).collect(Collectors.toList());
     }
 
     /**
@@ -92,8 +94,8 @@ public class DecryptionAuthorityAlgorithms {
         BigInteger g = publicParameters.getEncryptionGroup().getG();
         BigInteger omega = randomGenerator.randomInZq(q);
 
-        BigInteger t_0 = g.modPow(omega, p);
-        List<BigInteger> t = bold_e.stream().map(e_i -> e_i.getB().modPow(omega, p)).collect(Collectors.toList());
+        BigInteger t_0 = modExp(g, omega, p);
+        List<BigInteger> t = bold_e.stream().map(e_i -> modExp(e_i.getB(), omega, p)).collect(Collectors.toList());
         t.add(0, t_0);
         List<BigInteger> bold_b = bold_e.stream().map(Encryption::getB).collect(Collectors.toList());
         Object[] y = {pk_j, bold_b, bold_b_prime};

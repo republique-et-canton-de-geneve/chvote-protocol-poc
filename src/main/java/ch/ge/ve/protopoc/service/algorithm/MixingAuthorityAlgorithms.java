@@ -14,6 +14,7 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
 import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.ZERO;
 
@@ -118,8 +119,8 @@ public class MixingAuthorityAlgorithms {
 
         BigInteger r_prime = randomGenerator.randomInZq(q);
 
-        BigInteger a_prime = e.getA().multiply(pk.modPow(r_prime, p)).mod(p);
-        BigInteger b_prime = e.getB().multiply(g.modPow(r_prime, p)).mod(p);
+        BigInteger a_prime = e.getA().multiply(modExp(pk, r_prime, p)).mod(p);
+        BigInteger b_prime = e.getB().multiply(modExp(g, r_prime, p)).mod(p);
 
         return new ReEncryption(new Encryption(a_prime, b_prime), r_prime);
     }
@@ -251,25 +252,25 @@ public class MixingAuthorityAlgorithms {
                                     BigInteger pk, List<BigInteger> bold_h, List<BigInteger> bold_c_circ,
                                     BigInteger omega_1, BigInteger omega_2, BigInteger omega_3, BigInteger omega_4,
                                     List<BigInteger> bold_omega_circ, List<BigInteger> bold_omega_prime) {
-        BigInteger t_1 = g.modPow(omega_1, p);
-        BigInteger t_2 = g.modPow(omega_2, p);
+        BigInteger t_1 = modExp(g, omega_1, p);
+        BigInteger t_2 = modExp(g, omega_2, p);
 
         BigInteger h_prod = getBoldHProduct(N, p, bold_h, bold_omega_prime);
-        BigInteger t_3 = g.modPow(omega_3, p).multiply(h_prod).mod(p);
+        BigInteger t_3 = modExp(g, omega_3, p).multiply(h_prod).mod(p);
 
         BigInteger a_prime_prod = getAPrimeProd(bold_e_prime, N, p, bold_omega_prime);
-        BigInteger t_4_1 = pk.modPow(omega_4.negate(), p).multiply(a_prime_prod).mod(p);
+        BigInteger t_4_1 = modExp(pk, omega_4.negate(), p).multiply(a_prime_prod).mod(p);
 
         BigInteger b_prime_prod = getBPrimeProd(bold_e_prime, N, p, bold_omega_prime);
-        BigInteger t_4_2 = g.modPow(omega_4.negate(), p).multiply(b_prime_prod).mod(p);
+        BigInteger t_4_2 = modExp(g, omega_4.negate(), p).multiply(b_prime_prod).mod(p);
 
         // insert c_circ_0, thus offsetting c_circ indices by 1...
         List<BigInteger> tmp_bold_c_circ = new ArrayList<>();
         tmp_bold_c_circ.add(0, h);
         tmp_bold_c_circ.addAll(bold_c_circ);
         List<BigInteger> bold_t_circ = IntStream.range(0, N)
-                .mapToObj(i -> g.modPow(bold_omega_circ.get(i), p)
-                        .multiply(tmp_bold_c_circ.get(i).modPow(bold_omega_prime.get(i), p))
+                .mapToObj(i -> modExp(g, bold_omega_circ.get(i), p)
+                        .multiply(modExp(tmp_bold_c_circ.get(i), bold_omega_prime.get(i), p))
                         .mod(p)).collect(Collectors.toList());
         tmp_bold_c_circ.remove(0); // restore c_circ to its former state
         return new ShuffleProof.T(t_1, t_2, t_3, Arrays.asList(t_4_1, t_4_2), bold_t_circ);
@@ -277,14 +278,14 @@ public class MixingAuthorityAlgorithms {
 
     private BigInteger getBPrimeProd(List<Encryption> bold_e_prime, int N, BigInteger p, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, N)
-                .mapToObj(i -> bold_e_prime.get(i).getB().modPow(bold_omega_prime.get(i), p))
+                .mapToObj(i -> modExp(bold_e_prime.get(i).getB(), bold_omega_prime.get(i), p))
                 .reduce(multiplyMod(p))
                 .orElse(ONE);
     }
 
     private BigInteger getAPrimeProd(List<Encryption> bold_e_prime, int N, BigInteger p, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, N)
-                .mapToObj(i -> bold_e_prime.get(i).getA().modPow(bold_omega_prime.get(i), p))
+                .mapToObj(i -> modExp(bold_e_prime.get(i).getA(), bold_omega_prime.get(i), p))
                 .reduce(multiplyMod(p))
                 .orElse(ONE);
     }
@@ -301,7 +302,7 @@ public class MixingAuthorityAlgorithms {
 
     private BigInteger getBoldHProduct(int n, BigInteger p, List<BigInteger> bold_h, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, n)
-                .mapToObj(i -> bold_h.get(i).modPow(bold_omega_prime.get(i), p))
+                .mapToObj(i -> modExp(bold_h.get(i), bold_omega_prime.get(i), p))
                 .reduce(multiplyMod(p))
                 .orElse(ONE);
     }
@@ -354,33 +355,33 @@ public class MixingAuthorityAlgorithms {
 
         BigInteger u = bold_u.stream().reduce(multiplyMod(q)).orElse(ONE);
 
-        BigInteger c_circ = bold_c_circ.get(N - 1).multiply(h.modPow(u.negate(), p));
-        BigInteger c_tilde = IntStream.range(0, N).mapToObj(i -> bold_c.get(i).modPow(bold_u.get(i), p))
+        BigInteger c_circ = bold_c_circ.get(N - 1).multiply(modExp(h, u.negate(), p));
+        BigInteger c_tilde = IntStream.range(0, N).mapToObj(i -> modExp(bold_c.get(i), bold_u.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
 
-        BigInteger e_prime_1 = IntStream.range(0, N).mapToObj(i -> bold_e.get(i).getA().modPow(bold_u.get(i), p))
+        BigInteger e_prime_1 = IntStream.range(0, N).mapToObj(i -> modExp(bold_e.get(i).getA(), bold_u.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
-        BigInteger e_prime_2 = IntStream.range(0, N).mapToObj(i -> bold_e.get(i).getB().modPow(bold_u.get(i), p))
+        BigInteger e_prime_2 = IntStream.range(0, N).mapToObj(i -> modExp(bold_e.get(i).getB(), bold_u.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
 
-        BigInteger t_prime_1 = c_bar.modPow(c.negate(), p).multiply(g.modPow(s_1, p)).mod(p);
-        BigInteger t_prime_2 = c_circ.modPow(c.negate(), p).multiply(g.modPow(s_2, p)).mod(p);
-        BigInteger h_i_s_prime_i = IntStream.range(0, N).mapToObj(i -> bold_h.get(i).modPow(s_prime.get(i), p))
+        BigInteger t_prime_1 = modExp(c_bar, c.negate(), p).multiply(modExp(g, s_1, p)).mod(p);
+        BigInteger t_prime_2 = modExp(c_circ, c.negate(), p).multiply(modExp(g, s_2, p)).mod(p);
+        BigInteger h_i_s_prime_i = IntStream.range(0, N).mapToObj(i -> modExp(bold_h.get(i), s_prime.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
-        BigInteger t_prime_3 = c_tilde.modPow(c.negate(), p).multiply(g.modPow(s_3, p)).multiply(h_i_s_prime_i).mod(p);
+        BigInteger t_prime_3 = modExp(c_tilde, c.negate(), p).multiply(modExp(g, s_3, p)).multiply(h_i_s_prime_i).mod(p);
 
         BigInteger a_prime_i_s_prime_i = IntStream.range(0, N)
-                .mapToObj(i -> bold_e_prime.get(i).getA().modPow(s_prime.get(i), p))
+                .mapToObj(i -> modExp(bold_e_prime.get(i).getA(), s_prime.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
-        BigInteger t_prime_4_1 = e_prime_1.modPow(c.negate(), p)
-                .multiply(pk.modPow(s_4.negate(), p))
+        BigInteger t_prime_4_1 = modExp(e_prime_1, c.negate(), p)
+                .multiply(modExp(pk, s_4.negate(), p))
                 .multiply(a_prime_i_s_prime_i)
                 .mod(p);
         BigInteger b_prime_i_s_prime_i = IntStream.range(0, N)
-                .mapToObj(i -> bold_e_prime.get(i).getB().modPow(s_prime.get(i), p))
+                .mapToObj(i -> modExp(bold_e_prime.get(i).getB(), s_prime.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
-        BigInteger t_prime_4_2 = e_prime_2.modPow(c.negate(), p)
-                .multiply(g.modPow(s_4.negate(), p))
+        BigInteger t_prime_4_2 = modExp(e_prime_2, c.negate(), p)
+                .multiply(modExp(g, s_4.negate(), p))
                 .multiply(b_prime_i_s_prime_i)
                 .mod(p);
 
@@ -391,9 +392,9 @@ public class MixingAuthorityAlgorithms {
         tmp_bold_c_circ.addAll(bold_c_circ);
         for (int i = 0; i < N; i++) {
             BigInteger t_circ_prime_i =
-                    tmp_bold_c_circ.get(i + 1).modPow(c.negate(), p)
-                            .multiply(g.modPow(s_circ.get(i), p))
-                            .multiply(tmp_bold_c_circ.get(i).modPow(s_prime.get(i), p))
+                    modExp(tmp_bold_c_circ.get(i + 1), c.negate(), p)
+                            .multiply(modExp(g, s_circ.get(i), p))
+                            .multiply(modExp(tmp_bold_c_circ.get(i), s_prime.get(i), p))
                             .mod(p);
             t_circ_prime.add(t_circ_prime_i);
         }
@@ -434,7 +435,7 @@ public class MixingAuthorityAlgorithms {
             Preconditions.checkState(psy.get(i) == j_i, "The reverse permutation is not valid");
 
             BigInteger r_j_i = randomGenerator.randomInZq(q);
-            BigInteger c_j_i = g.modPow(r_j_i, p).multiply(bold_h.get(i)).mod(p);
+            BigInteger c_j_i = modExp(g, r_j_i, p).multiply(bold_h.get(i)).mod(p);
             bold_c.add(c_j_i);
             bold_r.add(r_j_i);
         }
@@ -464,7 +465,7 @@ public class MixingAuthorityAlgorithms {
             BigInteger u_prime_i = bold_u_prime.get(i);
 
             BigInteger r_i = randomGenerator.randomInZq(q);
-            BigInteger c_i = g.modPow(r_i, p).multiply(c_i_minus_one.modPow(u_prime_i, p)).mod(p);
+            BigInteger c_i = modExp(g, r_i, p).multiply(modExp(c_i_minus_one, u_prime_i, p)).mod(p);
 
             bold_c.add(c_i);
             bold_r.add(r_i);

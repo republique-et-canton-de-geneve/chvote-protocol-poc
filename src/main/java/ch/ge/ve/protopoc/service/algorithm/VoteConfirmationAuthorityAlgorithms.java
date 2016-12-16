@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
+
 /**
  * Algorithms for the vote confirmation phase, on the authorities side
  */
@@ -82,7 +84,7 @@ public class VoteConfirmationAuthorityAlgorithms {
         BigInteger s = pi.getS().get(0);
 
         BigInteger c = generalAlgorithms.getNIZKPChallenge(new BigInteger[]{y_circ}, new BigInteger[]{t}, q_circ);
-        BigInteger t_prime = g_circ.modPow(s, p_circ).multiply(y_circ.modPow(c.negate(), p_circ)).mod(p_circ);
+        BigInteger t_prime = modExp(g_circ, s, p_circ).multiply(modExp(y_circ, c.negate(), p_circ)).mod(p_circ);
 
         return t.compareTo(t_prime) == 0;
     }

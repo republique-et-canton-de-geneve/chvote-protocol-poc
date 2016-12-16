@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
+
 /**
  * Algorithms relevant to the election preparation
  */
@@ -103,8 +105,8 @@ public class ElectionPreparationAlgorithms {
      */
     public Point getPublicVoterData(BigInteger x, BigInteger y, List<BigInteger> yList) {
         BigInteger local_y = y.add(conversion.toInteger(hash.hash(yList.toArray()))).mod(identificationGroup.getQ_circ());
-        BigInteger x_circ = identificationGroup.getG_circ().modPow(x, identificationGroup.getP_circ());
-        BigInteger y_circ = identificationGroup.getG_circ().modPow(local_y, identificationGroup.getP_circ());
+        BigInteger x_circ = modExp(identificationGroup.getG_circ(), x, identificationGroup.getP_circ());
+        BigInteger y_circ = modExp(identificationGroup.getG_circ(), local_y, identificationGroup.getP_circ());
 
         return new Point(x_circ, y_circ);
     }

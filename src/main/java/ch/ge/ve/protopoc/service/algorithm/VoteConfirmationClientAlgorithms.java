@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
 import static java.math.BigInteger.ZERO;
 import static java.util.Collections.singletonList;
 
@@ -63,7 +64,7 @@ public class VoteConfirmationClientAlgorithms {
         BigInteger y = conversion.toInteger(Y, publicParameters.getA_y()).add(
                 y_js.stream().reduce(BigInteger::add).orElse(ZERO)
         ).mod(q_circ);
-        BigInteger y_circ = g_circ.modPow(y, p_circ);
+        BigInteger y_circ = modExp(g_circ, y, p_circ);
         NonInteractiveZKP pi = genConfirmationProof(y, y_circ);
 
         return new Confirmation(y_circ, pi);
@@ -132,7 +133,7 @@ public class VoteConfirmationClientAlgorithms {
 
         BigInteger omega = randomGenerator.randomInZq(q_circ);
 
-        BigInteger t = g_circ.modPow(omega, p_circ);
+        BigInteger t = modExp(g_circ, omega, p_circ);
         BigInteger[] bold_v = new BigInteger[]{y_circ};
         BigInteger[] bold_t = new BigInteger[]{t};
         BigInteger c = generalAlgorithms.getNIZKPChallenge(bold_v, bold_t, q_circ);

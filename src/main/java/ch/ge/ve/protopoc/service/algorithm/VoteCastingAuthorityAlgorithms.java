@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
 import static java.math.BigInteger.ONE;
 
 /**
@@ -124,9 +125,9 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger s_2 = pi.getS().get(1);
         BigInteger s_3 = pi.getS().get(2);
 
-        BigInteger t_prime_1 = x_circ.modPow(c.negate(), p_circ).multiply(g_circ.modPow(s_1, p_circ)).mod(p_circ);
-        BigInteger t_prime_2 = a.modPow(c.negate(), p).multiply(s_2).multiply(pk.getPublicKey().modPow(s_3, p)).mod(p);
-        BigInteger t_prime_3 = b.modPow(c.negate(), p).multiply(g.modPow(s_3, p)).mod(p);
+        BigInteger t_prime_1 = modExp(x_circ, c.negate(), p_circ).multiply(modExp(g_circ, s_1, p_circ)).mod(p_circ);
+        BigInteger t_prime_2 = modExp(a, c.negate(), p).multiply(s_2).multiply(modExp(pk.getPublicKey(), s_3, p)).mod(p);
+        BigInteger t_prime_3 = modExp(b, c.negate(), p).multiply(modExp(g, s_3, p)).mod(p);
 
         return t[0].compareTo(t_prime_1) == 0 &&
                 t[1].compareTo(t_prime_2) == 0 &&
@@ -187,7 +188,7 @@ public class VoteCastingAuthorityAlgorithms {
 
             Integer k_ij = bold_K.get(i).get(j);
             for (int l = 0; l < k_ij; l++) {
-                bold_b.add(bold_a.get(k_offset + l).modPow(r_j, p));
+                bold_b.add(modExp(bold_a.get(k_offset + l), r_j, p));
             }
             k_offset += k_ij;
 
@@ -200,14 +201,14 @@ public class VoteCastingAuthorityAlgorithms {
                         conversion.toByteArray(point_iv.y, upper_l_m / 2)
                 );
                 log.debug(String.format("Encoding point %s as %s", point_iv, Arrays.toString(M_v)));
-                BigInteger valueToHash = bold_u.get(v).modPow(r_j, p);
+                BigInteger valueToHash = modExp(bold_u.get(v), r_j, p);
                 log.debug(String.format("Hashing the following value: %s", valueToHash));
                 bold_c[v] = ByteArrayUtils.xor(M_v, Arrays.copyOf(hash.hash(valueToHash), upper_l_m));
                 log.debug(String.format("bold_c[%d] = %s", v, Arrays.toString(bold_c[v])));
             }
             n_offset += n_j;
 
-            bold_d.add(pk.getPublicKey().modPow(r_j, p));
+            bold_d.add(modExp(pk.getPublicKey(), r_j, p));
             bold_r.add(r_j);
         }
 

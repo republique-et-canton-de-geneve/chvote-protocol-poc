@@ -1,5 +1,6 @@
 package ch.ge.ve.protopoc.service.simulation;
 
+import ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic;
 import ch.ge.ve.protopoc.service.algorithm.*;
 import ch.ge.ve.protopoc.service.exception.InvalidDecryptionProofException;
 import ch.ge.ve.protopoc.service.model.*;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
 import static ch.ge.ve.protopoc.service.support.BigIntegers.TWO;
 import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.ZERO;
@@ -363,10 +365,10 @@ public class Simulation {
             }
 
             BigInteger i = randomGenerator.randomInZq(p_circ);
-            while (i.modPow(k, p_circ).compareTo(ONE) == 0) {
+            while (modExp(i, k, p_circ).compareTo(ONE) == 0) {
                 i = randomGenerator.randomInZq(p_circ);
             }
-            BigInteger g_circ = i.modPow(k, p_circ);
+            BigInteger g_circ = modExp(i, k, p_circ);
 
             try {
                 identificationGroup = new IdentificationGroup(p_circ, q_circ, g_circ);
@@ -417,15 +419,15 @@ public class Simulation {
         while (!safe) {
             h = randomGenerator.randomInZq(p);
 
-            safe = h.modPow(TWO, p).compareTo(ONE) != 0
-                    && h.modPow(q, p).compareTo(ONE) != 0
+            safe = modExp(h, TWO, p).compareTo(ONE) != 0
+                    && modExp(h, q, p).compareTo(ONE) != 0
                     && pMinusOne.mod(h).compareTo(BigInteger.ZERO) != 0;
 
             BigInteger gInv = safe ? h.modInverse(p) : ONE;
             safe = safe && pMinusOne.mod(gInv).compareTo(BigInteger.ZERO) != 0;
         }
         log.info("generator created");
-        return h.modPow(TWO, p);
+        return modExp(h, TWO, p);
     }
 
     private List<Character> getDefaultAlphabet() {
@@ -477,11 +479,12 @@ public class Simulation {
                     totalSimulation);
             log.info("##### Performance statistics");
             log.info("");
+            log.info("- using LibGMP: " + BigIntegerArithmetic.isGmpLoaded());
             log.info("- length of p: " + publicParameters.getEncryptionGroup().getP().bitLength());
             log.info("- number of voters: " + electionSet.getVoters().size());
             List<Integer> candidateCounts = electionSet.getElections().stream()
                     .map(Election::getNumberOfCandidates).collect(Collectors.toList());
-            log.info("- number of candidates per election: " + Joiner.on(",").join(candidateCounts));
+            log.info("- number of candidates per election: " + Joiner.on(", ").join(candidateCounts));
             log.info("");
             log.info(String.format("| %30s | %15s |", "Step name", "Time taken (ms)"));
             log.info(String.format("| %30s | %14s: |", Strings.repeat("-", 30), Strings.repeat("-", 14)));

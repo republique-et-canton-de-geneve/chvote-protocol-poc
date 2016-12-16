@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
 import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.ZERO;
 
@@ -74,11 +75,11 @@ public class TallyingAuthoritiesAlgorithm {
         List<BigInteger> bold_b = bold_e.stream().map(Encryption::getB).collect(Collectors.toList());
         Object[] y = {pk_j, bold_b, bold_b_prime};
         BigInteger c = generalAlgorithms.getNIZKPChallenge(y, pi_prime.getT().toArray(new BigInteger[0]), q);
-        BigInteger t_prime_0 = pk_j.modPow(c.negate(), p).multiply(g.modPow(pi_prime.getS(), p)).mod(p);
+        BigInteger t_prime_0 = modExp(pk_j, c.negate(), p).multiply(modExp(g, pi_prime.getS(), p)).mod(p);
         List<BigInteger> t_prime = IntStream.range(0, bold_b.size())
                 .mapToObj(i ->
-                        bold_b_prime.get(i).modPow(c.negate(), p)
-                                .multiply(bold_b.get(i).modPow(pi_prime.getS(), p)).mod(p))
+                        modExp(bold_b_prime.get(i), c.negate(), p)
+                                .multiply(modExp(bold_b.get(i), pi_prime.getS(), p)).mod(p))
                 .collect(Collectors.toList());
         t_prime.add(0, t_prime_0);
 

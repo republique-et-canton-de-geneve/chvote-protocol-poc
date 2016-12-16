@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
 import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.ZERO;
 
@@ -58,14 +59,14 @@ public class VoteCastingClientAlgorithms {
         BigInteger g = publicParameters.getEncryptionGroup().getG();
 
         BigInteger x = conversion.toInteger(X, publicParameters.getA_x());
-        BigInteger x_circ = g_circ.modPow(x, p_circ);
+        BigInteger x_circ = modExp(g_circ, x, p_circ);
 
         List<BigInteger> bold_q = computeBoldQ(bold_s);
         BigInteger m = computeM(bold_q, p);
         ObliviousTransferQuery query = genQuery(bold_q, pk);
         BigInteger a = computeA(query, p);
         BigInteger r = computeR(query, q);
-        BigInteger b = g.modPow(r, p);
+        BigInteger b = modExp(g, r, p);
         NonInteractiveZKP pi = genBallotProof(x, m, r, x_circ, a, b, pk);
         BallotAndQuery alpha = new BallotAndQuery(x_circ, query.getBold_a(), b, pi);
 
@@ -119,7 +120,7 @@ public class VoteCastingClientAlgorithms {
 
         for (BigInteger q_i : bold_q) {
             BigInteger r_i = randomGenerator.randomInZq(q);
-            BigInteger a_i = q_i.multiply(pk.getPublicKey().modPow(r_i, p)).mod(p);
+            BigInteger a_i = q_i.multiply(modExp(pk.getPublicKey(), r_i, p)).mod(p);
             bold_a.add(a_i);
             bold_r.add(r_i);
         }
@@ -163,9 +164,9 @@ public class VoteCastingClientAlgorithms {
         BigInteger omega_2 = randomGenerator.randomInGq(encryptionGroup);
         BigInteger omega_3 = randomGenerator.randomInZq(q);
 
-        BigInteger t_1 = g_circ.modPow(omega_1, p_circ);
-        BigInteger t_2 = omega_2.multiply(pk.getPublicKey().modPow(omega_3, p)).mod(p);
-        BigInteger t_3 = g.modPow(omega_3, p);
+        BigInteger t_1 = modExp(g_circ, omega_1, p_circ);
+        BigInteger t_2 = omega_2.multiply(modExp(pk.getPublicKey(), omega_3, p)).mod(p);
+        BigInteger t_3 = modExp(g, omega_3, p);
 
         BigInteger[] v = new BigInteger[]{x_circ, a, b};
         BigInteger[] t = new BigInteger[]{t_1, t_2, t_3};
@@ -173,7 +174,7 @@ public class VoteCastingClientAlgorithms {
         log.debug(String.format("genBallotProof: c = %s", c));
 
         BigInteger s_1 = omega_1.add(c.multiply(x)).mod(q_circ);
-        BigInteger s_2 = omega_2.multiply(m.modPow(c, p)).mod(p);
+        BigInteger s_2 = omega_2.multiply(modExp(m, c, p)).mod(p);
         BigInteger s_3 = omega_3.add(c.multiply(r)).mod(q);
         List<BigInteger> s = Arrays.asList(s_1, s_2, s_3);
 
@@ -231,7 +232,7 @@ public class VoteCastingClientAlgorithms {
         for (int j = 0; j < bold_k.size(); j++) {
             for (int l = 0; l < bold_k.get(j); l++) {
                 log.debug("c[" + (bold_s.get(i) - 1) + "] = " + Arrays.toString(c[bold_s.get(i) - 1]));
-                BigInteger valueToHash = b.get(i).multiply(d.get(j).modPow(bold_r.get(i).negate(), p)).mod(p);
+                BigInteger valueToHash = b.get(i).multiply(modExp(d.get(j), bold_r.get(i).negate(), p)).mod(p);
                 log.debug(String.format("Hashing the following value: %s", valueToHash));
                 byte[] M_i = ByteArrayUtils.xor(
                         // selections are 1-based

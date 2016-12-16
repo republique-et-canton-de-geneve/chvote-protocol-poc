@@ -9,6 +9,8 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.List;
 
+import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
+
 /**
  * Algorithms used during the key establishment part of the election preparation phase
  */
@@ -27,13 +29,14 @@ public class KeyEstablishmentAlgorithms {
      */
     public KeyPair generateKeyPair(EncryptionGroup eg) {
         BigInteger sk = randomGenerator.randomInZq(eg.getQ());
-        BigInteger pk = eg.getG().modPow(sk, eg.getP());
+        BigInteger pk = modExp(eg.getG(), sk, eg.getP());
 
         return new KeyPair(new EncryptionPublicKey(pk, eg), new EncryptionPrivateKey(sk, eg));
     }
 
     /**
      * Algorithm 5.8: GetPublicKey
+     *
      * @param publicKeys the set of public key shares that should be combined
      * @return the combined public key
      */
