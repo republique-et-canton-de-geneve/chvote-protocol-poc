@@ -17,14 +17,14 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 #### LibGMP integration
 
 - Date: December 16, 2016
-- Head: 
+- Head: protocol-poc-back/16da02afd7e5c2d1895669ec2b2af69bd01cc51d
 
 ##### Performance statistics @ 1024-bit
 
 - using LibGMP: true
 - length of p: 1024
 - number of voters: 100
-- number of candidates per election: 3,3,10
+- number of candidates per election: 3, 3, 10
 
 |                      Step name | Time taken (ms) |
 | ------------------------------ | --------------: |
@@ -43,16 +43,40 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 |                       tallying |           1 114 |
 |          total simulation time |          95 989 |
 
+##### Performance statistics @ 2048-bit
+
+- using LibGMP: true
+- length of p: 2048
+- number of voters: 100
+- number of candidates per election: 3, 3, 10
+
+|                      Step name | Time taken (ms) |
+| ------------------------------ | --------------: |
+|     creating public parameters |           4 020 |
+|          creating election set |              24 |
+|          publishing parameters |               0 |
+|                 key generation |              67 |
+|            public key building |               6 |
+|           publish election set |               0 |
+|      generating electoral data |           3 161 |
+|       build public credentials |              56 |
+|           printing code sheets |              86 |
+|                   voting phase |         166 966 |
+|                         mixing |          87 194 |
+|                     decryption |         216 645 |
+|                       tallying |           8 831 |
+|          total simulation time |         487 119 |
+
 #### Initial measurements
 
 - Date: December 16, 2016
-- Head: 108c150bd444d5de7da59888687b1ff8464b64b5
+- Head: protocol-poc-back/108c150bd444d5de7da59888687b1ff8464b64b5
 
 ##### Performance statistics @ 1024-bit
 
 - length of p: 1024
 - number of voters: 100
-- number of candidates per election: 3,3,10
+- number of candidates per election: 3, 3, 10
 
 |                      Step name | Time taken (ms) |
 | ------------------------------ | --------------: |
@@ -76,7 +100,7 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 
 - length of p: 2048
 - number of voters: 100
-- number of candidates per election: 3,3,10
+- number of candidates per election: 3, 3, 10
 
 |                      Step name | Time taken (ms) |
 | ------------------------------ | --------------: |
