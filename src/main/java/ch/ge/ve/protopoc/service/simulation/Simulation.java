@@ -31,7 +31,7 @@ import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.ZERO;
 
 /**
- * Missing javadoc!
+ * Simulation class...
  */
 public class Simulation {
     private final static Logger log = LoggerFactory.getLogger(Simulation.class);
@@ -475,7 +475,7 @@ public class Simulation {
                     keyGeneration, publicKeyBuilding, publishElectionSet, generatingElectoralData,
                     buildPublicCredentials, printingCodeSheets, votingPhase, mixing, decryption, tallying,
                     totalSimulation);
-            log.info("### Performance statistics");
+            log.info("##### Performance statistics");
             log.info("");
             log.info("- length of p: " + publicParameters.getEncryptionGroup().getP().bitLength());
             log.info("- number of voters: " + electionSet.getVoters().size());
@@ -484,8 +484,8 @@ public class Simulation {
             log.info("- number of candidates per election: " + Joiner.on(",").join(candidateCounts));
             log.info("");
             log.info(String.format("| %30s | %15s |", "Step name", "Time taken (ms)"));
-            log.info(String.format("| %30s | %15s |", Strings.repeat("-", 30), Strings.repeat("-", 15)));
-            elements.forEach(k -> log.info(String.format("| %30s | %15d |", k, getElapsed(k, TimeUnit.MILLISECONDS))));
+            log.info(String.format("| %30s | %14s: |", Strings.repeat("-", 30), Strings.repeat("-", 14)));
+            elements.forEach(k -> log.info(String.format("| %30s | %,15d |", k, getElapsed(k, TimeUnit.MILLISECONDS))));
         }
     }
 }

@@ -27,6 +27,12 @@ This prototype consists of:
 
 ### Project progress
 
+#### Performance
+
+Some performance measurements can be found on [Performance measurements](Performance%20measurements.md).
+
+#### Implementation status
+
 The table below contains information on the progress of the project for the _backend_.
 
 | Step                                    | Status               |
