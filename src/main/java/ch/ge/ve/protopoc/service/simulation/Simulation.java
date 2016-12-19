@@ -92,13 +92,23 @@ public class Simulation {
 
         log.info("generating authorities keys");
         performanceStats.start(performanceStats.keyGeneration);
-        authorities.forEach(AuthorityService::generateKeys);
+        // parallelStream.forEach returns early, this is a workaround so that the call returns once all items have been
+        // processed
+        boolean keyGenerationSuccess = authorities.parallelStream().map(aS -> {
+            aS.generateKeys();
+            return true;
+        }).allMatch(b -> b);
         performanceStats.stop(performanceStats.keyGeneration);
+        log.info("keyGenerationSuccess: " + keyGenerationSuccess);
 
         log.info("building public keys");
         performanceStats.start(performanceStats.publicKeyBuilding);
-        authorities.forEach(AuthorityService::buildPublicKey);
+        boolean publicKeyBuildingSuccess = authorities.parallelStream().map(aS -> {
+            aS.buildPublicKey();
+            return true;
+        }).allMatch(b -> b);
         performanceStats.stop(performanceStats.publicKeyBuilding);
+        log.info("publicKeyBuildingSuccess: " + publicKeyBuildingSuccess);
 
         log.info("publishing election set");
         performanceStats.start(performanceStats.publishElectionSet);
@@ -107,13 +117,21 @@ public class Simulation {
 
         log.info("generating electorate data");
         performanceStats.start(performanceStats.generatingElectoralData);
-        authorities.forEach(AuthorityService::generateElectorateData);
+        boolean electorateDataGenerationSuccess = authorities.parallelStream().map(aS -> {
+            aS.generateElectorateData();
+            return true;
+        }).allMatch(b -> b);
         performanceStats.stop(performanceStats.generatingElectoralData);
+        log.info("electorateDataGenerationSuccess: " + electorateDataGenerationSuccess);
 
         log.info("building public credentials");
         performanceStats.start(performanceStats.buildPublicCredentials);
-        authorities.forEach(AuthorityService::buildPublicCredentials);
+        boolean publicCredentialsBuildSuccess = authorities.parallelStream().map(aS -> {
+            aS.buildPublicCredentials();
+            return true;
+        }).allMatch(b -> b);
         performanceStats.stop(performanceStats.buildPublicCredentials);
+        log.info("publicCredentialsBuildSuccess: " + publicCredentialsBuildSuccess);
 
         log.info("printing code sheets");
         performanceStats.start(performanceStats.printingCodeSheets);
@@ -122,7 +140,8 @@ public class Simulation {
 
         log.info("stating the voting phase");
         performanceStats.start(performanceStats.votingPhase);
-        List<List<Integer>> votes = voterSimulators.stream().map(VoterSimulator::vote).collect(Collectors.toList());
+        List<List<Integer>> votes = voterSimulators.parallelStream()
+                .map(VoterSimulator::vote).collect(Collectors.toList());
         performanceStats.stop(performanceStats.votingPhase);
         Map<Integer, Long> expectedVoteCounts = new HashMap<>();
         votes.forEach(l -> l.forEach(i -> expectedVoteCounts.compute(i - 1, (k, v) -> (v == null) ? 1 : v + 1)));
@@ -140,8 +159,12 @@ public class Simulation {
 
         log.info("starting decryption");
         performanceStats.start(performanceStats.decryption);
-        authorities.forEach(AuthorityService::startPartialDecryption);
+        boolean decryptionSuccess = authorities.parallelStream().map(aS -> {
+            aS.startPartialDecryption();
+            return true;
+        }).allMatch(b -> b);
         performanceStats.stop(performanceStats.decryption);
+        log.info("decryptionSuccess: " + decryptionSuccess);
 
         log.info("tallying votes");
         performanceStats.start(performanceStats.tallying);

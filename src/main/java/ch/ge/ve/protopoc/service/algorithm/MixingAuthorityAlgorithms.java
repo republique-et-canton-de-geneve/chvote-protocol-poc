@@ -7,16 +7,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
 import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.ZERO;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Algorithms performed during the mixing phase, by the autorities
@@ -47,6 +48,7 @@ public class MixingAuthorityAlgorithms {
 
         return ballotList.stream()
                 .filter(B -> voteConfirmationAuthorityAlgorithms.hasConfirmation(B.getI(), confirmationList))
+                .sorted(Comparator.comparingInt(BallotEntry::getI))
                 .map(B -> {
                     BigInteger a_j = B.getAlpha().getBold_a().stream()
                             .reduce(BigInteger::multiply)
@@ -66,8 +68,14 @@ public class MixingAuthorityAlgorithms {
      */
     public Shuffle genShuffle(List<Encryption> bold_e, EncryptionPublicKey pk) {
         List<Integer> psy = genPermutation(bold_e.size());
-        List<ReEncryption> reEncryptions = bold_e.stream()
-                .map(e_i -> genReEncryption(e_i, pk)).collect(Collectors.toList());
+
+        // Parallel streams do not preserve order.
+        // But it is more efficient to distribute the re-encryptions across cores and sort them than to
+        // re-encrypt sequentially
+        Map<Integer, ReEncryption> reEncryptionMap = IntStream.range(0, bold_e.size()).parallel().mapToObj(Integer::valueOf)
+                .collect(toMap(identity(), i -> genReEncryption(bold_e.get(i), pk)));
+        List<ReEncryption> reEncryptions = IntStream.range(0, bold_e.size())
+                .mapToObj(reEncryptionMap::get).collect(Collectors.toList());
 
         List<Encryption> bold_e_prime = psy.stream()
                 .map(reEncryptions::get)
@@ -268,10 +276,15 @@ public class MixingAuthorityAlgorithms {
         List<BigInteger> tmp_bold_c_circ = new ArrayList<>();
         tmp_bold_c_circ.add(0, h);
         tmp_bold_c_circ.addAll(bold_c_circ);
-        List<BigInteger> bold_t_circ = IntStream.range(0, N)
-                .mapToObj(i -> modExp(g, bold_omega_circ.get(i), p)
+
+        Map<Integer, BigInteger> bold_t_circ_map = IntStream.range(0, N)
+                .parallel().mapToObj(Integer::valueOf)
+                .collect(toMap(Function.identity(), i -> modExp(g, bold_omega_circ.get(i), p)
                         .multiply(modExp(tmp_bold_c_circ.get(i), bold_omega_prime.get(i), p))
-                        .mod(p)).collect(Collectors.toList());
+                        .mod(p)));
+
+        List<BigInteger> bold_t_circ = IntStream.range(0, N)
+                .mapToObj(bold_t_circ_map::get).collect(Collectors.toList());
         tmp_bold_c_circ.remove(0); // restore c_circ to its former state
         return new ShuffleProof.T(t_1, t_2, t_3, Arrays.asList(t_4_1, t_4_2), bold_t_circ);
     }
@@ -366,11 +379,13 @@ public class MixingAuthorityAlgorithms {
 
         BigInteger t_prime_1 = modExp(c_bar, c.negate(), p).multiply(modExp(g, s_1, p)).mod(p);
         BigInteger t_prime_2 = modExp(c_circ, c.negate(), p).multiply(modExp(g, s_2, p)).mod(p);
-        BigInteger h_i_s_prime_i = IntStream.range(0, N).mapToObj(i -> modExp(bold_h.get(i), s_prime.get(i), p))
+        BigInteger h_i_s_prime_i = IntStream.range(0, N).parallel()
+                .mapToObj(i -> modExp(bold_h.get(i), s_prime.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
         BigInteger t_prime_3 = modExp(c_tilde, c.negate(), p).multiply(modExp(g, s_3, p)).multiply(h_i_s_prime_i).mod(p);
 
         BigInteger a_prime_i_s_prime_i = IntStream.range(0, N)
+                .parallel()
                 .mapToObj(i -> modExp(bold_e_prime.get(i).getA(), s_prime.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
         BigInteger t_prime_4_1 = modExp(e_prime_1, c.negate(), p)
@@ -378,6 +393,7 @@ public class MixingAuthorityAlgorithms {
                 .multiply(a_prime_i_s_prime_i)
                 .mod(p);
         BigInteger b_prime_i_s_prime_i = IntStream.range(0, N)
+                .parallel()
                 .mapToObj(i -> modExp(bold_e_prime.get(i).getB(), s_prime.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
         BigInteger t_prime_4_2 = modExp(e_prime_2, c.negate(), p)
@@ -385,19 +401,16 @@ public class MixingAuthorityAlgorithms {
                 .multiply(b_prime_i_s_prime_i)
                 .mod(p);
 
-        List<BigInteger> t_circ_prime = new ArrayList<>();
         // add c_circ_0: h, thus offsetting the indices for c_circ by 1.
         List<BigInteger> tmp_bold_c_circ = new ArrayList<>();
         tmp_bold_c_circ.add(0, h);
         tmp_bold_c_circ.addAll(bold_c_circ);
-        for (int i = 0; i < N; i++) {
-            BigInteger t_circ_prime_i =
-                    modExp(tmp_bold_c_circ.get(i + 1), c.negate(), p)
-                            .multiply(modExp(g, s_circ.get(i), p))
-                            .multiply(modExp(tmp_bold_c_circ.get(i), s_prime.get(i), p))
-                            .mod(p);
-            t_circ_prime.add(t_circ_prime_i);
-        }
+        Map<Integer, BigInteger> t_circ_prime_map = IntStream.range(0, N).parallel().mapToObj(Integer::valueOf)
+                .collect(toMap(Function.identity(), i -> modExp(tmp_bold_c_circ.get(i + 1), c.negate(), p)
+                        .multiply(modExp(g, s_circ.get(i), p))
+                        .multiply(modExp(tmp_bold_c_circ.get(i), s_prime.get(i), p))
+                        .mod(p)));
+        List<BigInteger> t_circ_prime = IntStream.range(0, N).mapToObj(t_circ_prime_map::get).collect(Collectors.toList());
 
         boolean isProofValid = t_1.compareTo(t_prime_1) == 0 &&
                 t_2.compareTo(t_prime_2) == 0 &&
