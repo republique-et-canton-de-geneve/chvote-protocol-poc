@@ -14,6 +14,59 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 
 ### Measurements
 
+#### Using parallel streams
+
+- Date December 19, 2016
+- Head: protocol-poc-back/3aa3f7c73710ad5c02821addfe25f16e784c1653
+
+##### Performance statistics @ 1024-bit
+
+- using LibGMP: true
+- length of p: 1024
+- number of voters: 100
+- number of candidates per election: 3, 3, 10
+
+|                      Step name | Time taken (ms) |
+| ------------------------------ | --------------: |
+|     creating public parameters |           2 334 |
+|          creating election set |              24 |
+|          publishing parameters |               0 |
+|                 key generation |              23 |
+|            public key building |              11 |
+|           publish election set |               0 |
+|      generating electoral data |             747 |
+|       build public credentials |              21 |
+|           printing code sheets |              58 |
+|                   voting phase |          14 418 |
+|                         mixing |          17 771 |
+|                     decryption |          19 136 |
+|                       tallying |           1 144 |
+|          total simulation time |          55 741 |
+
+##### Performance statistics @ 2048-bit
+
+- using LibGMP: true
+- length of p: 2048
+- number of voters: 100
+- number of candidates per election: 3, 3, 10
+
+|                      Step name | Time taken (ms) |
+| ------------------------------ | --------------: |
+|     creating public parameters |           3 854 |
+|          creating election set |              25 |
+|          publishing parameters |               0 |
+|                 key generation |              48 |
+|            public key building |              12 |
+|           publish election set |               0 |
+|      generating electoral data |           1 648 |
+|       build public credentials |              41 |
+|           printing code sheets |              71 |
+|                   voting phase |          68 168 |
+|                         mixing |          73 577 |
+|                     decryption |          83 899 |
+|                       tallying |           6 146 |
+|          total simulation time |         237 544 |
+
 #### LibGMP integration
 
 - Date: December 16, 2016
