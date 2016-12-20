@@ -74,8 +74,10 @@ public class DefaultAuthority implements AuthorityService {
                 "The encryption keys need to have been generated beforehand");
 
         List<EncryptionPublicKey> publicKeyParts = bulletinBoardService.getPublicKeyParts();
-        Preconditions.checkArgument(publicKeyParts.size() == publicParameters.getS());
-        Preconditions.checkArgument(publicKeyParts.get(j).equals(myPublicKey));
+        Preconditions.checkArgument(publicKeyParts.size() == publicParameters.getS(),
+                "There should be as many keys as there are authorities");
+        Preconditions.checkArgument(publicKeyParts.get(j).equals(myPublicKey),
+                "The j-th key share should be equal to this authority's");
 
         systemPublicKey = keyEstablishmentAlgorithms.getPublicKey(publicKeyParts);
     }

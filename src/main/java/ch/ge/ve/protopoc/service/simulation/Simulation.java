@@ -480,7 +480,7 @@ public class Simulation {
         final String decryption = "decryption";
         final String tallying = "tallying";
         final String totalSimulation = "total simulation time";
-
+        private final Logger log = LoggerFactory.getLogger("PerformanceStats");
         private final Map<String, Stopwatch> stopwatches = new HashMap<>();
 
         void start(String name) {

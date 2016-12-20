@@ -1,14 +1,14 @@
 buildscript {
-	ext {
-		springBootVersion = '1.4.1.RELEASE'
+    ext {
+        springBootVersion = '1.4.1.RELEASE'
         querydslVersion = '4.1.3'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
 }
 
 apply plugin: 'java'
@@ -16,51 +16,47 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'groovy'
+apply plugin: 'application'
 
-jar {
-	baseName = 'protocolpoc'
-	version = '0.0.1-SNAPSHOT'
-}
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-	mavenCentral()
-	maven { url "https://repo.spring.io/snapshot" }
-	maven { url "https://repo.spring.io/milestone" }
-}
-
-
-dependencies {
-	compile('org.springframework.boot:spring-boot-starter-cache')
-	compile('org.springframework.boot:spring-boot-starter-cloud-connectors')
-	compile('org.springframework.cloud:spring-cloud-starter-security')
-	compile('org.springframework.cloud:spring-cloud-starter')
-	compile('org.springframework.cloud:spring-cloud-task-starter')
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	compile('org.springframework.boot:spring-boot-starter-data-rest')
-	compile('org.springframework.boot:spring-boot-starter-security')
-	compile('org.springframework.boot:spring-boot-starter-validation')
-	compile('org.springframework.boot:spring-boot-starter-web')
-	compile('org.springframework.boot:spring-boot-starter-websocket')
-    compile "com.querydsl:querydsl-apt:$querydslVersion:jpa"
-    compile "com.querydsl:querydsl-jpa:$querydslVersion"
-	compile('com.h2database:h2')
-    compile('io.jsonwebtoken:jjwt:0.7.0')
-	compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
-	// https://mvnrepository.com/artifact/com.squareup.jnagmp/jnagmp
-	compile group: 'com.squareup.jnagmp', name: 'jnagmp', version: '2.0.0'
-
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.spockframework:spock-spring')
-    testCompile('org.springframework.security:spring-security-test')
-	testCompile('cglib:cglib:2.2')
+    mavenCentral()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:Camden.RELEASE"
-	}
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Camden.RELEASE"
+    }
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-cache')
+    compile('org.springframework.boot:spring-boot-starter-cloud-connectors')
+    compile('org.springframework.cloud:spring-cloud-starter-security')
+    compile('org.springframework.cloud:spring-cloud-starter')
+    compile('org.springframework.cloud:spring-cloud-task-starter')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('org.springframework.boot:spring-boot-starter-data-rest')
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile('org.springframework.boot:spring-boot-starter-validation')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-websocket')
+    compile "com.querydsl:querydsl-apt:$querydslVersion:jpa"
+    compile "com.querydsl:querydsl-jpa:$querydslVersion"
+    compile('com.h2database:h2')
+    compile('io.jsonwebtoken:jjwt:0.7.0')
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
+    // https://mvnrepository.com/artifact/com.squareup.jnagmp/jnagmp
+    compile group: 'com.squareup.jnagmp', name: 'jnagmp', version: '2.0.0'
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('org.spockframework:spock-spring')
+    testCompile('org.springframework.security:spring-security-test')
+    testCompile('cglib:cglib:2.2')
 }
 
 ext['spock.version'] = '1.1-groovy-2.4-rc-2'
@@ -69,5 +65,39 @@ idea {
     module {
         sourceDirs += file('generated/')
         generatedSourceDirs += file('generated/')
+    }
+}
+
+mainClassName = 'ch.ge.ve.protopoc.ProtocolPocApplication'
+
+jar {
+    baseName = 'protocolpoc'
+    version = '0.0.1-SNAPSHOT'
+}
+
+task createSimulationScripts(type: CreateStartScripts) {
+    outputDir = file('build/simulation')
+    mainClassName = 'ch.ge.ve.protopoc.service.simulation.Simulation'
+    applicationName = 'protocol-simulation'
+    classpath = files(jar.archiveName)
+    classpath += project.configurations.runtime
+}
+
+distributions {
+    main {
+        baseName = 'protocol-poc-back'
+    }
+
+    simulation {
+        baseName = 'protocol-simulation'
+        contents {
+            into('lib') {
+                from jar
+                from(project.configurations.runtime)
+            }
+            into('bin') {
+                from createSimulationScripts
+            }
+        }
     }
 }

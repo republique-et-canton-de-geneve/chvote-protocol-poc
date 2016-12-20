@@ -1,3 +1,7 @@
+# Added by hand
+### Exclude logs
+logs/
+
 # Created by .ignore support plugin (hsz.mobi)
 ### Gradle template
 .gradle
