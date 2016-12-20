@@ -10,9 +10,77 @@ All measurements should include the current date and the hash of the HEAD commit
 at the moment they were taken.
 
 Unless otherwise specified, measurements were taken on an HP EliteBook, with an
- Intel i5 CPU @2.4GHz and 8GB of RAM, on Windows.
+ quad-core Intel i5 CPU @2.4GHz and 8GB of RAM, on Windows.
 
 ### Measurements
+
+#### With more paralellism
+
+The measurements in this section were taken on an HP z440, with an octo-core 
+Intel Xeon @3.5GHz abd 16GB of RAM, on Windows
+
+- Date: December 20th, 2016
+- Head:  protocol-poc-back/c104f195c76c255bc7c1595a4a838ceec65cd2e1
+
+##### Performance statistics @ 1024-bit
+
+- using LibGMP: true
+- length of p: 1024
+- number of voters: 100
+- number of candidates per election: 3, 3, 10
+
+|                      Step name | Time taken (ms) |
+| ------------------------------ | --------------: |
+|     creating public parameters |             464 |
+|          creating election set |              21 |
+|          publishing parameters |               0 |
+|                 key generation |               6 |
+|            public key building |               5 |
+|           publish election set |               0 |
+|      generating electoral data |             296 |
+|       build public credentials |              10 |
+|           printing code sheets |              20 |
+|                   voting phase |           3'799 |
+|                         mixing |          13'204 |
+|                     decryption |           8'839 |
+|                       tallying |             820 |
+|          total simulation time |          27'521 |
+
+##### Performance statistics @ 2048-bit
+
+- using LibGMP: true
+- length of p: 2048
+- number of voters: 100
+- number of candidates per election: 3, 3, 10
+
+|                      Step name | Time taken (ms) |
+| ------------------------------ | --------------: |
+|     creating public parameters |           1'244 |
+|          creating election set |              12 |
+|          publishing parameters |               0 |
+|                 key generation |              32 |
+|            public key building |               5 |
+|           publish election set |               0 |
+|      generating electoral data |             591 |
+|       build public credentials |              13 |
+|           printing code sheets |              44 |
+|                   voting phase |          21'315 |
+|                         mixing |          55'277 |
+|                     decryption |          36'397 |
+|                       tallying |           4'679 |
+|          total simulation time |         119'675 |
+
+##### Observations
+
+- The increased CPU frequency and number of available cores lead to a further 50% 
+reduction in execution time, which bodes well for the scalability of the system
+in a more distributed environment.
+- The improvement is most efficient for the voting phase and the decryption 
+phase.
+- The voting phase is less relevant, since the client side computation will be 
+distributed anyway, and will have to be implemented in javascript.
+- Most of the time spent in the decryption phase serves to verify the proofs of
+the shuffles.
 
 #### Using parallel streams
 
