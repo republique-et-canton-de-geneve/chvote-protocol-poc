@@ -14,10 +14,10 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 
 ### Measurements
 
-#### With more paralellism
+#### With more parallelism
 
 The measurements in this section were taken on an HP z440, with an octo-core 
-Intel Xeon @3.5GHz abd 16GB of RAM, on Windows
+Intel Xeon @3.5GHz and 16GB of RAM, on Windows
 
 - Date: December 20th, 2016
 - Head:  protocol-poc-back/c104f195c76c255bc7c1595a4a838ceec65cd2e1
