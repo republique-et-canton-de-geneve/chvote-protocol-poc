@@ -37,9 +37,8 @@ public class Conversion {
 
         BigInteger current = x;
         for (int i = 1; i <= n; i++) {
-            BigInteger[] divideAndRemainder = current.divideAndRemainder(BYTE_MULTIPLIER);
-            current = divideAndRemainder[0];
-            byteArray[n - i] = divideAndRemainder[1].byteValue();
+            byteArray[n - i] = current.byteValue(); // = current.mod(256)
+            current = current.shiftRight(8); // current.divide(256)
         }
 
         return byteArray;

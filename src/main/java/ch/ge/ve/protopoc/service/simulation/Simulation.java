@@ -509,9 +509,9 @@ public class Simulation {
                     .map(Election::getNumberOfCandidates).collect(Collectors.toList());
             log.info("- number of candidates per election: " + Joiner.on(", ").join(candidateCounts));
             log.info("");
-            log.info(String.format("| %30s | %15s |", "Step name", "Time taken (ms)"));
+            log.info(String.format("| %-30s | %15s |", "Step name", "Time taken (ms)"));
             log.info(String.format("| %30s | %14s: |", Strings.repeat("-", 30), Strings.repeat("-", 14)));
-            elements.forEach(k -> log.info(String.format("| %30s | %,15d |", k, getElapsed(k, TimeUnit.MILLISECONDS))));
+            elements.forEach(k -> log.info(String.format("| %-30s | %,15d |", k, getElapsed(k, TimeUnit.MILLISECONDS))));
         }
     }
 }
