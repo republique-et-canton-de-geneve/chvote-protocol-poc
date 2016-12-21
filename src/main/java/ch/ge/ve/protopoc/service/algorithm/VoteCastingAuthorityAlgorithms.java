@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
@@ -49,7 +50,7 @@ public class VoteCastingAuthorityAlgorithms {
      * @return
      */
     public boolean checkBallot(Integer i, BallotAndQuery alpha, EncryptionPublicKey pk,
-                               List<BigInteger> bold_x_circ, List<BallotEntry> B) {
+                               List<BigInteger> bold_x_circ, Collection<BallotEntry> B) {
         Preconditions.checkNotNull(i);
         Preconditions.checkNotNull(alpha);
         Preconditions.checkNotNull(alpha.getBold_a());
@@ -77,7 +78,7 @@ public class VoteCastingAuthorityAlgorithms {
      * @param B the current ballot list
      * @return true if any ballot in the list matches the given voter index, false otherwise
      */
-    public boolean hasBallot(Integer i, List<BallotEntry> B) {
+    public boolean hasBallot(Integer i, Collection<BallotEntry> B) {
         Preconditions.checkNotNull(i);
         Preconditions.checkNotNull(B);
 

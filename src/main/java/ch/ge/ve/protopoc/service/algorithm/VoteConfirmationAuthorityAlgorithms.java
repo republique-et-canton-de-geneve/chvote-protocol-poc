@@ -8,6 +8,7 @@ import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,7 +44,7 @@ public class VoteConfirmationAuthorityAlgorithms {
      * proof is valid
      */
     public boolean checkConfirmation(Integer i, Confirmation gamma, List<BigInteger> bold_y_circ,
-                                     List<BallotEntry> B, List<ConfirmationEntry> C) {
+                                     Collection<BallotEntry> B, Collection<ConfirmationEntry> C) {
         return voteCastingAuthorityAlgorithms.hasBallot(i, B) &&
                 !hasConfirmation(i, C) &&
                 bold_y_circ.get(i).compareTo(gamma.getY_circ()) == 0 &&
@@ -57,7 +58,7 @@ public class VoteConfirmationAuthorityAlgorithms {
      * @param C the list of confirmations
      * @return true if the list of confirmation contains a confirmation for the given voter index, false otherwise
      */
-    public boolean hasConfirmation(Integer i, List<ConfirmationEntry> C) {
+    public boolean hasConfirmation(Integer i, Collection<ConfirmationEntry> C) {
         return C.stream().anyMatch(c -> c.getI().equals(i));
     }
 
@@ -97,7 +98,7 @@ public class VoteConfirmationAuthorityAlgorithms {
      * @param B      the current ballot list
      * @return this authority's part of the finalization code
      */
-    public FinalizationCodePart getFinalization(Integer i, List<List<Point>> bold_P, List<BallotEntry> B) {
+    public FinalizationCodePart getFinalization(Integer i, List<List<Point>> bold_P, Collection<BallotEntry> B) {
         Object[] bold_p_i = bold_P.get(i).toArray();
         byte[] F = Arrays.copyOf(hash.hash(bold_p_i), publicParameters.getL_f() / 8);
 

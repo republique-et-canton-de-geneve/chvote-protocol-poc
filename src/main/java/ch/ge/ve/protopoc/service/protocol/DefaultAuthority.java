@@ -12,8 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 /**
@@ -36,8 +37,8 @@ public class DefaultAuthority implements AuthorityService {
     private ElectionSet electionSet;
     private ElectorateData electorateData;
     private List<Point> publicCredentials;
-    private List<BallotEntry> ballotEntries = new ArrayList<>();
-    private List<ConfirmationEntry> confirmationEntries = new ArrayList<>();
+    private Queue<BallotEntry> ballotEntries = new ConcurrentLinkedQueue<>();
+    private Queue<ConfirmationEntry> confirmationEntries = new ConcurrentLinkedQueue<>();
 
     public DefaultAuthority(int j, BulletinBoardService bulletinBoardService,
                             KeyEstablishmentAlgorithms keyEstablishmentAlgorithms,

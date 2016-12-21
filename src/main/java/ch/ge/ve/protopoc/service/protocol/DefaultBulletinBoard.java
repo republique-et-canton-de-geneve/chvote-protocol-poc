@@ -6,7 +6,12 @@ import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -15,12 +20,12 @@ import java.util.stream.IntStream;
  */
 public class DefaultBulletinBoard implements BulletinBoardService {
     private final List<AuthorityService> authorities = new ArrayList<>();
-    private final Map<Integer, EncryptionPublicKey> publicKeyParts = new HashMap<>();
-    private final Map<Integer, List<Point>> publicCredentialsParts = new HashMap<>();
-    private final Map<Integer, List<Encryption>> shuffles = new HashMap<>();
-    private final Map<Integer, ShuffleProof> shuffleProofs = new HashMap<>();
-    private final Map<Integer, List<BigInteger>> partialDecryptions = new HashMap<>();
-    private final Map<Integer, DecryptionProof> decryptionProofs = new HashMap<>();
+    private final ConcurrentMap<Integer, EncryptionPublicKey> publicKeyParts = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Integer, List<Point>> publicCredentialsParts = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Integer, List<Encryption>> shuffles = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Integer, ShuffleProof> shuffleProofs = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Integer, List<BigInteger>> partialDecryptions = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Integer, DecryptionProof> decryptionProofs = new ConcurrentHashMap<>();
     private PublicParameters publicParameters;
     private ElectionSet electionSet;
     private List<Long> tally;

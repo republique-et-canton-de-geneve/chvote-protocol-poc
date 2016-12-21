@@ -43,7 +43,7 @@ public class MixingAuthorityAlgorithms {
      * @param confirmationList the list of confirmations submitted to the bulletin board
      * @return the list of the encryptions for the valid, confirmed ballots
      */
-    public List<Encryption> getEncryptions(List<BallotEntry> ballotList, List<ConfirmationEntry> confirmationList) {
+    public List<Encryption> getEncryptions(Collection<BallotEntry> ballotList, Collection<ConfirmationEntry> confirmationList) {
         BigInteger p = publicParameters.getEncryptionGroup().getP();
 
         return ballotList.stream()
