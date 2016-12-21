@@ -37,7 +37,8 @@ import static java.math.BigInteger.ZERO;
  */
 public class Simulation {
     private final static Logger log = LoggerFactory.getLogger(Simulation.class);
-
+    private static ElectionSetEnum electionSetConfig;
+    private static int votersCount;
     private final SecureRandom secureRandom;
     private final RandomGenerator randomGenerator;
     private final PerformanceStats performanceStats = new PerformanceStats();
@@ -74,8 +75,16 @@ public class Simulation {
         Simulation simulation = new Simulation();
 
         int level = 1;
-        if (args.length == 1) {
+        votersCount = 100;
+        electionSetConfig = ElectionSetEnum.SIMPLE_SAMPLE;
+        if (args.length >= 1) {
             level = Integer.parseInt(args[0]);
+        }
+        if (args.length >= 2) {
+            electionSetConfig = ElectionSetEnum.valueOf(args[1]);
+        }
+        if (args.length >= 3) {
+            votersCount = Integer.parseInt(args[2]);
         }
 
         simulation.initializeSettings(level);
@@ -257,33 +266,9 @@ public class Simulation {
         createPublicParameters(level);
         performanceStats.stop(performanceStats.creatingPublicParameters);
         performanceStats.start(performanceStats.creatingElectionSet);
-        createElectionSet();
+        electionSet = electionSetConfig.createElectionSet(votersCount);
         performanceStats.stop(performanceStats.creatingElectionSet);
         log.info("Settings initialiazed");
-    }
-
-    private void createElectionSet() {
-        DomainOfInfluence canton = new DomainOfInfluence("canton");
-        DomainOfInfluence municipality1 = new DomainOfInfluence("municipality1");
-
-        List<Voter> voters = IntStream.range(0, 100).mapToObj(i -> new Voter()).collect(Collectors.toList());
-        voters.forEach(v -> v.addDomainsOfInfluence(canton));
-        voters.subList(0, 10).forEach(v -> v.addDomainsOfInfluence(municipality1));
-
-        Election cantonalVotation1 = new Election(3, 1, canton);
-        Election cantonalVotation2 = new Election(3, 1, canton);
-        Election municipalElection = new Election(10, 2, municipality1);
-
-        List<Election> elections = Arrays.asList(cantonalVotation1, cantonalVotation2, municipalElection);
-
-        List<Candidate> candidates = IntStream.range(0,
-                cantonalVotation1.getNumberOfCandidates() +
-                        cantonalVotation2.getNumberOfCandidates() +
-                        municipalElection.getNumberOfCandidates()).mapToObj(
-                i -> new Candidate(String.format("candidate %d", i))).collect(Collectors.toList());
-
-
-        electionSet = new ElectionSet(voters, candidates, elections);
     }
 
     private void createPublicParameters(int level) {
@@ -465,6 +450,82 @@ public class Simulation {
         return alphabet;
     }
 
+    private enum ElectionSetEnum {
+        SINGLE_VOTE {
+            @Override
+            public ElectionSet createElectionSet(int votersCount) {
+                DomainOfInfluence canton = new DomainOfInfluence("canton");
+
+                List<Voter> voters = IntStream.range(0, votersCount)
+                        .mapToObj(i -> new Voter()).collect(Collectors.toList());
+                voters.forEach(v -> v.addDomainsOfInfluence(canton));
+
+                Election cantonalVotation1 = new Election(3, 1, canton);
+                List<Election> elections = Collections.singletonList(cantonalVotation1);
+
+                List<Candidate> candidates = IntStream.range(0, cantonalVotation1.getNumberOfCandidates()).mapToObj(
+                        i -> new Candidate(String.format("candidate %d", i))).collect(Collectors.toList());
+
+                return new ElectionSet(voters, candidates, elections);
+            }
+        },
+        SIMPLE_SAMPLE {
+            @Override
+            public ElectionSet createElectionSet(int votersCount) {
+                DomainOfInfluence canton = new DomainOfInfluence("canton");
+                DomainOfInfluence municipality1 = new DomainOfInfluence("municipality1");
+
+                List<Voter> voters = IntStream.range(0, votersCount)
+                        .mapToObj(i -> new Voter()).collect(Collectors.toList());
+                voters.forEach(v -> v.addDomainsOfInfluence(canton));
+                // 1 in 10 voters also partakes in a municipal election
+                voters.subList(0, votersCount / 10).forEach(v -> v.addDomainsOfInfluence(municipality1));
+
+                Election cantonalVotation1 = new Election(3, 1, canton);
+                Election cantonalVotation2 = new Election(3, 1, canton);
+                Election municipalElection = new Election(10, 2, municipality1);
+
+                List<Election> elections = Arrays.asList(cantonalVotation1, cantonalVotation2, municipalElection);
+
+                List<Candidate> candidates = IntStream.range(0,
+                        cantonalVotation1.getNumberOfCandidates() +
+                                cantonalVotation2.getNumberOfCandidates() +
+                                municipalElection.getNumberOfCandidates()).mapToObj(
+                        i -> new Candidate(String.format("candidate %d", i))).collect(Collectors.toList());
+
+
+                return new ElectionSet(voters, candidates, elections);
+            }
+        },
+        GC_CE {
+            @Override
+            public ElectionSet createElectionSet(int votersCount) {
+                DomainOfInfluence canton = new DomainOfInfluence("canton");
+
+                List<Voter> voters = IntStream.range(0, votersCount)
+                        .mapToObj(i -> new Voter()).collect(Collectors.toList());
+                voters.forEach(v -> v.addDomainsOfInfluence(canton));
+
+                // Based on 2013 cantonal elections in Geneva
+                // 29 nominative candidates + 7 empty seat candidates
+                Election ce_election = new Election(36, 7, canton);
+                // 476 nominative candidates + 100 empty seat candidates
+                Election gc_election = new Election(576, 100, canton);
+
+                List<Election> elections = Arrays.asList(ce_election, gc_election);
+
+                List<Candidate> candidates = IntStream.range(0,
+                        ce_election.getNumberOfCandidates() + gc_election.getNumberOfCandidates())
+                        .mapToObj(i -> new Candidate(String.format("candidate %d", i))).collect(Collectors.toList());
+
+                return new ElectionSet(voters, candidates, elections);
+            }
+        };
+
+        public abstract ElectionSet createElectionSet(int votersCount);
+
+    }
+
     private class PerformanceStats {
         final String creatingPublicParameters = "creating public parameters";
         final String creatingElectionSet = "creating election set";
@@ -505,9 +566,10 @@ public class Simulation {
             log.info("- using LibGMP: " + BigIntegerArithmetic.isGmpLoaded());
             log.info("- length of p: " + publicParameters.getEncryptionGroup().getP().bitLength());
             log.info("- number of voters: " + electionSet.getVoters().size());
-            List<Integer> candidateCounts = electionSet.getElections().stream()
-                    .map(Election::getNumberOfCandidates).collect(Collectors.toList());
-            log.info("- number of candidates per election: " + Joiner.on(", ").join(candidateCounts));
+            List<String> electionDescriptions = electionSet.getElections().stream()
+                    .map(e -> e.getNumberOfSelections() + "-out-of-" + e.getNumberOfCandidates())
+                    .collect(Collectors.toList());
+            log.info("- elections: " + Joiner.on(", ").join(electionDescriptions));
             log.info("");
             log.info(String.format("| %-30s | %15s |", "Step name", "Time taken (ms)"));
             log.info(String.format("| %30s | %14s: |", Strings.repeat("-", 30), Strings.repeat("-", 14)));
