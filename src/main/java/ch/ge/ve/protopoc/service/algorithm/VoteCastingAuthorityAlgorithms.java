@@ -149,8 +149,7 @@ public class VoteCastingAuthorityAlgorithms {
     public ObliviousTransferResponseAndRand genResponse(Integer i, List<BigInteger> bold_a, EncryptionPublicKey pk,
                                                         List<Integer> bold_n,
                                                         List<List<Integer>> bold_K,
-                                                        List<List<Point>> bold_P)
-            throws IncompatibleParametersException {
+                                                        List<List<Point>> bold_P) {
         Preconditions.checkArgument(bold_K.size() > 0);
         final int t = bold_K.get(0).size();
         Preconditions.checkArgument(bold_K.stream().allMatch(bold_k_i -> bold_k_i.size() == t));

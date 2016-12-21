@@ -1,8 +1,5 @@
 package ch.ge.ve.protopoc.service.protocol;
 
-import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException;
-import ch.ge.ve.protopoc.service.exception.IncorrectBallotException;
-import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationException;
 import ch.ge.ve.protopoc.service.model.*;
 
 import java.util.List;
@@ -21,9 +18,9 @@ public interface AuthorityService {
 
     void buildPublicCredentials();
 
-    ObliviousTransferResponse handleBallot(Integer voterIndex, BallotAndQuery ballotAndQuery) throws IncompatibleParametersException, IncorrectBallotException;
+    ObliviousTransferResponse handleBallot(Integer voterIndex, BallotAndQuery ballotAndQuery);
 
-    FinalizationCodePart handleConfirmation(Integer voterIndex, Confirmation confirmation) throws IncorrectConfirmationException;
+    FinalizationCodePart handleConfirmation(Integer voterIndex, Confirmation confirmation);
 
     void startMixing();
 

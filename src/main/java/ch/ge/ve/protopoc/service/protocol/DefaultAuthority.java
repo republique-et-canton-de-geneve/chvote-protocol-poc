@@ -1,7 +1,6 @@
 package ch.ge.ve.protopoc.service.protocol;
 
 import ch.ge.ve.protopoc.service.algorithm.*;
-import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException;
 import ch.ge.ve.protopoc.service.exception.IncorrectBallotException;
 import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationException;
 import ch.ge.ve.protopoc.service.exception.InvalidShuffleProofException;
@@ -105,8 +104,7 @@ public class DefaultAuthority implements AuthorityService {
     }
 
     @Override
-    public ObliviousTransferResponse handleBallot(Integer voterIndex, BallotAndQuery ballotAndQuery)
-            throws IncompatibleParametersException, IncorrectBallotException {
+    public ObliviousTransferResponse handleBallot(Integer voterIndex, BallotAndQuery ballotAndQuery) {
         Preconditions.checkState(publicCredentials != null,
                 "The public credentials need to have been retrieved first");
 

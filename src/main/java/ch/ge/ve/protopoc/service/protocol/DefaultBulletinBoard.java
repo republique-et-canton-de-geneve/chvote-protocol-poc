@@ -1,7 +1,5 @@
 package ch.ge.ve.protopoc.service.protocol;
 
-import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException;
-import ch.ge.ve.protopoc.service.exception.IncorrectBallotException;
 import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
@@ -109,15 +107,9 @@ public class DefaultBulletinBoard implements BulletinBoardService {
 
         List<ObliviousTransferResponse> responses = new ArrayList<>();
 
-        for (AuthorityService authority : authorities) {
-            try {
-                responses.add(authority.handleBallot(voterIndex, ballotAndQuery));
-            } catch (IncompatibleParametersException | IncorrectBallotException e) {
-                throw new IncorrectBallotOrQueryException(e);
-            }
-        }
-
-        return responses;
+        return authorities.parallelStream()
+                .map(authority -> authority.handleBallot(voterIndex, ballotAndQuery))
+                .collect(Collectors.toList());
     }
 
     @Override

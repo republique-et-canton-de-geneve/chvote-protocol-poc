@@ -49,7 +49,7 @@ public class VoteCastingClientAlgorithms {
      * @return the combined ballot, OT query and random elements used
      * @throws IncompatibleParametersException when there is an issue with the public parameters
      */
-    public BallotQueryAndRand genBallot(String X, List<Integer> bold_s, EncryptionPublicKey pk) throws IncompatibleParametersException {
+    public BallotQueryAndRand genBallot(String X, List<Integer> bold_s, EncryptionPublicKey pk) {
         Preconditions.checkArgument(bold_s.size() > 0);
 
         BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
@@ -73,7 +73,7 @@ public class VoteCastingClientAlgorithms {
         return new BallotQueryAndRand(alpha, query.getBold_r());
     }
 
-    private List<BigInteger> computeBoldQ(List<Integer> bold_s) throws IncompatibleParametersException {
+    private List<BigInteger> computeBoldQ(List<Integer> bold_s) {
         List<BigInteger> bold_q;
         try {
             bold_q = generalAlgorithms.getSelectedPrimes(bold_s);
@@ -83,7 +83,7 @@ public class VoteCastingClientAlgorithms {
         return bold_q;
     }
 
-    private BigInteger computeM(List<BigInteger> bold_q, BigInteger p) throws IncompatibleParametersException {
+    private BigInteger computeM(List<BigInteger> bold_q, BigInteger p) {
         BigInteger m = bold_q.stream().reduce(BigInteger::multiply)
                 .orElse(ONE);
         if (m.compareTo(p) >= 0) {
