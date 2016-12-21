@@ -7,6 +7,7 @@ import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -17,10 +18,10 @@ import java.util.stream.Collectors;
  * This class regroups the general algorithms described in Section 5.2 of the specification
  */
 public class GeneralAlgorithms {
-    private final List<BigInteger> cachedPrimes = new ArrayList<>();
     private final Hash hash;
     private final Conversion conversion;
     private final EncryptionGroup encryptionGroup;
+    private ImmutableList<BigInteger> cachedPrimes;
 
     /**
      * Constructor, defines all collaborators
@@ -58,7 +59,7 @@ public class GeneralAlgorithms {
      */
     public List<BigInteger> getPrimes(int n) throws NotEnoughPrimesInGroupException {
         if (cachedPrimes.size() < n) {
-            addPrimesToCache(n);
+            throw new IllegalStateException("The primes cache should have been populated beforehand");
         }
         return cachedPrimes.subList(0, n);
     }
@@ -70,29 +71,30 @@ public class GeneralAlgorithms {
      * @throws NotEnoughPrimesInGroupException if the encryption group is too small to yield the requested number of $
      *                                         primes
      */
-    private synchronized void addPrimesToCache(int n) throws NotEnoughPrimesInGroupException {
-        BigInteger x;
-        if (cachedPrimes.size() > 0) {
-            x = cachedPrimes.get(cachedPrimes.size() - 1);
-        } else {
-            x = BigInteger.ONE;
-        }
-        while (cachedPrimes.size() < n) {
+    public synchronized void populatePrimesCache(int n) throws NotEnoughPrimesInGroupException {
+        Preconditions.checkState(cachedPrimes == null, "The primes cache can only be initialized" +
+                "once...");
+        BigInteger x = BigInteger.ONE;
+        ImmutableList.Builder<BigInteger> cacheBuilder = ImmutableList.builder();
+        int i = 0;
+        while (i < n) {
             do {
                 // Performance improvement over +1 / +2 defined in algorithm
                 x = x.nextProbablePrime();
                 if (x.compareTo(encryptionGroup.getP()) >= 0)
                     throw new NotEnoughPrimesInGroupException(
                             String.format("Only found %d primes (%s) in group %s",
-                                    cachedPrimes.size(),
+                                    i,
                                     Joiner.on(",").join(
-                                            cachedPrimes.stream().limit(4)
+                                            cacheBuilder.build().stream().limit(4)
                                                     .collect(Collectors.toList())), encryptionGroup));
             } while (!x.isProbablePrime(100) || !isMember(x));
-            cachedPrimes.add(x);
+            cacheBuilder.add(x);
+            i++;
         }
-    }
 
+        cachedPrimes = cacheBuilder.build();
+    }
 
     /**
      * Algorithm 5.3: getSelectedPrimes

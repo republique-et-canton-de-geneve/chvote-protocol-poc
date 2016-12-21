@@ -3,6 +3,7 @@ package ch.ge.ve.protopoc.service.simulation;
 import ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic;
 import ch.ge.ve.protopoc.service.algorithm.*;
 import ch.ge.ve.protopoc.service.exception.InvalidDecryptionProofException;
+import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.protocol.AuthorityService;
 import ch.ge.ve.protopoc.service.protocol.DefaultAuthority;
@@ -69,7 +70,8 @@ public class Simulation {
         randomGenerator = new RandomGenerator(secureRandom);
     }
 
-    public static void main(String[] args) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidDecryptionProofException {
+    public static void main(String[] args) throws NoSuchProviderException, NoSuchAlgorithmException,
+            InvalidDecryptionProofException, NotEnoughPrimesInGroupException {
         log.info("Starting simulation");
         Simulation simulation = new Simulation();
 
@@ -192,11 +194,12 @@ public class Simulation {
         performanceStats.logStatSummary();
     }
 
-    private void createComponents() {
+    private void createComponents() throws NotEnoughPrimesInGroupException {
         log.info("creating components");
         createUtilities();
 
         createAlgorithms();
+        generalAlgorithms.populatePrimesCache(electionSet.getCandidates().size());
 
         createServices();
 
