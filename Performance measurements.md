@@ -14,6 +14,35 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 
 ### Measurements
 
+#### More complex elections
+
+- Date: December 21st, 2016
+- Head: protocol-poc-back/4e04f1105462ac6785e3a5a84f9243b85bc1a474
+
+##### Performance statistics @ 2048-bit
+
+- using LibGMP: true
+- length of p: 2048
+- number of voters: 10
+- elections: 7-out-of-36, 100-out-of-576
+
+| Step name                      | Time taken (ms) |
+| ------------------------------ | --------------: |
+| creating public parameters     |           3 405 |
+| creating election set          |              72 |
+| publishing parameters          |               0 |
+| key generation                 |              46 |
+| public key building            |              10 |
+| publish election set           |               0 |
+| generating electoral data      |           2 699 |
+| build public credentials       |              11 |
+| printing code sheets           |             111 |
+| voting phase                   |         188 720 |
+| mixing                         |           3 966 |
+| decryption                     |           4 999 |
+| tallying                       |             743 |
+| total simulation time          |         205 314 |
+
 #### Arithmetic improvements
 
 Replaced calls to divAndRemainder() used in BigInteger to byte[] conversion,
