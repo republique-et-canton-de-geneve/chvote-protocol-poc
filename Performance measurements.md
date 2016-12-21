@@ -14,13 +14,72 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 
 ### Measurements
 
+#### Arithmetic improvements
+
+Replaced calls to divAndRemainder() used in BigInteger to byte[] conversion,
+now using shiftRight(8) and byteValue().
+
+This was a major hot spot (most of the execution time - excluding the calls to
+the native modexp library), identified through profiling.
+
+- Date: December 21st, 2016
+- Head: protocol-poc-back/6361984ec86aabeb0fdf46854f52858df0bc189c
+
+##### Performance statistics @ 1024-bit
+
+- using LibGMP: true
+- length of p: 1024
+- number of voters: 100
+- number of candidates per election: 3, 3, 10
+
+| Step name                      | Time taken (ms) |
+| ------------------------------ | --------------: |
+| creating public parameters     |           2 507 |
+| creating election set          |              22 |
+| publishing parameters          |               0 |
+| key generation                 |              14 |
+| public key building            |               8 |
+| publish election set           |               0 |
+| generating electoral data      |             683 |
+| build public credentials       |              23 |
+| printing code sheets           |              70 |
+| voting phase                   |          14 122 |
+| mixing                         |           9 470 |
+| decryption                     |          11 972 |
+| tallying                       |           1 041 |
+| total simulation time          |          39 983 |
+
+##### Performance statistics @ 2048-bit
+
+- using LibGMP: true
+- length of p: 2048
+- number of voters: 100
+- number of candidates per election: 3, 3, 10
+
+| Step name                      | Time taken (ms) |
+| ------------------------------ | --------------: |
+| creating public parameters     |           3 247 |
+| creating election set          |              19 |
+| publishing parameters          |               0 |
+| key generation                 |              46 |
+| public key building            |               8 |
+| publish election set           |               0 |
+| generating electoral data      |           1 680 |
+| build public credentials       |              30 |
+| printing code sheets           |              59 |
+| voting phase                   |          65 636 |
+| mixing                         |          37 669 |
+| decryption                     |          47 359 |
+| tallying                       |           6 114 |
+| total simulation time          |         161 918 |
+
 #### With more parallelism
 
 The measurements in this section were taken on an HP z440, with an octo-core 
 Intel Xeon @3.5GHz and 16GB of RAM, on Windows
 
 - Date: December 20th, 2016
-- Head:  protocol-poc-back/c104f195c76c255bc7c1595a4a838ceec65cd2e1
+- Head: protocol-poc-back/c104f195c76c255bc7c1595a4a838ceec65cd2e1
 
 ##### Performance statistics @ 1024-bit
 
