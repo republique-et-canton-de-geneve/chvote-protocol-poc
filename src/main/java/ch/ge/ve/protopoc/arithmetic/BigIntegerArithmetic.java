@@ -1,5 +1,6 @@
 package ch.ge.ve.protopoc.arithmetic;
 
+import ch.ge.ve.protopoc.service.support.JacobiSymbol;
 import com.squareup.jnagmp.Gmp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import java.math.BigInteger;
  */
 public class BigIntegerArithmetic {
     private final static Logger log = LoggerFactory.getLogger(BigIntegerArithmetic.class);
+    private static final JacobiSymbol jacobiSymbol = new JacobiSymbol();
     private static boolean gmpLoaded = false;
 
     static {
@@ -39,6 +41,14 @@ public class BigIntegerArithmetic {
             return Gmp.modInverse(value, modulus);
         } else {
             return value.modInverse(modulus);
+        }
+    }
+
+    public static int jacobiSymbol(BigInteger value, BigInteger n) {
+        if (gmpLoaded) {
+            return Gmp.kronecker(value, n);
+        } else {
+            return jacobiSymbol.computeJacobiSymbol(value, n);
         }
     }
 

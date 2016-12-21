@@ -20,12 +20,12 @@ class GeneralAlgorithmsTest extends Specification {
     Hash hash = Mock()
     Conversion conversion = new Conversion()
 
-    def static ELEVEN = BigInteger.valueOf(11L)
+    static ELEVEN = BigInteger.valueOf(11L)
 
     EncryptionGroup eg = Mock()
 
     void setup() {
-        generalAlgorithms = new GeneralAlgorithms(jacobiSymbol, hash, conversion, eg)
+        generalAlgorithms = new GeneralAlgorithms(hash, conversion, eg)
 
         eg.p >> ELEVEN
         eg.q >> FIVE

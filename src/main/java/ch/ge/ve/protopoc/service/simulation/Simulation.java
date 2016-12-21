@@ -10,7 +10,6 @@ import ch.ge.ve.protopoc.service.protocol.DefaultBulletinBoard;
 import ch.ge.ve.protopoc.service.protocol.DefaultVotingClient;
 import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
-import ch.ge.ve.protopoc.service.support.JacobiSymbol;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
@@ -239,7 +238,7 @@ public class Simulation {
 
     private void createAlgorithms() {
         log.info("instantiating algorithms classes");
-        generalAlgorithms = new GeneralAlgorithms(new JacobiSymbol(), hash, conversion, publicParameters.getEncryptionGroup());
+        generalAlgorithms = new GeneralAlgorithms(hash, conversion, publicParameters.getEncryptionGroup());
         keyEstablishmentAlgorithms = new KeyEstablishmentAlgorithms(randomGenerator);
         electionPreparationAlgorithms = new ElectionPreparationAlgorithms(publicParameters, randomGenerator, hash);
         voteCastingAuthorityAlgorithms = new VoteCastingAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);
