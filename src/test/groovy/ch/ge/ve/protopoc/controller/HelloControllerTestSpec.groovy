@@ -28,7 +28,7 @@ class HelloControllerTestSpec extends Specification {
     MockMvc mvc
 
     @WithMockUser
-    def "index should display greeting"() {
+    "index should display greeting"() {
         setup:
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)

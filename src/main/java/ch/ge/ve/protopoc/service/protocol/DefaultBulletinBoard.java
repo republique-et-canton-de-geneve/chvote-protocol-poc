@@ -125,12 +125,9 @@ public class DefaultBulletinBoard implements BulletinBoardService {
         Preconditions.checkState(authorities.size() == publicParameters.getS(),
                 "The number of authorities should match the public parameters");
 
-        List<FinalizationCodePart> finalizationCodeParts = new ArrayList<>();
-
-        for (int i = 0; i < authorities.size(); i++) {
-            AuthorityService authority = authorities.get(i);
-            finalizationCodeParts.add(authority.handleConfirmation(voterIndex, confirmation));
-        }
+        List<FinalizationCodePart> finalizationCodeParts = authorities.parallelStream()
+                .map(authority -> authority.handleConfirmation(voterIndex, confirmation))
+                .collect(Collectors.toList());
 
         return finalizationCodeParts;
     }

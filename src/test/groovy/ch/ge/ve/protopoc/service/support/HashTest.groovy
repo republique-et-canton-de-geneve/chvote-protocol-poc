@@ -11,9 +11,9 @@ import java.nio.charset.Charset
  */
 class HashTest extends Specification {
     public static final Charset charset = Charset.forName("UTF-8")
-    def Hash hash
-    def SecurityParameters securityParameters
-    def Conversion conversion = Mock()
+    Hash hash
+    SecurityParameters securityParameters
+    Conversion conversion = Mock()
 
     void setup() {
         securityParameters = new SecurityParameters(80, 80, 512, 0.999)

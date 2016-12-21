@@ -6,7 +6,7 @@ import spock.lang.Specification
  * Missing javadoc!
  */
 class JacobiSymbolTest extends Specification {
-    def JacobiSymbol jacobiSymbol;
+    JacobiSymbol jacobiSymbol
 
     void setup() {
         jacobiSymbol = new JacobiSymbol()

@@ -4,7 +4,6 @@ import ch.ge.ve.protopoc.controller.api.AuthenticationInterface;
 import ch.ge.ve.protopoc.jwt.JwtAuthenticationRequest;
 import ch.ge.ve.protopoc.jwt.JwtAuthenticationResponse;
 import ch.ge.ve.protopoc.jwt.JwtTokenUtil;
-import ch.ge.ve.protopoc.jwt.JwtUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

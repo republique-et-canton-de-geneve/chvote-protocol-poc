@@ -40,10 +40,8 @@ public class ObliviousTransferResponseAndRand {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ObliviousTransferResponseAndRand{");
-        sb.append("beta=").append(beta);
-        sb.append(", bold_r=").append(bold_r);
-        sb.append('}');
-        return sb.toString();
+        return "ObliviousTransferResponseAndRand{" + "beta=" + beta +
+                ", bold_r=" + bold_r +
+                '}';
     }
 }

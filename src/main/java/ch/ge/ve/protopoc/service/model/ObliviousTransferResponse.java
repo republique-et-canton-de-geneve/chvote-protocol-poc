@@ -50,11 +50,9 @@ public class ObliviousTransferResponse {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ObliviousTransferResponse{");
-        sb.append("b=").append(b);
-        sb.append(", c=").append(java.util.Arrays.deepToString(c));
-        sb.append(", d=").append(d);
-        sb.append('}');
-        return sb.toString();
+        return "ObliviousTransferResponse{" + "b=" + b +
+                ", c=" + java.util.Arrays.deepToString(c) +
+                ", d=" + d +
+                '}';
     }
 }
