@@ -1,5 +1,7 @@
 # Prototype of an e-Voting protocol
 
+[![CircleCI](https://circleci.com/gh/dgsi-ve-test-organization/protocol-poc-back/tree/master.svg?style=svg)](https://circleci.com/gh/dgsi-ve-test-organization/protocol-poc-back/tree/master)
+
 ## Project context
 
 This prototype is being developed as a Proof of Concept for the protocol the eVoting group
