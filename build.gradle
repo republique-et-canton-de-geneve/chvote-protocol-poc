@@ -78,6 +78,18 @@ task createSimulationScripts(type: CreateStartScripts) {
     classpath += project.configurations.runtime
 }
 
+task simulation(type:JavaExec, dependsOn: classes) {
+    def mySecLevel = System.getProperty('secLevel', '1')
+    def myElectionType = System.getProperty('electionType', 'SIMPLE_SAMPLE')
+    def myVotersCount = System.getProperty('votersCount', '100')
+
+    main = 'ch.ge.ve.protopoc.service.simulation.Simulation'
+    classpath = sourceSets.main.runtimeClasspath
+    args = ["$mySecLevel", "$myElectionType", "$myVotersCount"]
+
+    println "using args: $args"
+}
+
 distributions {
     main {
         baseName = 'protocol-poc-back'

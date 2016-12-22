@@ -1,0 +1,11 @@
+machine:
+  java:
+    version: oraclejdk8
+
+dependency:
+  override:
+    - chmod +x gradlew
+
+test:
+  post:
+    - gradlew simulation -DsecLevel=2 -DvotersCount=10
