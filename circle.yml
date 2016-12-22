@@ -8,4 +8,4 @@ dependencies:
 
 test:
   post:
-    - gradle simulation -DsecLevel=2 -DvotersCount=10
+    - ./gradlew simulation -DsecLevel=2 -DvotersCount=10
