@@ -2,7 +2,7 @@ machine:
   java:
     version: oraclejdk8
 
-dependency:
+dependencies:
   override:
     - chmod +x gradlew
 
