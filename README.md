@@ -1,5 +1,7 @@
 # Prototype of an e-Voting protocol
 
+[ ![Codeship Status for dgsi-ve-test-organization/protocol-poc-back](https://app.codeship.com/projects/71255da0-aa56-0134-b34d-3e211d17d664/status?branch=master)](https://app.codeship.com/projects/191867)
+
 ## Project context
 
 This prototype is being developed as a Proof of Concept for the protocol the eVoting group
