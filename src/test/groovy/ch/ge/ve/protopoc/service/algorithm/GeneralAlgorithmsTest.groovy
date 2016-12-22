@@ -48,28 +48,25 @@ class GeneralAlgorithmsTest extends Specification {
 
     def "getPrimes"() {
         given:
-        jacobiSymbol.computeJacobiSymbol(TWO, ELEVEN) >> 1
         jacobiSymbol.computeJacobiSymbol(THREE, ELEVEN) >> 1
         jacobiSymbol.computeJacobiSymbol(FIVE, ELEVEN) >> 1
-        jacobiSymbol.computeJacobiSymbol(SEVEN, ELEVEN) >> 1
+        generalAlgorithms.populatePrimesCache(2)
 
         when:
-        def primes = generalAlgorithms.getPrimes(4)
+        def primes = generalAlgorithms.getPrimes(2)
 
         then:
-        primes.size() == 4
-        primes.containsAll(TWO, THREE, FIVE, SEVEN)
+        primes.size() == 2
+        primes.containsAll(THREE, FIVE)
     }
 
-    def "getPrimes not enough primes available"() {
+    def "populatePrimesCache not enough primes available"() {
         given:
-        jacobiSymbol.computeJacobiSymbol(TWO, ELEVEN) >> 1
         jacobiSymbol.computeJacobiSymbol(THREE, ELEVEN) >> 1
         jacobiSymbol.computeJacobiSymbol(FIVE, ELEVEN) >> 1
-        jacobiSymbol.computeJacobiSymbol(SEVEN, ELEVEN) >> 1
 
         when:
-        generalAlgorithms.getPrimes(5)
+        generalAlgorithms.populatePrimesCache(3)
 
         then:
         thrown(NotEnoughPrimesInGroupException)
@@ -77,17 +74,16 @@ class GeneralAlgorithmsTest extends Specification {
 
     def "getSelectedPrimes"() {
         given:
-        jacobiSymbol.computeJacobiSymbol(TWO, ELEVEN) >> 1
         jacobiSymbol.computeJacobiSymbol(THREE, ELEVEN) >> 1
         jacobiSymbol.computeJacobiSymbol(FIVE, ELEVEN) >> 1
-        jacobiSymbol.computeJacobiSymbol(SEVEN, ELEVEN) >> 1
+        generalAlgorithms.populatePrimesCache(2)
 
         when:
-        def selectedPrimes = generalAlgorithms.getSelectedPrimes(Arrays.asList(1, 2, 4))
+        def selectedPrimes = generalAlgorithms.getSelectedPrimes(Arrays.asList(1))
 
         then:
-        selectedPrimes.size() == 3
-        selectedPrimes.containsAll(TWO, THREE, SEVEN)
+        selectedPrimes.size() == 1
+        selectedPrimes.containsAll(THREE)
     }
 
     def "getGenerators"() {

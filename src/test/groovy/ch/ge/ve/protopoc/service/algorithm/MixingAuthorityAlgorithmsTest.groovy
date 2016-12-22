@@ -59,7 +59,7 @@ class MixingAuthorityAlgorithmsTest extends Specification {
     def "genShuffle should generate a valid shuffle"() {
         given:
         randomGenerator.randomIntInRange(_, _) >>> [1, 1, 2] // psy = [1, 0, 2]
-        randomGenerator.randomInZq(FIVE) >>> [ONE, FOUR, TWO]
+        randomGenerator.randomInZq(FIVE) >>> [ONE, TWO, FOUR]
         def bold_e = [
                 new Encryption(FIVE, ONE),
                 new Encryption(THREE, FOUR),
@@ -67,17 +67,32 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         ]
         def publicKey = new EncryptionPublicKey(THREE, encryptionGroup)
 
-        expect:
-        mixingAuthorityAlgorithms.genShuffle(bold_e, publicKey) == new Shuffle(
-                [
-                        new Encryption(ONE, FIVE),
-                        new Encryption(FOUR, THREE),
-                        new Encryption(ONE, FOUR)
-                ],
-                [ONE, FOUR, TWO],
-                [1, 0, 2]
-        )
+        when:
+        def shuffle = mixingAuthorityAlgorithms.genShuffle(bold_e, publicKey)
 
+        then:
+        shuffle.bold_e_prime.size() == 3
+        shuffle.bold_r_prime.size() == 3
+        shuffle.bold_r_prime.containsAll([ONE, TWO, FOUR]) // making the shuffle parallel made the
+        // test run order unpredictable
+        shuffle.psy == [1, 0, 2]
+
+        def p = ELEVEN
+        def pk = THREE
+        def g = THREE
+        def r_0 = shuffle.bold_r_prime.get(0)
+        def r_1 = shuffle.bold_r_prime.get(1)
+        def r_2 = shuffle.bold_r_prime.get(2)
+        def e_prime_0 = shuffle.bold_e_prime.get(0)
+        def e_prime_1 = shuffle.bold_e_prime.get(1)
+        def e_prime_2 = shuffle.bold_e_prime.get(2)
+
+        e_prime_0.a == (THREE * pk.modPow(r_1, p)) % p
+        e_prime_0.b == (FOUR * g.modPow(r_1, p)) % p
+        e_prime_1.a == (FIVE * pk.modPow(r_0, p)) % p
+        e_prime_1.b == (ONE * g.modPow(r_0, p)) % p
+        e_prime_2.a == (FIVE * pk.modPow(r_2, p)) % p
+        e_prime_2.b == (NINE * pk.modPow(r_2, p)) % p
     }
 
     def "genPermutation should generate a valid permutation"() {
