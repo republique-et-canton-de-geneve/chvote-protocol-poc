@@ -18,6 +18,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
     PublicParameters publicParameters = Mock()
     EncryptionGroup encryptionGroup = Mock()
     IdentificationGroup identificationGroup = Mock()
+    SecurityParameters securityParameters = Mock()
     GeneralAlgorithms generalAlgorithms = Mock()
     RandomGenerator randomGenerator = Mock()
     Hash hash = Mock()
@@ -34,6 +35,8 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         identificationGroup.q_circ >> FIVE
         identificationGroup.g_circ >> THREE
         publicParameters.l_m >> 16
+        publicParameters.securityParameters >> securityParameters
+        securityParameters.l >> 16
 
         voteCastingAuthority = new VoteCastingAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
     }
@@ -128,7 +131,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         and: "known primes"
         generalAlgorithms.getPrimes(3) >> [TWO, THREE, FIVE]
         and: "some hash values"
-        hash.hash_L(_) >>> [
+        hash.recHash_L(_) >>> [
                 [0x00, 0x10], // l = 1
                 [0x20, 0x30], // l = 2
                 [0x40, 0x50] // l = 3

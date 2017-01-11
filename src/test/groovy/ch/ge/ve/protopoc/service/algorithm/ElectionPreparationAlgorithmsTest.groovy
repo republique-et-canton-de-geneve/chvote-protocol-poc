@@ -94,7 +94,7 @@ class ElectionPreparationAlgorithmsTest extends Specification {
         ]
 
         and: "the following computed hashes"
-        hash.hash_L(_) >> ([0x0C] as byte[])
+        hash.recHash_L(_) >> ([0x0C] as byte[])
 
         when: "the electorate data is generated"
         def electorateData = electionPreparation.genElectorateData(electionSet)

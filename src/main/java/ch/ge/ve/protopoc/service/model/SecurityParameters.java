@@ -9,22 +9,22 @@ public class SecurityParameters {
     /**
      * Minimal privacy security level &lambda;
      */
-    public final int lambda;
+    private final int lambda;
 
     /**
      * Minimal integrity security level &mu;
      */
-    public final int mu;
+    private final int mu;
 
     /**
      * Output length of collision-resistant hash-function l (in bits)
      */
-    public final int l;
+    private final int l;
 
     /**
      * Deterrence factor &epsilon; (with 0 &lt; &epsilon; &le; 1)
      */
-    public final double epsilon;
+    private final double epsilon;
 
     public SecurityParameters(int lambda, int mu, int l, double epsilon) {
         Preconditions.checkArgument(l % 8 == 0, "l should be a multiple of 8, so that l = 8L");
@@ -34,5 +34,21 @@ public class SecurityParameters {
         this.mu = mu;
         this.l = l;
         this.epsilon = epsilon;
+    }
+
+    public int getLambda() {
+        return lambda;
+    }
+
+    public int getMu() {
+        return mu;
+    }
+
+    public int getL() {
+        return l;
+    }
+
+    public double getEpsilon() {
+        return epsilon;
     }
 }

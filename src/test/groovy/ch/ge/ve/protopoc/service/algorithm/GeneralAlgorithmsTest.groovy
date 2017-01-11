@@ -88,16 +88,16 @@ class GeneralAlgorithmsTest extends Specification {
 
     def "getGenerators"() {
         when:
-        def generators = generalAlgorithms.getGenerators(3)
+        def generators = generalAlgorithms.getGenerators(2)
 
         then:
         4 * hash.recHash_L(_ as Object[]) >>> [
-                [0x04] as byte[],
-                [0x05] as byte[],
-                [0x01] as byte[],
-                [0x02] as byte[]
+                [0x09] as byte[], // 9 * 9 = 81 =_11 4 --> OK
+                [0x05] as byte[], // 5 * 5 = 25 =_11 3 --> KO, is g
+                [0x01] as byte[], // 1 * 1 = 1 =_11 1 --> KO, is 1
+                [0x03] as byte[] // 3 * 3 = 9 =_11 9 --> OK
         ]
-        generators.containsAll(FIVE, THREE, FOUR)
+        generators.containsAll(FOUR, NINE)
     }
 
     def "getProofChallenge"() {

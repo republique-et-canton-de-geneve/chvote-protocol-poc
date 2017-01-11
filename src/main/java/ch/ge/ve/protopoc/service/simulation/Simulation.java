@@ -301,8 +301,8 @@ public class Simulation {
         int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                defaultAlphabet, 2 * securityParameters.mu,
-                defaultAlphabet, 2 * securityParameters.mu,
+                defaultAlphabet, 2 * securityParameters.getMu(),
+                defaultAlphabet, 2 * securityParameters.getMu(),
                 defaultAlphabet, 8,
                 defaultAlphabet, 8,
                 l_m, 4);
@@ -319,8 +319,8 @@ public class Simulation {
         int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                defaultAlphabet, 2 * securityParameters.mu,
-                defaultAlphabet, 2 * securityParameters.mu,
+                defaultAlphabet, 2 * securityParameters.getMu(),
+                defaultAlphabet, 2 * securityParameters.getMu(),
                 defaultAlphabet, 16,
                 defaultAlphabet, 16,
                 l_m, 4);
@@ -336,8 +336,8 @@ public class Simulation {
         int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                defaultAlphabet, 2 * securityParameters.mu,
-                defaultAlphabet, 2 * securityParameters.mu,
+                defaultAlphabet, 2 * securityParameters.getMu(),
+                defaultAlphabet, 2 * securityParameters.getMu(),
                 defaultAlphabet, 16,
                 defaultAlphabet, 16,
                 l_m, 4);
@@ -347,7 +347,7 @@ public class Simulation {
         log.info("creating prime field");
         PrimeField primeField = null;
         while (primeField == null) {
-            BigInteger p_prime = BigInteger.probablePrime(2 * securityParameters.mu, secureRandom);
+            BigInteger p_prime = BigInteger.probablePrime(2 * securityParameters.getMu(), secureRandom);
             primeField = new PrimeField(p_prime);
         }
         log.info("prime field created");
@@ -369,7 +369,7 @@ public class Simulation {
                 log.info("q_circ is not prime");
                 continue;
             }
-            if (q_circ.bitLength() < 2 * securityParameters.mu) {
+            if (q_circ.bitLength() < 2 * securityParameters.getMu()) {
                 log.info("|q_circ| < 2*mu");
                 continue;
             }

@@ -73,16 +73,16 @@ public class PublicParameters {
         // Preconditions tested here are those that impact a combination of the properties of the lower level elements
         Preconditions.checkArgument(encryptionGroup.getH().compareTo(BigIntegers.TWO) >= 0,
                 "");
-        Preconditions.checkArgument(2 * securityParameters.mu <= identificationGroup.getQ_circ().bitLength());
-        Preconditions.checkArgument(2 * securityParameters.mu <= l_x && l_x <= identificationGroup.getQ_circ().bitLength(),
+        Preconditions.checkArgument(2 * securityParameters.getMu() <= identificationGroup.getQ_circ().bitLength());
+        Preconditions.checkArgument(2 * securityParameters.getMu() <= l_x && l_x <= identificationGroup.getQ_circ().bitLength(),
                 "l_x needs to be comprised between 2*mu and the length of q_circ");
-        Preconditions.checkArgument(2 * securityParameters.mu <= l_y && l_y <= identificationGroup.getQ_circ().bitLength(),
+        Preconditions.checkArgument(2 * securityParameters.getMu() <= l_y && l_y <= identificationGroup.getQ_circ().bitLength(),
                 "l_y needs to be comprised between 2*mu and the length of q_circ");
         Preconditions.checkArgument(l_r % 8 == 0, "l_r needs to be a multiple of 8");
-        Preconditions.checkArgument(1.0 / Math.pow(2.0, l_r) <= (1.0 - securityParameters.epsilon),
+        Preconditions.checkArgument(1.0 / Math.pow(2.0, l_r) <= (1.0 - securityParameters.getEpsilon()),
                 "1/2^l_r must be smaller or equal to 1 - epsilon");
         Preconditions.checkArgument(l_f % 8 == 0, "l_f needs to be a multiple of 8");
-        Preconditions.checkArgument(1.0 / Math.pow(2.0, l_f) <= (1.0 - securityParameters.epsilon),
+        Preconditions.checkArgument(1.0 / Math.pow(2.0, l_f) <= (1.0 - securityParameters.getEpsilon()),
                 "1/2^l_f must be smaller or equal to 1 - epsilon");
         Preconditions.checkArgument(l_m % 8 == 0, "l_m needs to be a multiple of 8");
         Preconditions.checkArgument(l_m == 16 * Math.ceil(primeField.getP_prime().bitLength() / 8.0),

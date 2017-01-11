@@ -234,7 +234,7 @@ public class VoteCastingClientAlgorithms {
                 log.debug("c[" + (bold_s.get(i) - 1) + "] = " + Arrays.toString(c[bold_s.get(i) - 1]));
                 BigInteger k = b.get(i).multiply(modExp(d.get(j), bold_r.get(i).negate(), p)).mod(p);
                 byte[] bold_upper_k = new byte[0];
-                int upperbound = (int) Math.ceil((double) upper_l_m / (publicParameters.getSecurityParameters().l / 8.0));
+                int upperbound = (int) Math.ceil((double) upper_l_m / (publicParameters.getSecurityParameters().getL() / 8.0));
                 for (int z = 1; z <= upperbound; z++) {
                     bold_upper_k = ByteArrayUtils.concatenate(bold_upper_k, hash.recHash_L(k, BigInteger.valueOf(z)));
                 }

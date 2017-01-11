@@ -24,13 +24,13 @@ public class Hash {
         this.securityParameters = securityParameters;
 
         MessageDigest messageDigest = newMessageDigest();
-        if (messageDigest.getDigestLength() * 8 < securityParameters.l) {
+        if (messageDigest.getDigestLength() * 8 < securityParameters.getL()) {
             throw new IllegalArgumentException(
                     String.format(
                             "The length of the message digest should be greater or equal to the expected output " +
                                     "length. Got %d expected %d",
                             messageDigest.getDigestLength() * 8,
-                            securityParameters.l));
+                            securityParameters.getL()));
         }
     }
 
@@ -55,7 +55,7 @@ public class Hash {
             }
             digest = messageDigest.digest();
         }
-        return ByteArrayUtils.truncate(digest, securityParameters.l / 8);
+        return ByteArrayUtils.truncate(digest, securityParameters.getL() / 8);
     }
 
     /**
@@ -96,7 +96,7 @@ public class Hash {
     public byte[] hash_L(byte[] byteArray) {
         MessageDigest messageDigest = newMessageDigest();
         byte[] digest = messageDigest.digest(byteArray);
-        return ByteArrayUtils.truncate(digest, securityParameters.l / 8);
+        return ByteArrayUtils.truncate(digest, securityParameters.getL() / 8);
     }
 
     public byte[] hash_L(String s) {
