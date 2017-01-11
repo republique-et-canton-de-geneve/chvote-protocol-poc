@@ -22,7 +22,7 @@ public class KeyEstablishmentAlgorithms {
     }
 
     /**
-     * Algorithm 5.7: genKeyPair
+     * Algorithm 7.7: genKeyPair
      *
      * @param eg the encryption group for which we need a {@link KeyPair}
      * @return a newly, randomly generated KeyPair
@@ -35,7 +35,7 @@ public class KeyEstablishmentAlgorithms {
     }
 
     /**
-     * Algorithm 5.8: GetPublicKey
+     * Algorithm 7.8: GetPublicKey
      *
      * @param publicKeys the set of public key shares that should be combined
      * @return the combined public key

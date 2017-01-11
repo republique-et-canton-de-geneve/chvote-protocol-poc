@@ -41,7 +41,7 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.19: GenBallot
+     * Algorithm 7.19: GenBallot
      *
      * @param X      the voting code
      * @param bold_s voters selection (indices)
@@ -105,7 +105,7 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.20: GenQuery
+     * Algorithm 7.20: GenQuery
      *
      * @param bold_q the selected primes
      * @param pk     the public encryption key
@@ -129,7 +129,7 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.21: GenBallotProof
+     * Algorithm 7.21: GenBallotProof
      *
      * @param x      first half of voting credentials
      * @param m      encoded selections, m \isin G_q
@@ -182,7 +182,7 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.22: GetPointMatrix
+     * Algorithm 7.22: GetPointMatrix
      *
      * @param bold_beta the vector of the oblivious transfer replies (from the different authorities)
      * @param bold_k    the vector of allowed number of selections per election
@@ -206,7 +206,7 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.23: GetPoints
+     * Algorithm 7.23: GetPoints
      *
      * @param beta   the OT response (from one authority)
      * @param bold_k the vector of allowed number of selections per election
@@ -226,20 +226,25 @@ public class VoteCastingClientAlgorithms {
         List<BigInteger> d = beta.getD();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger p_prime = publicParameters.getPrimeField().getP_prime();
-        int L_m = publicParameters.getL_m() / 8;
+        int upper_l_m = publicParameters.getL_m() / 8;
 
         int i = 0; // 0 based indices in java, as opposed to the 1-based specification
         for (int j = 0; j < bold_k.size(); j++) {
             for (int l = 0; l < bold_k.get(j); l++) {
                 log.debug("c[" + (bold_s.get(i) - 1) + "] = " + Arrays.toString(c[bold_s.get(i) - 1]));
-                BigInteger valueToHash = b.get(i).multiply(modExp(d.get(j), bold_r.get(i).negate(), p)).mod(p);
-                log.debug(String.format("Hashing the following value: %s", valueToHash));
+                BigInteger k = b.get(i).multiply(modExp(d.get(j), bold_r.get(i).negate(), p)).mod(p);
+                byte[] bold_upper_k = new byte[0];
+                int upperbound = (int) Math.ceil((double) upper_l_m / (publicParameters.getSecurityParameters().l / 8.0));
+                for (int z = 1; z <= upperbound; z++) {
+                    bold_upper_k = ByteArrayUtils.concatenate(bold_upper_k, hash.recHash_L(k, BigInteger.valueOf(z)));
+                }
+                bold_upper_k = ByteArrayUtils.truncate(bold_upper_k, upper_l_m);
                 byte[] M_i = ByteArrayUtils.xor(
                         // selections are 1-based
                         c[bold_s.get(i) - 1],
-                        Arrays.copyOf(hash.hash(valueToHash), L_m));
-                BigInteger x_i = conversion.toInteger(Arrays.copyOfRange(M_i, 0, L_m / 2));
-                BigInteger y_i = conversion.toInteger(Arrays.copyOfRange(M_i, L_m / 2, M_i.length));
+                        bold_upper_k);
+                BigInteger x_i = conversion.toInteger(ByteArrayUtils.extract(M_i, 0, upper_l_m / 2));
+                BigInteger y_i = conversion.toInteger(ByteArrayUtils.extract(M_i, upper_l_m / 2, M_i.length));
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Decoding %s as  point : %d <%s, %s>", Arrays.toString(M_i), i, x_i, y_i));
                 }
@@ -256,7 +261,7 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.24: GetReturnCodes
+     * Algorithm 7.24: GetReturnCodes
      *
      * @param bold_P the point matrix containing the responses for each of the authorities
      * @return the return codes corresponding to the point matrix
@@ -271,8 +276,8 @@ public class VoteCastingClientAlgorithms {
         for (int i = 0; i < length; i++) {
             byte[] rc_i = new byte[publicParameters.getL_r() / 8];
             for (int j = 0; j < publicParameters.getS(); j++) {
-                rc_i = ByteArrayUtils.xor(rc_i, Arrays.copyOf(
-                        hash.hash(bold_P.get(j).get(i)),
+                rc_i = ByteArrayUtils.xor(rc_i, ByteArrayUtils.truncate(
+                        hash.recHash_L(bold_P.get(j).get(i)),
                         publicParameters.getL_r() / 8));
             }
             rc.add(conversion.toString(rc_i, A_r));

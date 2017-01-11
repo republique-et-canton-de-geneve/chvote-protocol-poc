@@ -40,7 +40,7 @@ public class VoteCastingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.25: CheckBallot
+     * Algorithm 7.25: CheckBallot
      *
      * @param i           the voter index
      * @param alpha       the submitted ballot, including the oblivious transfer query
@@ -72,7 +72,7 @@ public class VoteCastingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.26: HasBallot
+     * Algorithm 7.26: HasBallot
      *
      * @param i the voter index
      * @param B the current ballot list
@@ -86,7 +86,7 @@ public class VoteCastingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.27: CheckBallotProof
+     * Algorithm 7.27: CheckBallotProof
      *
      * @param pi     the proof
      * @param x_circ public voting credential
@@ -136,7 +136,7 @@ public class VoteCastingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.28: GenResponse
+     * Algorithm 7.28: GenResponse
      *
      * @param i      the voter index
      * @param bold_a the vector of the queries
@@ -159,8 +159,8 @@ public class VoteCastingAuthorityAlgorithms {
         Preconditions.checkArgument(bold_P.size() > 0);
         Preconditions.checkArgument(bold_P.stream().allMatch(bold_p_i -> bold_p_i.size() == n));
 
-        final int k = bold_K.get(i).stream().reduce((a, b) -> a + b).orElse(0);
-        Preconditions.checkArgument(bold_a.size() == k);
+        final int k_sum = bold_K.get(i).stream().reduce((a, b) -> a + b).orElse(0);
+        Preconditions.checkArgument(bold_a.size() == k_sum);
 
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
@@ -171,9 +171,9 @@ public class VoteCastingAuthorityAlgorithms {
         List<BigInteger> bold_d = new ArrayList<>();
         List<BigInteger> bold_r = new ArrayList<>();
 
-        List<BigInteger> bold_u;
+        List<BigInteger> bold_p;
         try {
-            bold_u = generalAlgorithms.getPrimes(n);
+            bold_p = generalAlgorithms.getPrimes(n);
         } catch (NotEnoughPrimesInGroupException e) {
             throw new IncompatibleParametersException(e);
         }
@@ -201,9 +201,14 @@ public class VoteCastingAuthorityAlgorithms {
                         conversion.toByteArray(point_iv.y, upper_l_m / 2)
                 );
                 log.debug(String.format("Encoding point %s as %s", point_iv, Arrays.toString(M_v)));
-                BigInteger valueToHash = modExp(bold_u.get(v), r_j, p);
-                log.debug(String.format("Hashing the following value: %s", valueToHash));
-                bold_c[v] = ByteArrayUtils.xor(M_v, Arrays.copyOf(hash.hash(valueToHash), upper_l_m));
+                BigInteger k = modExp(bold_p.get(v), r_j, p);
+                byte[] bold_upper_k = new byte[0];
+                int upperbound = (int) Math.ceil((double) upper_l_m / (publicParameters.getSecurityParameters().l / 8.0));
+                for (int z = 1; z <= upperbound; z++) {
+                    bold_upper_k = ByteArrayUtils.concatenate(bold_upper_k, hash.recHash_L(k, BigInteger.valueOf(z)));
+                }
+                bold_upper_k = ByteArrayUtils.truncate(bold_upper_k, upper_l_m);
+                bold_c[v] = ByteArrayUtils.xor(M_v, bold_upper_k);
                 log.debug(String.format("bold_c[%d] = %s", v, Arrays.toString(bold_c[v])));
             }
             n_offset += n_j;

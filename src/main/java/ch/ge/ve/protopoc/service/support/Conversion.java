@@ -14,7 +14,7 @@ public class Conversion {
     private static final BigInteger BYTE_MULTIPLIER = BigInteger.valueOf(256L);
 
     /**
-     * Algorithm 2.1: ToByteArray
+     * Algorithm 4.1: ToByteArray
      *
      * @param x the integer to be converted
      * @return the byte array corresponding to the integer
@@ -24,7 +24,7 @@ public class Conversion {
     }
 
     /**
-     * Algorithm 2.2: ToByteArray
+     * Algorithm 4.2: ToByteArray
      *
      * @param x the integer to be converted
      * @param n the target length (in bytes)
@@ -45,7 +45,7 @@ public class Conversion {
     }
 
     /**
-     * Algorithm 2.3: ToInteger
+     * Algorithm 4.3: ToInteger
      *
      * @param byteArray the byte array to be converted
      * @return the corresponding integer (unsigned, non-injective conversion)
@@ -61,7 +61,7 @@ public class Conversion {
     }
 
     /**
-     * As described in section 2.2.3 of specification
+     * As described in section 4.2.3 of specification
      *
      * @param s the string to be converted
      * @return the corresponding byte array
@@ -71,7 +71,7 @@ public class Conversion {
     }
 
     /**
-     * Algorithm 2.4: ToString
+     * Algorithm 4.4: ToString
      *
      * @param x the integer to convert
      * @param k the required String size

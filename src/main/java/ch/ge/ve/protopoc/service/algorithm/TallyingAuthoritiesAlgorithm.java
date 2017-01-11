@@ -33,7 +33,7 @@ public class TallyingAuthoritiesAlgorithm {
     }
 
     /**
-     * Algorithm 5.51: GenDecryptionProofs
+     * Algorithm 7.51: GenDecryptionProofs
      *
      * @param bold_pi_prime the vector of the decryption proofs, by authority
      * @param bold_pk       the vector of the public key shares, by authority
@@ -58,7 +58,7 @@ public class TallyingAuthoritiesAlgorithm {
     }
 
     /**
-     * Algorithm 5.52: CheckDecryptionProof
+     * Algorithm 7.52: CheckDecryptionProof
      *
      * @param pi_prime     the decryption proof
      * @param pk_j         the authority's public key
@@ -91,7 +91,7 @@ public class TallyingAuthoritiesAlgorithm {
     }
 
     /**
-     * Algorithm 5.43: GetDecryptions
+     * Algorithm 7.43: GetDecryptions
      *
      * @param bold_e       the ElGamal encryptions of the ballots
      * @param bold_B_prime the matrix of partial decryptions, per authority, per ballot
@@ -115,7 +115,7 @@ public class TallyingAuthoritiesAlgorithm {
     }
 
     /**
-     * Algorithm 5.54: GetTally
+     * Algorithm 7.54: GetTally
      *
      * @param bold_m the products of encoded selections
      * @param n      the number of candidates

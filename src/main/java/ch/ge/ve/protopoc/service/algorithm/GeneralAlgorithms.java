@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This class regroups the general algorithms described in Section 5.2 of the specification
+ * This class regroups the general algorithms described in Section 7.2 of the specification
  */
 public class GeneralAlgorithms {
     private final Hash hash;
@@ -37,7 +37,7 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 5.1 : isMember
+     * Algorithm 7.1 : isMember
      *
      * @param x A number
      * @return true if x &isin; encryptionGroup, false otherwise
@@ -52,7 +52,7 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 5.2: getPrimes
+     * Algorithm 7.2: getPrimes
      *
      * @param n the number of requested primes
      * @return the ordered list of the n first primes found in the group
@@ -97,7 +97,7 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 5.3: getSelectedPrimes
+     * Algorithm 7.3: getSelectedPrimes
      *
      * @param selections the indices of the selected primes (in increasing order, 1-based)
      * @return the list of the primes selected
@@ -116,7 +116,7 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 5.4: GetGenerators
+     * Algorithm 7.4: GetGenerators
      * Create a number of independent generators for the encryption group given
      *
      * @param n number of generators to be computed
@@ -130,7 +130,7 @@ public class GeneralAlgorithms {
             int x = 0;
             do {
                 x++;
-                byte[] bytes = hash.hash("chVote", BigInteger.valueOf(i), BigInteger.valueOf(x));
+                byte[] bytes = hash.recHash_L("chVote", BigInteger.valueOf(i), BigInteger.valueOf(x));
                 h_i = conversion.toInteger(bytes).mod(encryptionGroup.getP());
                 h_i = h_i.multiply(h_i).mod(encryptionGroup.getP());
             } while (h_i.equals(BigInteger.ONE)); // Very unlikely, but needs to be avoided
@@ -140,7 +140,7 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 5.5: GetProofChallenge
+     * Algorithm 7.5: GetProofChallenge
      *
      * @param y    the public values vector (domain unspecified)
      * @param t    the commitments vector (domain unspecified)
@@ -148,11 +148,11 @@ public class GeneralAlgorithms {
      * @return the computed challenge
      */
     public BigInteger getNIZKPChallenge(Object[] y, Object[] t, BigInteger c_ub) {
-        return conversion.toInteger(hash.hash(y, t)).mod(c_ub);
+        return conversion.toInteger(hash.recHash_L(y, t)).mod(c_ub);
     }
 
     /**
-     * Algorithm 5.6: GetPublicChallenges
+     * Algorithm 7.6: GetPublicChallenges
      *
      * @param n    the number of challenges requested
      * @param v    the public values vector (domain unspecified)
@@ -162,7 +162,7 @@ public class GeneralAlgorithms {
     public List<BigInteger> getChallenges(int n, Object[] v, BigInteger c_ub) {
         List<BigInteger> c = new ArrayList<>();
         for (int i = 1; i <= n; i++) {
-            BigInteger c_i = conversion.toInteger(hash.hash(v, BigInteger.valueOf(i))).mod(c_ub);
+            BigInteger c_i = conversion.toInteger(hash.recHash_L(v, BigInteger.valueOf(i))).mod(c_ub);
             c.add(c_i);
         }
         return c;

@@ -22,7 +22,7 @@ class HashTest extends Specification {
 
     def "hash(byte[])"() {
         expect:
-        hash.hash(bytes) == digest
+        hash.hash_L(bytes) == digest
 
         where:
         bytes                    | digest
@@ -35,7 +35,7 @@ class HashTest extends Specification {
         conversion.toByteArray(_ as BigInteger) >> { args -> (args[0] as BigInteger).toByteArray() }
 
         expect:
-        hash.hash(objects) == digest
+        hash.recHash_L(objects) == digest
 
         where:
         objects                                                                             | digest

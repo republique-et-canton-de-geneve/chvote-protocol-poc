@@ -30,7 +30,7 @@ public class PolynomialAlgorithms {
     }
 
     /**
-     * Algorithm 5.12: GenPoints
+     * Algorithm 7.12: GenPoints
      *
      * @param n the vector containing the number of candidates per election
      * @param k the vector containing the number of allowed selections per election
@@ -70,7 +70,7 @@ public class PolynomialAlgorithms {
     }
 
     /**
-     * Algorithm 5.13: GenPolynomial
+     * Algorithm 7.13: GenPolynomial
      *
      * @param d the degree of the polynomial (-1 means a 0 constant)
      * @return the list of coefficients of a random polynomial p(X) = \sum(i=1,d){a_i*X^i mod p'}
@@ -95,7 +95,7 @@ public class PolynomialAlgorithms {
     }
 
     /**
-     * Algorithm 5.14: GetYValue
+     * Algorithm 7.14: GetYValue
      *
      * @param x value in Z_p_prime
      * @param a the coefficients of the polynomial

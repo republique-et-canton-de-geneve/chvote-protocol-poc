@@ -2,20 +2,20 @@
  * This package contains all the algorithms described in the specification.
  * <p>
  * <ul>
- * <li>Algorithms 5.1-5.6 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.GeneralAlgorithms}</li>
- * <li>Algorithms 5.7 and 5.8 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.KeyEstablishmentAlgorithms}</li>
- * <li>Algorithms 5.9-5.11 and 5.15 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.ElectionPreparationAlgorithms}</li>
- * <li>Algorithms 5.12-5.14 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.PolynomialAlgorithms}</li>
- * <li>Algorithms 5.16 and 5.17 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.CodeSheetPreparationAlgorithms}</li>
- * <li>Algorithm 5.18 is not included, since it only handles display to the voter which makes no sense in a simulation setting, it will be handled by the front-end.</li>
- * <li>Algorithms 5.19-5.24 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteCastingClientAlgorithms}</li>
- * <li>Algorithms 5.25-5.28 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteCastingAuthorityAlgorithms}</li>
- * <li>Algorithms 5.29-5.30 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationVoterAlgorithms}</li>
- * <li>Algorithms 5.31-5.35 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationClientAlgorithms}</li>
- * <li>Algorithms 5.36-5.39 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationAuthorityAlgorithms}</li>
- * <li>Algorithms 5.40-5.47 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.MixingAuthorityAlgorithms}</li>
- * <li>Algorithms 5.48-5.50 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.DecryptionAuthorityAlgorithms}</li>
- * <li>Algorithms 5.51-5.54 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.TallyingAuthoritiesAlgorithm}</li>
+ * <li>Algorithms 7.1-7.6 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.GeneralAlgorithms}</li>
+ * <li>Algorithms 7.7 and 7.8 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.KeyEstablishmentAlgorithms}</li>
+ * <li>Algorithms 7.9-7.11 and 7.15 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.ElectionPreparationAlgorithms}</li>
+ * <li>Algorithms 7.12-7.14 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.PolynomialAlgorithms}</li>
+ * <li>Algorithms 7.16 and 7.17 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.CodeSheetPreparationAlgorithms}</li>
+ * <li>Algorithm 7.18 is not included, since it only handles display to the voter which makes no sense in a simulation setting, it will be handled by the front-end.</li>
+ * <li>Algorithms 7.19-7.24 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteCastingClientAlgorithms}</li>
+ * <li>Algorithms 7.25-7.28 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteCastingAuthorityAlgorithms}</li>
+ * <li>Algorithms 7.29-7.30 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationVoterAlgorithms}</li>
+ * <li>Algorithms 7.31-7.35 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationClientAlgorithms}</li>
+ * <li>Algorithms 7.36-7.39 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationAuthorityAlgorithms}</li>
+ * <li>Algorithms 7.40-7.47 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.MixingAuthorityAlgorithms}</li>
+ * <li>Algorithms 7.48-7.50 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.DecryptionAuthorityAlgorithms}</li>
+ * <li>Algorithms 7.51-7.54 are implemented in class {@link ch.ge.ve.protopoc.service.algorithm.TallyingAuthoritiesAlgorithm}</li>
  * </ul>
  */
 package ch.ge.ve.protopoc.service.algorithm;

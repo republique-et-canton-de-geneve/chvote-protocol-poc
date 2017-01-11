@@ -58,7 +58,7 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         ]
         def bold_k = [1]
         and: "known collaborators responses"
-        hash.hash(_) >>> [
+        hash.recHash_L(_) >>> [
                 [0x12] as byte[], // j = 1 --> y_1 = 18 mod 5 = 3
                 [0x34] as byte[], // j = 2 --> y_2 = 52 mod 5 = 2
                 [0x56] as byte[], // j = 3 --> y_3 = 86 mod 5 = 1

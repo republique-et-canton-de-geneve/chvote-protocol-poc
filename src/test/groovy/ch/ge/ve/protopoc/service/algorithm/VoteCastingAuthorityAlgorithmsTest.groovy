@@ -128,7 +128,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         and: "known primes"
         generalAlgorithms.getPrimes(3) >> [TWO, THREE, FIVE]
         and: "some hash values"
-        hash.hash(_) >>> [
+        hash.hash_L(_) >>> [
                 [0x00, 0x10], // l = 1
                 [0x20, 0x30], // l = 2
                 [0x40, 0x50] // l = 3

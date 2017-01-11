@@ -147,13 +147,13 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         beta_1.b >> [ONE]
         beta_1.c >> [[0x01, 0x02, 0x03, 0x04], [0x05, 0x06, 0x07, 0x08], [0x0A, 0x0B, 0x0C, 0x0D]]
         beta_1.d >> [THREE]
-        hash.hash(ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 11 = 1
+        hash.hash_L(ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 11 = 1
 
         ObliviousTransferResponse beta_2 = Mock()
         beta_2.b >> [FIVE]
         beta_2.c >> [[0x10, 0x20, 0x30, 0x40], [0x50, 0x60, 0x70, 0x80], [0xA0, 0xB0, 0xC0, 0xD0]]
         beta_2.d >> [FOUR]
-        hash.hash(FIVE) >> ([0xA0, 0xB3, 0xC0, 0xD0] as byte[]) // b_i * d_j^{-r_i} mod p = 5 * 4^-5 mod 11 = 5
+        hash.hash_L(FIVE) >> ([0xA0, 0xB3, 0xC0, 0xD0] as byte[]) // b_i * d_j^{-r_i} mod p = 5 * 4^-5 mod 11 = 5
 
         when:
         def pointMatrix = voteCastingClient.getPointMatrix([beta_1, beta_2], [1], [3], [FIVE])
@@ -171,7 +171,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         beta.b >> [ONE]
         beta.c >> [[0x01, 0x02, 0x03, 0x04], [0x05, 0x06, 0x07, 0x08], [0x0A, 0x0B, 0x0C, 0x0D]]
         beta.d >> [THREE]
-        hash.hash(ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 11 = 1
+        hash.hash_L(ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 11 = 1
 
         when:
         def points = voteCastingClient.getPoints(beta, [1], [3], [FIVE])
@@ -192,8 +192,8 @@ class VoteCastingClientAlgorithmsTest extends Specification {
                   point21 // choice 1
                 ]
         ]
-        hash.hash(point11) >> ([0x05, 0x06] as byte[])
-        hash.hash(point21) >> ([0xD1, 0xCF] as byte[])
+        hash.recHash_L(point11) >> ([0x05, 0x06] as byte[])
+        hash.recHash_L(point21) >> ([0xD1, 0xCF] as byte[])
 
         when:
         def rc = voteCastingClient.getReturnCodes(pointMatrix)

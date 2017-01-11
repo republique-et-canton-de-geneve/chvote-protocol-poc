@@ -133,7 +133,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         and: "ballots are all found in the ballot list"
         voteCastingAuthority.hasBallot(i, ballotList) >> true
         and: "an fixed hash value"
-        hash.hash(points) >> code
+        hash.recHash_L(points) >> code
 
         expect:
         voteConfirmationAuthority.getFinalization(i, pointMatrix, ballotList) ==
@@ -165,7 +165,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         and: "ballots that are not found in the ballot list"
         voteCastingAuthority.hasBallot(2, ballotList) >> false
         and: "some random hash"
-        hash.hash(_) >> ([0x04, 0x01] as byte[])
+        hash.recHash_L(_) >> ([0x04, 0x01] as byte[])
 
         when: "a call to getFinalization is performed"
         voteConfirmationAuthority.getFinalization(2, pointMatrix, ballotList)

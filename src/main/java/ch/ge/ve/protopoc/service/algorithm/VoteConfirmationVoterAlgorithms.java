@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class VoteConfirmationVoterAlgorithms {
     /**
-     * Algorithm 5.29: CheckReturnCodes
+     * Algorithm 7.29: CheckReturnCodes
      *
      * @param bold_rc       the printed return codes, received before the vote casting phase
      * @param bold_rc_prime the displayed return codes, shown during the vote casting session
@@ -27,7 +27,7 @@ public class VoteConfirmationVoterAlgorithms {
     }
 
     /**
-     * Algorithm 5.30: CheckFinalizationCode
+     * Algorithm 7.30: CheckFinalizationCode
      *
      * @param F       the printed finalization code, received before the vote casting phase
      * @param F_prime the displayed finalization code, shown during the vote casting session

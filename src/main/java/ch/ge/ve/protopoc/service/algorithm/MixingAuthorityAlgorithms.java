@@ -37,7 +37,7 @@ public class MixingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.40: GetEncryptions
+     * Algorithm 7.40: GetEncryptions
      *
      * @param ballotList       the list of ballots submitted to the bulletin board
      * @param confirmationList the list of confirmations submitted to the bulletin board
@@ -60,7 +60,7 @@ public class MixingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.41: GenShuffle
+     * Algorithm 7.41: GenShuffle
      *
      * @param bold_e the list of ElGamal encryptions
      * @param pk     the encryption key
@@ -90,7 +90,7 @@ public class MixingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.42: GenPermutation
+     * Algorithm 7.42: GenPermutation
      *
      * @param n the permutation size
      * @return a random permutation following Knuth's shuffle algorithm (permutation is 0 based, to mirror java indices)
@@ -113,7 +113,7 @@ public class MixingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.43: GenReEncryption
+     * Algorithm 7.43: GenReEncryption
      *
      * @param e         the original encryption
      * @param publicKey the public key used
@@ -134,7 +134,7 @@ public class MixingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.44: GenShuffleProof
+     * Algorithm 7.44: GenShuffleProof
      *
      * @param bold_e       the vector of ElGamal encryptions
      * @param bold_e_prime the vector of permuted ElGamal re-encryptions
@@ -425,7 +425,7 @@ public class MixingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.46: GenPermutationCommitment
+     * Algorithm 7.46: GenPermutationCommitment
      *
      * @param psy    the permutation
      * @param bold_h a list of independent generators
@@ -457,7 +457,7 @@ public class MixingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.47: GenCommitmentChain
+     * Algorithm 7.47: GenCommitmentChain
      *
      * @param c_0          initial commitment
      * @param bold_u_prime the permuted challenges

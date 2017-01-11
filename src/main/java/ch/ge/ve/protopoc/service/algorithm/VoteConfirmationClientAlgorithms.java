@@ -37,7 +37,7 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.31: GenConfirmation
+     * Algorithm 7.31: GenConfirmation
      *
      * @param Y      the confirmation code
      * @param bold_P the <tt>k</tt> per <tt>s</tt> point matrix, where k = sum(bold_k) and s is the number of authorities
@@ -58,7 +58,7 @@ public class VoteConfirmationClientAlgorithms {
         for (int j = 0; j < publicParameters.getS(); j++) {
             List<Point> bold_p_j = bold_P.get(j);
             List<BigInteger> bold_y_j = getValues(bold_p_j, bold_k);
-            BigInteger y_j = conversion.toInteger(hash.hash(bold_y_j.toArray())).mod(q_circ);
+            BigInteger y_j = conversion.toInteger(hash.recHash_L(bold_y_j.toArray())).mod(q_circ);
             y_js.add(y_j);
         }
         BigInteger y = conversion.toInteger(Y, publicParameters.getA_y()).add(
@@ -71,7 +71,7 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.32: GetValues
+     * Algorithm 7.32: GetValues
      *
      * @param bold_p the combined list of points for the <tt>t</tt> polynomials (1 per election)
      * @param bold_k the list of the number of selections allowed by election
@@ -90,7 +90,7 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.33: GetValue
+     * Algorithm 7.33: GetValue
      *
      * @param bold_p a list of <tt>k</tt> points defining the polynomial <tt>A(X)</tt> of degree <tt>k - 1</tt>
      * @return the interpolated value <tt>y = A(0)</tt>
@@ -120,7 +120,7 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.34: GenConfirmationProof
+     * Algorithm 7.34: GenConfirmationProof
      *
      * @param y      the secret confirmation credential
      * @param y_circ the public confirmation credential
@@ -143,7 +143,7 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 5.35: GetFinalizationCode
+     * Algorithm 7.35: GetFinalizationCode
      *
      * @param finalizationCodeParts the finalization code parts received from the authorities
      * @return the combined finalization code

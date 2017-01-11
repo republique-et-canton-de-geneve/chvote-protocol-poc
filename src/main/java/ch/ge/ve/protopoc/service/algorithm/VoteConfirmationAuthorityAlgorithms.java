@@ -3,11 +3,11 @@ package ch.ge.ve.protopoc.service.algorithm;
 import ch.ge.ve.protopoc.service.exception.BallotNotFoundException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
+import ch.ge.ve.protopoc.service.support.ByteArrayUtils;
 import ch.ge.ve.protopoc.service.support.Hash;
 import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +32,7 @@ public class VoteConfirmationAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.36: CheckConfirmation
+     * Algorithm 7.36: CheckConfirmation
      *
      * @param i           the voter index
      * @param gamma       the voter's confirmation, including public confirmation credential and proof of knowledge of
@@ -52,7 +52,7 @@ public class VoteConfirmationAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.37: HasConfirmation
+     * Algorithm 7.37: HasConfirmation
      *
      * @param i the voter index
      * @param C the list of confirmations
@@ -63,7 +63,7 @@ public class VoteConfirmationAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.38: CheckConfirmationProof
+     * Algorithm 7.38: CheckConfirmationProof
      *
      * @param pi     the proof of knowledge of private confirmation credential y, provided by the voting client
      * @param y_circ the public confirmation credential corresponding to the private credential y
@@ -91,7 +91,7 @@ public class VoteConfirmationAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 5.39: GetFinalization
+     * Algorithm 7.39: GetFinalization
      *
      * @param i      the voter index
      * @param bold_P the point matrix, one point per voter per candidate
@@ -100,7 +100,7 @@ public class VoteConfirmationAuthorityAlgorithms {
      */
     public FinalizationCodePart getFinalization(Integer i, List<List<Point>> bold_P, Collection<BallotEntry> B) {
         Object[] bold_p_i = bold_P.get(i).toArray();
-        byte[] F = Arrays.copyOf(hash.hash(bold_p_i), publicParameters.getL_f() / 8);
+        byte[] F = ByteArrayUtils.truncate(hash.recHash_L(bold_p_i), publicParameters.getL_f() / 8);
 
         BallotEntry ballotEntry = B.stream().filter(b -> Objects.equals(b.getI(), i)).findFirst().orElseThrow(
                 () -> new BallotNotFoundException(String.format("Couldn't find any ballot for voter %d", i))

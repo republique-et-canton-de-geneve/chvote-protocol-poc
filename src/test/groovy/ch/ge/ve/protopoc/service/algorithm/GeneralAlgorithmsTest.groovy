@@ -91,7 +91,7 @@ class GeneralAlgorithmsTest extends Specification {
         def generators = generalAlgorithms.getGenerators(3)
 
         then:
-        4 * hash.hash(_ as Object[]) >>> [
+        4 * hash.recHash_L(_ as Object[]) >>> [
                 [0x04] as byte[],
                 [0x05] as byte[],
                 [0x01] as byte[],
@@ -109,7 +109,7 @@ class GeneralAlgorithmsTest extends Specification {
         def challenge = generalAlgorithms.getNIZKPChallenge(v, t, ELEVEN)
 
         then:
-        1 * hash.hash(v, t) >> ([0x0E] as byte[])
+        1 * hash.recHash_L(v, t) >> ([0x0E] as byte[])
         challenge == THREE
     }
 
@@ -120,9 +120,9 @@ class GeneralAlgorithmsTest extends Specification {
         def challenges = generalAlgorithms.getChallenges(3, v, ELEVEN)
 
         then:
-        1 * hash.hash(v, ONE) >> ([0x0A] as byte[])
-        1 * hash.hash(v, TWO) >> ([0x03] as byte[])
-        1 * hash.hash(v, THREE) >> ([0x1F] as byte[])
+        1 * hash.recHash_L(v, ONE) >> ([0x0A] as byte[])
+        1 * hash.recHash_L(v, TWO) >> ([0x03] as byte[])
+        1 * hash.recHash_L(v, THREE) >> ([0x1F] as byte[])
 
         challenges.containsAll(TEN, THREE, BigInteger.valueOf(9L))
     }

@@ -94,7 +94,7 @@ class ElectionPreparationAlgorithmsTest extends Specification {
         ]
 
         and: "the following computed hashes"
-        hash.hash(_) >> ([0x0C] as byte[])
+        hash.hash_L(_) >> ([0x0C] as byte[])
 
         when: "the electorate data is generated"
         def electorateData = electionPreparation.genElectorateData(electionSet)
@@ -149,9 +149,9 @@ class ElectionPreparationAlgorithmsTest extends Specification {
         given:
         Point point1 = Mock()
         Point point2 = Mock()
-        hash.hash([point1, point2] as Object[]) >> ([0x03] as byte[])
-        hash.hash(point1) >> ([0x05] as byte[])
-        hash.hash(point2) >> ([0x07] as byte[])
+        hash.recHash_L([point1, point2] as Object[]) >> ([0x03] as byte[])
+        hash.recHash_L(point1) >> ([0x05] as byte[])
+        hash.recHash_L(point2) >> ([0x07] as byte[])
         randomGenerator.randomInZq(_) >>> [FIVE, THREE]
 
         when:
@@ -166,7 +166,7 @@ class ElectionPreparationAlgorithmsTest extends Specification {
 
     def "genPublicVoterData should generate the expected public voter data"() {
         given:
-        hash.hash(yList.toArray()) >> hashed
+        hash.recHash_L(yList.toArray()) >> hashed
 
         expect:
         electionPreparation.getPublicVoterData(x, y, yList) == point
