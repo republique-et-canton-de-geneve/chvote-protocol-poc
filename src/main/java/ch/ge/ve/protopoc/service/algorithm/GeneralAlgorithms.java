@@ -11,7 +11,9 @@ import com.google.common.collect.ImmutableList;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -124,6 +126,11 @@ public class GeneralAlgorithms {
      */
     public List<BigInteger> getGenerators(int n) {
         List<BigInteger> h = new ArrayList<>();
+        Set<BigInteger> valuesToAvoid = new HashSet<>();
+        valuesToAvoid.add(BigInteger.ZERO);
+        valuesToAvoid.add(BigInteger.ONE);
+        valuesToAvoid.add(encryptionGroup.getG());
+        valuesToAvoid.add(encryptionGroup.getH());
 
         for (int i = 0; i < n; i++) {
             BigInteger h_i;
@@ -133,8 +140,9 @@ public class GeneralAlgorithms {
                 byte[] bytes = hash.recHash_L("chVote", BigInteger.valueOf(i), BigInteger.valueOf(x));
                 h_i = conversion.toInteger(bytes).mod(encryptionGroup.getP());
                 h_i = h_i.multiply(h_i).mod(encryptionGroup.getP());
-            } while (h_i.equals(BigInteger.ONE)); // Very unlikely, but needs to be avoided
+            } while (valuesToAvoid.contains(h_i)); // Very unlikely, but needs to be avoided
             h.add(h_i);
+            valuesToAvoid.add(h_i);
         }
         return h;
     }
