@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.BinaryOperator;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -280,7 +279,7 @@ public class MixingAuthorityAlgorithms {
 
         Map<Integer, BigInteger> bold_t_circ_map = IntStream.range(0, N)
                 .parallel().mapToObj(Integer::valueOf)
-                .collect(toMap(Function.identity(), i -> modExp(g, bold_omega_circ.get(i), p)
+                .collect(toMap(identity(), i -> modExp(g, bold_omega_circ.get(i), p)
                         .multiply(modExp(tmp_bold_c_circ.get(i), bold_omega_prime.get(i), p))
                         .mod(p)));
 
@@ -410,7 +409,7 @@ public class MixingAuthorityAlgorithms {
         tmp_bold_c_circ.add(0, h);
         tmp_bold_c_circ.addAll(bold_c_circ);
         Map<Integer, BigInteger> t_circ_prime_map = IntStream.range(0, N).parallel().mapToObj(Integer::valueOf)
-                .collect(toMap(Function.identity(), i -> modExp(tmp_bold_c_circ.get(i + 1), c.negate(), p)
+                .collect(toMap(identity(), i -> modExp(tmp_bold_c_circ.get(i + 1), c.negate(), p)
                         .multiply(modExp(g, s_circ.get(i), p))
                         .multiply(modExp(tmp_bold_c_circ.get(i), s_prime.get(i), p))
                         .mod(p)));
@@ -442,20 +441,22 @@ public class MixingAuthorityAlgorithms {
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
 
-        List<BigInteger> bold_c = new ArrayList<>();
-        List<BigInteger> bold_r = new ArrayList<>();
-
         // Loop indexed over j_i instead of i, for performance reasons, with a reverse permutation lookup
         List<Integer> reversePsy = reversePermutation(psy);
-        for (int j_i = 0; j_i < psy.size(); j_i++) {
-            Integer i = reversePsy.get(j_i);
-            Preconditions.checkState(psy.get(i) == j_i, "The reverse permutation is not valid");
 
-            BigInteger r_j_i = randomGenerator.randomInZq(q);
-            BigInteger c_j_i = modExp(g, r_j_i, p).multiply(bold_h.get(i)).mod(p);
-            bold_c.add(c_j_i);
-            bold_r.add(r_j_i);
-        }
+        Map<Integer, BigInteger> bold_r_map = IntStream.range(0, psy.size()).parallel()
+                .mapToObj(Integer::valueOf)
+                .collect(Collectors.toMap(identity(), j_i -> randomGenerator.randomInZq(q)));
+        Map<Integer, BigInteger> bold_c_map = IntStream.range(0, psy.size()).parallel()
+                .mapToObj(Integer::valueOf)
+                .collect(Collectors.toMap(identity(), j_i -> {
+                    Integer i = reversePsy.get(j_i);
+                    BigInteger r_j_i = bold_r_map.get(j_i);
+                    return modExp(g, r_j_i, p).multiply(bold_h.get(i)).mod(p);
+                }));
+
+        List<BigInteger> bold_c = IntStream.range(0, psy.size()).mapToObj(bold_c_map::get).collect(Collectors.toList());
+        List<BigInteger> bold_r = IntStream.range(0, psy.size()).mapToObj(bold_r_map::get).collect(Collectors.toList());
 
         return new PermutationCommitment(bold_c, bold_r);
     }
