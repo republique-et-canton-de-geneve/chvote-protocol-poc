@@ -14,6 +14,45 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 
 ### Measurements
 
+#### Reuse hashes
+
+Algorithm 7.6, GetChallenges, calls the recursive hashing function multiple 
+times with similar values. The first parameter is vector containing the 
+encrypted ballots, the result of the current shuffle and a list of commitments,
+the second parameter is an incrementing index.
+Due to the recursive nature of the hash function definition, the process can be
+improved by computing the hash for the first parameter only once.
+
+The getChallenges algorithm gets a linear complexity instead of being quadratic
+in the number of votes.
+
+- Date: January 16th
+- Head: protocol-poc-back/d00ce69
+
+##### Performance statistics @2048-bit
+
+- using LibGMP: true
+- length of p: 2048
+- number of voters: 100
+- elections: 1-out-of-3, 1-out-of-3, 2-out-of-10
+
+| Step name                      | Time taken (ms) |
+| ------------------------------ | --------------: |
+| creating public parameters     |           3 290 |
+| creating election set          |              28 |
+| publishing parameters          |               0 |
+| key generation                 |              40 |
+| public key building            |              14 |
+| publish election set           |               0 |
+| generating electoral data      |           1 279 |
+| build public credentials       |              37 |
+| printing code sheets           |              63 |
+| voting phase                   |          64 169 |
+| mixing                         |          22 214 |
+| decryption                     |          38 212 |
+| tallying                       |           5 344 |
+| total simulation time          |         134 784 |
+
 #### More complex elections
 
 - Date: December 21st, 2016
