@@ -228,6 +228,7 @@ public class MixingAuthorityAlgorithms {
 
     private BigInteger computeSi(int N, BigInteger q, List<BigInteger> bold_r_circ, BigInteger omega_2, BigInteger c, List<BigInteger> v) {
         BigInteger r_circ = IntStream.range(0, N)
+                .parallel()
                 .mapToObj(i -> bold_r_circ.get(i).multiply(v.get(i)).mod(q))
                 .reduce(BigInteger::add)
                 .orElse(ZERO)
@@ -249,7 +250,7 @@ public class MixingAuthorityAlgorithms {
     }
 
     private BigInteger computeS1(BigInteger q, List<BigInteger> bold_r, BigInteger omega_1, BigInteger c) {
-        BigInteger r_bar = bold_r.stream()
+        BigInteger r_bar = bold_r.parallelStream()
                 .reduce(BigInteger::add)
                 .orElse(ZERO)
                 .mod(q);
@@ -291,6 +292,7 @@ public class MixingAuthorityAlgorithms {
 
     private BigInteger getBPrimeProd(List<Encryption> bold_e_prime, int N, BigInteger p, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, N)
+                .parallel()
                 .mapToObj(i -> modExp(bold_e_prime.get(i).getB(), bold_omega_prime.get(i), p))
                 .reduce(multiplyMod(p))
                 .orElse(ONE);
@@ -298,6 +300,7 @@ public class MixingAuthorityAlgorithms {
 
     private BigInteger getAPrimeProd(List<Encryption> bold_e_prime, int N, BigInteger p, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, N)
+                .parallel()
                 .mapToObj(i -> modExp(bold_e_prime.get(i).getA(), bold_omega_prime.get(i), p))
                 .reduce(multiplyMod(p))
                 .orElse(ONE);
@@ -315,6 +318,7 @@ public class MixingAuthorityAlgorithms {
 
     private BigInteger getBoldHProduct(int n, BigInteger p, List<BigInteger> bold_h, List<BigInteger> bold_omega_prime) {
         return IntStream.range(0, n)
+                .parallel()
                 .mapToObj(i -> modExp(bold_h.get(i), bold_omega_prime.get(i), p))
                 .reduce(multiplyMod(p))
                 .orElse(ONE);

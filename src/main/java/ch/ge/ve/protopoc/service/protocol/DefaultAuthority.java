@@ -7,6 +7,7 @@ import ch.ge.ve.protopoc.service.exception.InvalidShuffleProofException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,7 @@ import java.security.KeyPair;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
  */
 public class DefaultAuthority implements AuthorityService {
     private static final Logger log = LoggerFactory.getLogger(DefaultAuthority.class);
+    private final Logger perfLog = LoggerFactory.getLogger("PerformanceStats");
     private final int j;
     private final BulletinBoardService bulletinBoardService;
     private final KeyEstablishmentAlgorithms keyEstablishmentAlgorithms;
@@ -158,9 +161,16 @@ public class DefaultAuthority implements AuthorityService {
     }
 
     private void mixAndPublish(List<Encryption> encryptions) {
+        Stopwatch shuffleWatch = Stopwatch.createStarted();
         Shuffle shuffle = mixingAuthorityAlgorithms.genShuffle(encryptions, systemPublicKey);
+        shuffleWatch.stop();
+        perfLog.info(String.format("Authority %d : shuffled in %dms", j, shuffleWatch.elapsed(TimeUnit.MILLISECONDS)));
+        Stopwatch shuffleProofWatch = Stopwatch.createStarted();
         ShuffleProof shuffleProof = mixingAuthorityAlgorithms.genShuffleProof(encryptions,
                 shuffle.getBold_e_prime(), shuffle.getBold_r_prime(), shuffle.getPsy(), systemPublicKey);
+        shuffleProofWatch.stop();
+        perfLog.info(String.format("Authority %d : generated shuffle proof in %dms", j,
+                shuffleProofWatch.elapsed(TimeUnit.MILLISECONDS)));
 
         bulletinBoardService.publishShuffleAndProof(j, shuffle.getBold_e_prime(), shuffleProof);
     }
@@ -173,18 +183,30 @@ public class DefaultAuthority implements AuthorityService {
 
         List<ShuffleProof> shuffleProofs = shufflesAndProofs.getShuffleProofs();
         List<List<Encryption>> shuffles = shufflesAndProofs.getShuffles();
+        Stopwatch checkShuffleWatch = Stopwatch.createStarted();
         if (!decryptionAuthorityAlgorithms.checkShuffleProofs(shuffleProofs, encryptions, shuffles, systemPublicKey, j)) {
             throw new InvalidShuffleProofException("At least one shuffle proof was invalid");
         }
+        checkShuffleWatch.stop();
+        perfLog.info(String.format("Authority %d : checked shuffle proof in %dms", j,
+                checkShuffleWatch.elapsed(TimeUnit.MILLISECONDS)));
 
         BigInteger secretKey = myPrivateKey.getPrivateKey();
         List<Encryption> finalShuffle = shuffles.get(publicParameters.getS() - 1);
+        Stopwatch decryptionWatch = Stopwatch.createStarted();
         List<BigInteger> partialDecryptions = decryptionAuthorityAlgorithms
                 .getPartialDecryptions(finalShuffle, secretKey);
+        decryptionWatch.stop();
+        perfLog.info(String.format("Authority %d : decrypted in %dms", j,
+                decryptionWatch.elapsed(TimeUnit.MILLISECONDS)));
 
         BigInteger publicKey = myPublicKey.getPublicKey();
+        Stopwatch decryptionProofWatch = Stopwatch.createStarted();
         DecryptionProof decryptionProof = decryptionAuthorityAlgorithms
                 .genDecryptionProof(secretKey, publicKey, finalShuffle, partialDecryptions);
+        decryptionProofWatch.stop();
+        perfLog.info(String.format("Authority %d : decryption proof in %dms", j,
+                decryptionProofWatch.elapsed(TimeUnit.MILLISECONDS)));
 
         bulletinBoardService.publishPartialDecryptionAndProof(j, partialDecryptions, decryptionProof);
     }

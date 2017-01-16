@@ -75,7 +75,7 @@ public class VoterSimulator {
             throw new VoteProcessException(e);
         }
 
-        log.info(String.format("Voter %d checking finalizaztion code", voterIndex));
+        log.info(String.format("Voter %d checking finalization code", voterIndex));
         if (!voteConfirmationVoterAlgorithms.checkFinalizationCode(codeSheet.getF_i(), finalizationCode)) {
             throw new VoteProcessException(new FinalizationCodeNotMatchingException("Finalization code does not match"));
         }

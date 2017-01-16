@@ -233,12 +233,7 @@ public class VoteCastingClientAlgorithms {
             for (int l = 0; l < bold_k.get(j); l++) {
                 log.debug("c[" + (bold_s.get(i) - 1) + "] = " + Arrays.toString(c[bold_s.get(i) - 1]));
                 BigInteger k = b.get(i).multiply(modExp(d.get(j), bold_r.get(i).negate(), p)).mod(p);
-                byte[] bold_upper_k = new byte[0];
-                int upperbound = (int) Math.ceil((double) upper_l_m / (publicParameters.getSecurityParameters().getL() / 8.0));
-                for (int z = 1; z <= upperbound; z++) {
-                    bold_upper_k = ByteArrayUtils.concatenate(bold_upper_k, hash.recHash_L(k, BigInteger.valueOf(z)));
-                }
-                bold_upper_k = ByteArrayUtils.truncate(bold_upper_k, upper_l_m);
+                byte[] bold_upper_k = computeBoldUpperK(upper_l_m, k);
                 byte[] M_i = ByteArrayUtils.xor(
                         // selections are 1-based
                         c[bold_s.get(i) - 1],
@@ -258,6 +253,16 @@ public class VoteCastingClientAlgorithms {
         }
 
         return bold_p;
+    }
+
+    private byte[] computeBoldUpperK(int upper_l_m, BigInteger k) {
+        byte[] bold_upper_k = new byte[0];
+        int upperbound = (int) Math.ceil((double) upper_l_m / (publicParameters.getSecurityParameters().getL() / 8.0));
+        for (int z = 1; z <= upperbound; z++) {
+            bold_upper_k = ByteArrayUtils.concatenate(bold_upper_k, hash.recHash_L(k, BigInteger.valueOf(z)));
+        }
+        bold_upper_k = ByteArrayUtils.truncate(bold_upper_k, upper_l_m);
+        return bold_upper_k;
     }
 
     /**

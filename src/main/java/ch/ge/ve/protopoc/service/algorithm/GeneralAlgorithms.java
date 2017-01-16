@@ -10,11 +10,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * This class regroups the general algorithms described in Section 7.2 of the specification
@@ -148,7 +149,7 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 7.5: GetProofChallenge
+     * Algorithm 7.5: GetNIZKPChallenge
      *
      * @param y    the public values vector (domain unspecified)
      * @param t    the commitments vector (domain unspecified)
@@ -168,11 +169,8 @@ public class GeneralAlgorithms {
      * @return a list challenges, of length n
      */
     public List<BigInteger> getChallenges(int n, Object[] v, BigInteger c_ub) {
-        List<BigInteger> c = new ArrayList<>();
-        for (int i = 1; i <= n; i++) {
-            BigInteger c_i = conversion.toInteger(hash.recHash_L(v, BigInteger.valueOf(i))).mod(c_ub);
-            c.add(c_i);
-        }
-        return c;
+        Map<Integer, BigInteger> challengesMap = IntStream.range(1, n + 1).parallel().mapToObj(Integer::valueOf)
+                .collect(toMap(identity(), i -> conversion.toInteger(hash.recHash_L(v, BigInteger.valueOf(i))).mod(c_ub)));
+        return IntStream.range(1, n + 1).mapToObj(challengesMap::get).collect(Collectors.toList());
     }
 }

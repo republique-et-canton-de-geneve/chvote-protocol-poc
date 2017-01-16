@@ -270,7 +270,7 @@ public class Simulation {
         performanceStats.start(performanceStats.creatingElectionSet);
         electionSet = electionSetConfig.createElectionSet(votersCount);
         performanceStats.stop(performanceStats.creatingElectionSet);
-        log.info("Settings initialiazed");
+        log.info("Settings initialized");
     }
 
     private void createPublicParameters(int level) {
