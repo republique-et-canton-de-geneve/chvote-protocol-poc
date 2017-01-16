@@ -113,16 +113,17 @@ class GeneralAlgorithmsTest extends Specification {
         challenge == THREE
     }
 
-    def "getPublicChallenges"() {
-        Object[] v = new Object[0]
-
+    def "getChallenges"() {
         when:
-        def challenges = generalAlgorithms.getChallenges(3, v, ELEVEN)
+        def challenges = generalAlgorithms.getChallenges(3, [], [], [], ELEVEN)
 
         then:
-        1 * hash.recHash_L(v, ONE) >> ([0x0A] as byte[])
-        1 * hash.recHash_L(v, TWO) >> ([0x03] as byte[])
-        1 * hash.recHash_L(v, THREE) >> ([0x1F] as byte[])
+        1 * hash.recHash_L([]) >> ([0x01] as byte[])
+        1 * hash.recHash_L([]) >> ([0x02] as byte[])
+        1 * hash.recHash_L([]) >> ([0x03] as byte[])
+        1 * hash.recHash_L([0x01], [0x02], [0x03], ONE) >> ([0x0A] as byte[])
+        1 * hash.recHash_L([0x01], [0x02], [0x03], TWO) >> ([0x03] as byte[])
+        1 * hash.recHash_L([0x01], [0x02], [0x03], THREE) >> ([0x1F] as byte[])
 
         challenges.containsAll(TEN, THREE, BigInteger.valueOf(9L))
     }

@@ -161,7 +161,7 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 7.6: GetPublicChallenges
+     * Algorithm 7.6: GetChallenges
      *
      * @param n    the number of challenges requested
      * @param v    the public values vector (domain unspecified)
@@ -169,8 +169,10 @@ public class GeneralAlgorithms {
      * @return a list challenges, of length n
      */
     public List<BigInteger> getChallenges(int n, Object[] v, BigInteger c_ub) {
+        byte[] v_hash = hash.recHash_L(v);
         Map<Integer, BigInteger> challengesMap = IntStream.range(1, n + 1).parallel().mapToObj(Integer::valueOf)
-                .collect(toMap(identity(), i -> conversion.toInteger(hash.recHash_L(v, BigInteger.valueOf(i))).mod(c_ub)));
+                .collect(toMap(identity(), i ->
+                        conversion.toInteger(hash.recHash_optimised(v_hash, BigInteger.valueOf(i))).mod(c_ub)));
         return IntStream.range(1, n + 1).mapToObj(challengesMap::get).collect(Collectors.toList());
     }
 }
