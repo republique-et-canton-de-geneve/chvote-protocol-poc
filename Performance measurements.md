@@ -22,7 +22,7 @@ from two execution runs with the same parameters, for a clearer "before/after"
 comparison.
 
 The only change between the two runs is the commit 
-[fa56b7ed382040574c339716d6ad6fc6766ed1a9](commit/fa56b7ed382040574c339716d6ad6fc6766ed1a9).
+fa56b7ed382040574c339716d6ad6fc6766ed1a9.
 
 ##### Performance comparison
 
