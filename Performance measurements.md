@@ -14,6 +14,41 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 
 ### Measurements
 
+#### Larger data sets
+
+The reason for the improvement tested below, was related to tests with a larger
+number of voters performing much worse than expected. The table below is merged
+from two execution runs with the same parameters, for a clearer "before/after"
+comparison.
+
+The only change between the two runs is the commit 
+[fa56b7ed382040574c339716d6ad6fc6766ed1a9].
+
+##### Performance comparison
+
+- using LibGMP: true
+- length of p: 2048
+- number of voters: 20000
+- elections: 1-out-of-3
+
+| Step name                      | Before (in ms)  | After (in ms)   |
+| ------------------------------ | --------------: | --------------: |
+| creating public parameters     |           1'311 |           1'268 |
+| creating election set          |              22 |              25 |
+| publishing parameters          |               0 |               0 |
+| key generation                 |              15 |              14 |
+| public key building            |               5 |               4 |
+| publish election set           |               0 |               0 |
+| generating electoral data      |          43'413 |          43'366 |
+| build public credentials       |           1'542 |           1'253 |
+| printing code sheets           |           1'230 |           1'109 |
+| voting phase                   |       1'623'692 |       1'620'094 |
+| mixing                         |      39'159'200 |       2'441'770 |
+| decryption                     |     111'789'477 |       2'575'944 |
+| tallying                       |         802'362 |         787'555 |
+| total simulation time          |     153'422'326 |       7'472'461 |
+
+
 #### Reuse hashes
 
 Algorithm 7.6, GetChallenges, calls the recursive hashing function multiple 
