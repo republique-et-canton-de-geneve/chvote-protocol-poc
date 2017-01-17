@@ -115,15 +115,13 @@ class GeneralAlgorithmsTest extends Specification {
 
     def "getChallenges"() {
         when:
-        def challenges = generalAlgorithms.getChallenges(3, [], [], [], ELEVEN)
+        def challenges = generalAlgorithms.getChallenges(3, [] as Object[], ELEVEN)
 
         then:
         1 * hash.recHash_L([]) >> ([0x01] as byte[])
-        1 * hash.recHash_L([]) >> ([0x02] as byte[])
-        1 * hash.recHash_L([]) >> ([0x03] as byte[])
-        1 * hash.recHash_L([0x01], [0x02], [0x03], ONE) >> ([0x0A] as byte[])
-        1 * hash.recHash_L([0x01], [0x02], [0x03], TWO) >> ([0x03] as byte[])
-        1 * hash.recHash_L([0x01], [0x02], [0x03], THREE) >> ([0x1F] as byte[])
+        1 * hash.recHash_optimised([0x01] as byte[], ONE) >> ([0x0A] as byte[])
+        1 * hash.recHash_optimised([0x01] as byte[], TWO) >> ([0x03] as byte[])
+        1 * hash.recHash_optimised([0x01] as byte[], THREE) >> ([0x1F] as byte[])
 
         challenges.containsAll(TEN, THREE, BigInteger.valueOf(9L))
     }

@@ -1,5 +1,6 @@
 package ch.ge.ve.protopoc.service.algorithm
 
+import ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic
 import ch.ge.ve.protopoc.service.model.*
 import ch.ge.ve.protopoc.service.support.RandomGenerator
 import spock.lang.Specification
@@ -159,27 +160,15 @@ class MixingAuthorityAlgorithmsTest extends Specification {
                 ONE, // omega_circ_3
                 ONE, // omega_prime_3
         ]
-        generalAlgorithms.getChallenges(3, [bold_e, bold_e_prime, [NINE, THREE, THREE]] as List[], FIVE) >>
+        generalAlgorithms.getChallenges(3, _ as Object[], FIVE) >>
                 [TWO, FOUR, THREE]
         generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
 
         when:
         def proof = mixingAuthorityAlgorithms.genShuffleProof(bold_e, bold_e_prime, bold_r_prime, psy, pk)
 
-        then: "the values in the proof match those computed by hand"
-        proof.t.t_1 == THREE
-        proof.t.t_2 == NINE
-        proof.t.t_3 == FIVE
-        proof.t.t_4 == [THREE, FOUR]
-        proof.t.t_circ == [FOUR, FOUR, THREE]
-        proof.s.s_1 == ZERO
-        proof.s.s_2 == TWO
-        proof.s.s_3 == FOUR
-        proof.s.s_4 == ZERO
-        proof.s.s_circ == [THREE, FOUR, ZERO]
-        proof.s.s_prime == [FOUR, THREE, THREE]
-        proof.bold_c == [NINE, THREE, THREE]
-        proof.bold_c_circ == [ONE, ONE, THREE]
+        then: "the proof should be valid"
+        mixingAuthorityAlgorithms.checkShuffleProof(proof, bold_e, bold_e_prime, pk)
     }
 
     def "checkShuffleProof should correctly validate a shuffle proof"() {
@@ -214,8 +203,17 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         given:
         randomGenerator.randomInZq(FIVE) >>> random
 
-        expect:
-        mixingAuthorityAlgorithms.genPermutationCommitment(psy, bold_h) == new PermutationCommitment(bold_c, random)
+        when:
+        def commitment = mixingAuthorityAlgorithms.genPermutationCommitment(psy, bold_h)
+
+        then:
+        commitment.bold_r.containsAll(random)
+        commitment.bold_c.get(0) == BigIntegerArithmetic.modExp(THREE, commitment.bold_r.get(0), ELEVEN)
+                .multiply(bold_h.get(psy.get(0))).mod(ELEVEN)
+        commitment.bold_c.get(1) == BigIntegerArithmetic.modExp(THREE, commitment.bold_r.get(1), ELEVEN)
+                .multiply(bold_h.get(psy.get(1))).mod(ELEVEN)
+        commitment.bold_c.get(2) == BigIntegerArithmetic.modExp(THREE, commitment.bold_r.get(2), ELEVEN)
+                .multiply(bold_h.get(psy.get(2))).mod(ELEVEN)
 
         where:
         psy       | bold_h              | random            || bold_c
