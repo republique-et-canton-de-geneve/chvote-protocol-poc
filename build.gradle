@@ -78,7 +78,7 @@ task createSimulationScripts(type: CreateStartScripts) {
     classpath += project.configurations.runtime
 }
 
-task simulation(type:JavaExec, dependsOn: classes) {
+task simulation(type:JavaExec, dependsOn: classes, group: 'simulation') {
     def mySecLevel = System.getProperty('secLevel', '1')
     def myElectionType = System.getProperty('electionType', 'SIMPLE_SAMPLE')
     def myVotersCount = System.getProperty('votersCount', '100')
