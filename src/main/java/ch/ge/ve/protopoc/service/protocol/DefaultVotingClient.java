@@ -7,9 +7,11 @@ import ch.ge.ve.protopoc.service.exception.*;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -20,6 +22,7 @@ public class DefaultVotingClient implements VotingClientService {
     private final KeyEstablishmentAlgorithms keyEstablishmentAlgorithms;
     private final VoteCastingClientAlgorithms voteCastingClientAlgorithms;
     private final VoteConfirmationClientAlgorithms voteConfirmationClientAlgorithms;
+    Stats stats = new Stats();
     private PublicParameters publicParameters;
     private ElectionSet electionSet;
     private Integer voterIndex;
@@ -59,17 +62,24 @@ public class DefaultVotingClient implements VotingClientService {
         Preconditions.checkState(electionSet != null,
                 "The electionSet needs to have been retrieved first");
 
+        Stopwatch stopwatch = Stopwatch.createStarted();
         List<EncryptionPublicKey> publicKeyParts = bulletinBoardService.getPublicKeyParts();
         EncryptionPublicKey systemPublicKey = keyEstablishmentAlgorithms.getPublicKey(publicKeyParts);
 
         BallotQueryAndRand ballotQueryAndRand = computeBallot(identificationCredentials, selections, systemPublicKey);
         randomizations = ballotQueryAndRand.getBold_r();
+        stopwatch.stop();
+        stats.voteEncodingTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
         List<ObliviousTransferResponse> obliviousTransferResponses = sentBallotAndQuery(ballotQueryAndRand.getAlpha());
 
+        stopwatch.reset().start();
         pointMatrix = computePointMatrix(selections, obliviousTransferResponses);
+        List<String> returnCodes = voteCastingClientAlgorithms.getReturnCodes(pointMatrix);
+        stopwatch.stop();
+        stats.returnCodesComputationTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-        return voteCastingClientAlgorithms.getReturnCodes(pointMatrix);
+        return returnCodes;
     }
 
     private BallotQueryAndRand computeBallot(String identificationCredentials, List<Integer> selections, EncryptionPublicKey systemPublicKey) throws VoteCastingException {
@@ -112,8 +122,11 @@ public class DefaultVotingClient implements VotingClientService {
         Preconditions.checkState(pointMatrix != null,
                 "The point matrix needs to have been computed first");
 
+        Stopwatch stopwatch = Stopwatch.createStarted();
         Confirmation confirmation = voteConfirmationClientAlgorithms.genConfirmation(
                 confirmationCredentials, pointMatrix, voterSelectionCounts);
+        stopwatch.stop();
+        stats.confirmationEncodingTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
         List<FinalizationCodePart> finalizationCodeParts;
         try {
@@ -122,6 +135,38 @@ public class DefaultVotingClient implements VotingClientService {
             throw new VoteConfirmationException(e);
         }
 
-        return voteConfirmationClientAlgorithms.getFinalizationCode(finalizationCodeParts);
+        stopwatch.reset().start();
+        String finalizationCode = voteConfirmationClientAlgorithms.getFinalizationCode(finalizationCodeParts);
+        stopwatch.stop();
+        stats.finalizationCodeComputationTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+
+        return finalizationCode;
+    }
+
+    public Stats getStats() {
+        return stats;
+    }
+
+    public class Stats {
+        private long voteEncodingTime;
+        private long returnCodesComputationTime;
+        private long confirmationEncodingTime;
+        private long finalizationCodeComputationTime;
+
+        public long getVoteEncodingTime() {
+            return voteEncodingTime;
+        }
+
+        public long getReturnCodesComputationTime() {
+            return returnCodesComputationTime;
+        }
+
+        public long getConfirmationEncodingTime() {
+            return confirmationEncodingTime;
+        }
+
+        public long getFinalizationCodeComputationTime() {
+            return finalizationCodeComputationTime;
+        }
     }
 }

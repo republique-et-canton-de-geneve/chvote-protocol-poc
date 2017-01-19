@@ -14,6 +14,45 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 
 ### Measurements
 
+#### Voting phase performance breakdown
+
+##### Standard settings
+
+- using LibGMP: true
+- length of p: 2048
+- number of voters: 100
+- elections: 1-out-of-3, 1-out-of-3, 2-out-of-10
+
+| Step name                      | Performed by         |      Total time |             Min |             Avg |             Max |
+| ------------------------------ | -------------------- | --------------: | --------------: | --------------: | --------------: |
+| vote encoding                  | client               |          17 334 |             126 |          173,34 |             649 |
+| ballot verification            | server               |          28 275 |              55 |           70,69 |             228 |
+| query response                 | server               |         178 216 |             302 |          445,54 |           2 075 |
+| return codes computation       | client               |          19 103 |             143 |          191,03 |             550 |
+| confirmation encoding          | client               |           2 503 |              17 |           25,03 |              86 |
+| confirmation verification      | server               |           9 720 |              16 |           24,30 |             167 |
+| finalization code parts        | server               |              42 |               0 |            0,11 |              30 |
+| finalization code computation  | client               |              14 |               0 |            0,14 |              10 |
+
+
+##### Complex elections
+
+- using LibGMP: true
+- length of p: 2048
+- number of voters: 100
+- elections: 7-out-of-36, 100-out-of-576
+
+| Step name                      | Performed by         |      Total time |             Min |             Avg |             Max |
+| ------------------------------ | -------------------- | --------------: | --------------: | --------------: | --------------: |
+| vote encoding                  | client               |         231 060 |           2 140 |        2 310,60 |           2 755 |
+| ballot verification            | server               |          40 653 |              86 |          101,63 |             380 |
+| query response                 | server               |       5 866 998 |          10 848 |       14 667,50 |          19 499 |
+| return codes computation       | client               |         871 670 |           4 966 |        8 716,70 |           9 655 |
+| confirmation encoding          | client               |          13 955 |              73 |          139,55 |             283 |
+| confirmation verification      | server               |           9 169 |              13 |           22,92 |              54 |
+| finalization code parts        | server               |           2 675 |               3 |            6,69 |              39 |
+| finalization code computation  | client               |               1 |               0 |            0,01 |               1 |
+
 #### Larger data sets
 
 The reason for the improvement tested below, was related to tests with a larger
@@ -29,6 +68,8 @@ The only change between the two runs is the commit fa56b7e.
 - length of p: 2048
 - number of voters: 20000
 - elections: 1-out-of-3
+- both sets of measurements below were run on an HP z440, with an octo-core 
+Intel Xeon @3.5GHz and 16GB of RAM, on Windows
 
 | Step name                      | Before (in ms)  | After (in ms)   |
 | ------------------------------ | --------------: | --------------: |

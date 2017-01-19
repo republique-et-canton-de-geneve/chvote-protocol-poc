@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +34,10 @@ public class DefaultAuthority implements AuthorityService {
     private final VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms;
     private final MixingAuthorityAlgorithms mixingAuthorityAlgorithms;
     private final DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms;
+    private final Queue<Long> ballotVerificationTimes = new ConcurrentLinkedQueue<>();
+    private final Queue<Long> queryResponseTimes = new ConcurrentLinkedQueue<>();
+    private final Queue<Long> confirmationVerificationTimes = new ConcurrentLinkedQueue<>();
+    private final Queue<Long> finalizationComputationTimes = new ConcurrentLinkedQueue<>();
     private EncryptionPublicKey myPublicKey;
     private EncryptionPrivateKey myPrivateKey;
     private EncryptionPublicKey systemPublicKey;
@@ -114,18 +119,26 @@ public class DefaultAuthority implements AuthorityService {
 
         log.info(String.format("Authority %d handling ballot", j));
 
+        Stopwatch stopwatch = Stopwatch.createStarted();
         List<BigInteger> publicIdentificationCredentials =
                 publicCredentials.stream().map(p -> p.x).collect(Collectors.toList());
         if (!voteCastingAuthorityAlgorithms.checkBallot(voterIndex, ballotAndQuery, systemPublicKey,
                 publicIdentificationCredentials, ballotEntries)) {
             throw new IncorrectBallotException(String.format("Ballot for voter %d was deemed invalid", voterIndex));
         }
+        stopwatch.stop();
+        ballotVerificationTimes.add(stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
+        stopwatch.reset().start();
         ObliviousTransferResponseAndRand responseAndRand =
                 voteCastingAuthorityAlgorithms.genResponse(voterIndex, ballotAndQuery.getBold_a(), systemPublicKey,
                         electionSet.getBold_n(), electorateData.getK(), electorateData.getP());
         ballotEntries.add(new BallotEntry(voterIndex, ballotAndQuery, responseAndRand.getBold_r()));
-        return responseAndRand.getBeta();
+        ObliviousTransferResponse beta = responseAndRand.getBeta();
+        stopwatch.stop();
+        queryResponseTimes.add(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return beta;
     }
 
     @Override
@@ -133,6 +146,7 @@ public class DefaultAuthority implements AuthorityService {
             throws IncorrectConfirmationException {
         Preconditions.checkState(publicCredentials != null,
                 "The public credentials need to have been retrieved first");
+        Stopwatch stopwatch = Stopwatch.createStarted();
         List<BigInteger> publicConfirmationCredentials =
                 publicCredentials.stream().map(p -> p.y).collect(Collectors.toList());
 
@@ -140,10 +154,17 @@ public class DefaultAuthority implements AuthorityService {
                 publicConfirmationCredentials, ballotEntries, confirmationEntries)) {
             throw new IncorrectConfirmationException("Confirmation for voter " + voterIndex + " was deemed invalid");
         }
+        stopwatch.stop();
+        confirmationVerificationTimes.add(stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
         confirmationEntries.add(new ConfirmationEntry(voterIndex, confirmation));
 
-        return voteConfirmationAuthorityAlgorithms.getFinalization(voterIndex, electorateData.getP(), ballotEntries);
+        stopwatch.reset().start();
+        FinalizationCodePart finalization = voteConfirmationAuthorityAlgorithms.getFinalization(voterIndex, electorateData.getP(), ballotEntries);
+        stopwatch.stop();
+        finalizationComputationTimes.add(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return finalization;
     }
 
     @Override
@@ -210,4 +231,21 @@ public class DefaultAuthority implements AuthorityService {
 
         bulletinBoardService.publishPartialDecryptionAndProof(j, partialDecryptions, decryptionProof);
     }
+
+    public LongSummaryStatistics getBallotVerificationStats() {
+        return ballotVerificationTimes.stream().mapToLong(Long::valueOf).summaryStatistics();
+    }
+
+    public LongSummaryStatistics getQueryResponseStats() {
+        return queryResponseTimes.stream().mapToLong(Long::valueOf).summaryStatistics();
+    }
+
+    public LongSummaryStatistics getConfirmationVerificationStats() {
+        return confirmationVerificationTimes.stream().mapToLong(Long::valueOf).summaryStatistics();
+    }
+
+    public LongSummaryStatistics getFinalizationComputationStats() {
+        return finalizationComputationTimes.stream().mapToLong(Long::valueOf).summaryStatistics();
+    }
+
 }

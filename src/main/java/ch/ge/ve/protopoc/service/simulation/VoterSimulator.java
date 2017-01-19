@@ -110,4 +110,8 @@ public class VoterSimulator {
 
         return selections.stream().sorted().collect(Collectors.toList());
     }
+
+    public VotingClientService getVotingClient() {
+        return votingClient;
+    }
 }

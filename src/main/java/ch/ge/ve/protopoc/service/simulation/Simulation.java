@@ -24,6 +24,9 @@ import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -574,8 +577,72 @@ public class Simulation {
             log.info("- elections: " + Joiner.on(", ").join(electionDescriptions));
             log.info("");
             log.info(String.format("| %-30s | %15s |", "Step name", "Time taken (ms)"));
-            log.info(String.format("| %30s | %14s: |", Strings.repeat("-", 30), Strings.repeat("-", 14)));
+            log.info(String.format("| %1$.30s | %1$.14s: |", Strings.repeat("-", 30)));
             elements.forEach(k -> log.info(String.format("| %-30s | %,15d |", k, getElapsed(k, TimeUnit.MILLISECONDS))));
+
+            log.info("");
+
+            List<DefaultAuthority> defaultAuthorities = authorities.stream()
+                    .map(a -> ((DefaultAuthority) a)).collect(Collectors.toList());
+            List<DefaultVotingClient> defaultVotingClients = voterSimulators.stream()
+                    .map(VoterSimulator::getVotingClient).map(a -> ((DefaultVotingClient) a))
+                    .collect(Collectors.toList());
+            logDetailedStats(defaultAuthorities, defaultVotingClients);
+        }
+
+        private void logDetailedStats(List<DefaultAuthority> defaultAuthorities, List<DefaultVotingClient> votingClients) {
+            LongSummaryStatistics voteEncodingStats = computeStats(votingClients,
+                    DefaultVotingClient.Stats::getVoteEncodingTime);
+            LongSummaryStatistics ballotVerificationStats = combineStatistics(defaultAuthorities,
+                    DefaultAuthority::getBallotVerificationStats);
+            LongSummaryStatistics queryResponseStats = combineStatistics(defaultAuthorities,
+                    DefaultAuthority::getQueryResponseStats);
+            LongSummaryStatistics returnCodesComputationStats = computeStats(votingClients,
+                    DefaultVotingClient.Stats::getReturnCodesComputationTime);
+            LongSummaryStatistics confirmationEncodingStats = computeStats(votingClients,
+                    DefaultVotingClient.Stats::getConfirmationEncodingTime);
+            LongSummaryStatistics confirmationVerificationStats = combineStatistics(defaultAuthorities,
+                    DefaultAuthority::getConfirmationVerificationStats);
+            LongSummaryStatistics finalizationComputationStats = combineStatistics(defaultAuthorities,
+                    DefaultAuthority::getFinalizationComputationStats);
+            LongSummaryStatistics finalizationCodeComputationStats = computeStats(votingClients,
+                    DefaultVotingClient.Stats::getFinalizationCodeComputationTime);
+
+            log.info("###### Voting phase details");
+            log.info(String.format("| %-30s | %-20s | %15s | %15s | %15s | %15s |", "Step name", "Performed by", "Total time", "Min", "Avg", "Max"));
+            log.info(String.format("| %1$.30s | %1$.20s | %1$.14s: | %1$.14s: | %1$.14s: | %1$.14s: |", Strings.repeat("-", 30)));
+            logStats("vote encoding", "client", voteEncodingStats);
+            logStats("ballot verification", "server", ballotVerificationStats);
+            logStats("query response", "server", queryResponseStats);
+            logStats("return codes computation", "client", returnCodesComputationStats);
+            logStats("confirmation encoding", "client", confirmationEncodingStats);
+            logStats("confirmation verification", "server", confirmationVerificationStats);
+            logStats("finalization code parts", "server", finalizationComputationStats);
+            logStats("finalization code computation", "client", finalizationCodeComputationStats);
+        }
+
+        private void logStats(String stepName, String performedBy, LongSummaryStatistics stats) {
+            log.info(String.format("| %-30s | %-20s | %,15d | %,15d | %,15.2f | %,15d |",
+                    stepName,
+                    performedBy,
+                    stats.getSum(), stats.getMin(), stats.getAverage(), stats.getMax()));
+        }
+
+        private LongSummaryStatistics computeStats(List<DefaultVotingClient> votingClients, ToLongFunction<DefaultVotingClient.Stats> getVoteEncodingTime) {
+            return votingClients.stream().map(DefaultVotingClient::getStats).mapToLong(getVoteEncodingTime).summaryStatistics();
+        }
+
+        private LongSummaryStatistics combineStatistics(List<DefaultAuthority> defaultAuthorities, Function<DefaultAuthority, LongSummaryStatistics> extractionFunction) {
+            return defaultAuthorities.stream().map(extractionFunction).reduce(new LongSummaryStatistics(), combineLongStats());
+        }
+
+        private BinaryOperator<LongSummaryStatistics> combineLongStats() {
+            return (a, b) -> {
+                LongSummaryStatistics result = new LongSummaryStatistics();
+                result.combine(a);
+                result.combine(b);
+                return result;
+            };
         }
     }
 }
