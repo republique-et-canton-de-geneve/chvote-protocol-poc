@@ -59,9 +59,7 @@ public class PolynomialAlgorithms {
                 BigInteger y_i = getYValue(x_i, a_j);
                 Point point = new Point(x_i, y_i);
                 points.add(point);
-                if (log.isDebugEnabled()) {
-                    log.debug(String.format("Created point %d: %s", i, point));
-                }
+                log.debug(String.format("Created point %d: %s", i, point));
                 i++;
             }
             y0s.add(getYValue(BigInteger.ZERO, a_j));
