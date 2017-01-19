@@ -143,9 +143,9 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         def pk = new EncryptionPublicKey(THREE, encryptionGroup)
         generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
         randomGenerator.randomInZq(FIVE) >>> [
-                ONE, // genPermutationCommitment, r_1
-                TWO, // genPermutationCommitment, r_2
-                THREE, // genPermutationCommitment, r_3
+                ONE, // genPermutationCommitment, r_?
+                TWO, // genPermutationCommitment, r_?
+                THREE, // genPermutationCommitment, r_?
                 FOUR, // genCommitmentChain, r_circ_1
                 ZERO, // genCommitmentChain, r_circ_2
                 ONE, // genCommitmentChain, r_circ_3
@@ -153,12 +153,12 @@ class MixingAuthorityAlgorithmsTest extends Specification {
                 TWO, // omega_2
                 THREE, // omega_3
                 FOUR, // omega_4
-                TWO, // omega_circ_1
-                THREE, // omega_prime_1
-                FOUR, // omega_circ_2
-                ZERO, // omega_prime_2
-                ONE, // omega_circ_3
-                ONE, // omega_prime_3
+                TWO, // omega_circ/prime_?
+                THREE, // omega_circ/prime_?
+                FOUR, // omega_circ/prime_?
+                ZERO, // omega_circ/prime_?
+                ONE, // omega_circ/prime_?
+                ONE, // omega_circ/prime_?
         ]
         generalAlgorithms.getChallenges(3, _ as Object[], FIVE) >>
                 [TWO, FOUR, THREE]

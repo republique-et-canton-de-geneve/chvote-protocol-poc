@@ -180,13 +180,10 @@ public class MixingAuthorityAlgorithms {
         BigInteger omega_3 = randomGenerator.randomInZq(q);
         BigInteger omega_4 = randomGenerator.randomInZq(q);
 
-        List<BigInteger> bold_omega_circ = new ArrayList<>();
-        List<BigInteger> bold_omega_prime = new ArrayList<>();
-
-        for (int i = 0; i < N; i++) {
-            bold_omega_circ.add(randomGenerator.randomInZq(q));
-            bold_omega_prime.add(randomGenerator.randomInZq(q));
-        }
+        List<BigInteger> bold_omega_circ = IntStream.range(0, N).parallel()
+                .mapToObj(i -> randomGenerator.randomInZq(q)).collect(Collectors.toList());
+        List<BigInteger> bold_omega_prime = IntStream.range(0, N).parallel()
+                .mapToObj(i -> randomGenerator.randomInZq(q)).collect(Collectors.toList());
 
         ShuffleProof.T t = computeT(bold_e_prime, N, p, g, h, pk, bold_h, bold_c_circ,
                 omega_1, omega_2, omega_3, omega_4, bold_omega_circ, bold_omega_prime);
