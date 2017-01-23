@@ -42,20 +42,4 @@ class HashTest extends Specification {
         ["test", BigInteger.valueOf(42L), [0xCC, 0xFF] as byte[]] as Object[]               | [63, -98, 73, -96, 58, 68, 104, -27, -28, -118, 71, -7, 76, -52, -121, 103, -33, -108, -4, 126, 106, 58, 15, -57, -39, 103, 111, 0, 38, 93, 29, 2, 115, -81, -84, -30, -121, -15, -95, -120, 84, 55, 100, 83, 80, 12, -113, -49, 69, 85, -92, 33, 85, -24, -5, -9, 93, -71, -30, -66, 116, -97, -84, 112] as byte[]
         ["test", [BigInteger.valueOf(42L)] as Object[], [0xCC, 0xFF] as byte[]] as Object[] | [63, -98, 73, -96, 58, 68, 104, -27, -28, -118, 71, -7, 76, -52, -121, 103, -33, -108, -4, 126, 106, 58, 15, -57, -39, 103, 111, 0, 38, 93, 29, 2, 115, -81, -84, -30, -121, -15, -95, -120, 84, 55, 100, 83, 80, 12, -113, -49, 69, 85, -92, 33, 85, -24, -5, -9, 93, -71, -30, -66, 116, -97, -84, 112] as byte[]
     }
-
-    def "recHash_optimised"() {
-        given:
-        conversion.toByteArray("test") >> "test".getBytes(charset)
-        conversion.toByteArray(_ as BigInteger) >> { args -> (args[0] as BigInteger).toByteArray() }
-
-        expect:
-        hash.recHash_L(["test", BigInteger.valueOf(42L)], BigInteger.ONE) ==
-                hash.recHash_optimised(
-                        hash.recHash_L("test", BigInteger.valueOf(42L)),
-                        BigInteger.ONE)
-        hash.recHash_L(["test", BigInteger.valueOf(42L), [0xCC, 0xFF] as byte[]], BigInteger.TEN) ==
-                hash.recHash_optimised(
-                        hash.recHash_L(["test", BigInteger.valueOf(42L), [0xCC, 0xFF] as byte[]]),
-                        BigInteger.TEN)
-    }
 }

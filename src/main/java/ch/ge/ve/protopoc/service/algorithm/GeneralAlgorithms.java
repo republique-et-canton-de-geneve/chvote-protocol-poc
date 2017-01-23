@@ -3,6 +3,7 @@ package ch.ge.ve.protopoc.service.algorithm;
 import ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic;
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.EncryptionGroup;
+import ch.ge.ve.protopoc.service.support.ByteArrayUtils;
 import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
 import com.google.common.base.Joiner;
@@ -164,15 +165,17 @@ public class GeneralAlgorithms {
      * Algorithm 7.6: GetChallenges
      *
      * @param n    the number of challenges requested
-     * @param v    the public values vector (domain unspecified)
+     * @param y    the public values vector (domain unspecified)
      * @param c_ub the upper-bound of the challenge
      * @return a list challenges, of length n
      */
-    public List<BigInteger> getChallenges(int n, Object[] v, BigInteger c_ub) {
-        byte[] v_hash = hash.recHash_L(v);
+    public List<BigInteger> getChallenges(int n, Object[] y, BigInteger c_ub) {
+        byte[] upper_h = hash.recHash_L(y);
         Map<Integer, BigInteger> challengesMap = IntStream.range(1, n + 1).parallel().mapToObj(Integer::valueOf)
-                .collect(toMap(identity(), i ->
-                        conversion.toInteger(hash.recHash_optimised(v_hash, BigInteger.valueOf(i))).mod(c_ub)));
+                .collect(toMap(identity(), i -> {
+                    byte[] upper_i = hash.recHash_L(BigInteger.valueOf(i));
+                    return conversion.toInteger(hash.hash_L(ByteArrayUtils.concatenate(upper_h, upper_i))).mod(c_ub);
+                }));
         return IntStream.range(1, n + 1).mapToObj(challengesMap::get).collect(Collectors.toList());
     }
 }

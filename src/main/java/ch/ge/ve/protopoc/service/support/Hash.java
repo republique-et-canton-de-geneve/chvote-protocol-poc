@@ -114,27 +114,6 @@ public class Hash {
     }
 
     /**
-     * Additional method introduced for performance reasons
-     * <p>The algorithm 7.6 GetChallenges calls n times the recHash_L function, with only
-     * a suffix number changing.</p>
-     * <p>This made the function run in quadratic time with respect to the number of votes, with a noticeable
-     * impact on performance when the data set grew large.</p>
-     * <p>This method can be used to improve the performance by computing recHash_L(v) only once, since
-     * <tt>recHash_optimised(recHash_L(v), i) == recHash_L(v, i)</tt> for all tuples / arrays v.</p>
-     *
-     * @param prefixHash the hash of the prefix
-     * @param suffix     the element to be added to the hash
-     * @return the combined hash of the prefix and suffix
-     */
-    public byte[] recHash_optimised(byte[] prefixHash, Object suffix) {
-        MessageDigest messageDigest = newMessageDigest();
-        messageDigest.update(prefixHash);
-        messageDigest.update(recHash_L(suffix));
-
-        return ByteArrayUtils.truncate(messageDigest.digest(), securityParameters.getL() / 8);
-    }
-
-    /**
      * This interface is used to facilitate hashing of objects representing tuples, so that the relevant elements can
      * be included in the the hash, in a predictable and coherent order.
      */
