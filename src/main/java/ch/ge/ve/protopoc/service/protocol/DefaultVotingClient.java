@@ -51,7 +51,6 @@ public class DefaultVotingClient implements VotingClientService {
                 .map(e -> electionSet.isEligible(voter, e) ? e.getNumberOfSelections() : 0)
                 .collect(Collectors.toList());
 
-
         return new VotingPageData(voterSelectionCounts, electionSet.getBold_n());
     }
 
