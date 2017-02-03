@@ -47,7 +47,6 @@ public class MixingAuthorityAlgorithms {
 
         return ballotList.stream()
                 .filter(B -> voteConfirmationAuthorityAlgorithms.hasConfirmation(B.getI(), confirmationList))
-                .sorted(Comparator.comparingInt(BallotEntry::getI))
                 .map(B -> {
                     BigInteger a_j = B.getAlpha().getBold_a().stream()
                             .reduce(BigInteger::multiply)
@@ -55,6 +54,7 @@ public class MixingAuthorityAlgorithms {
                             .mod(p);
                     return new Encryption(a_j, B.getAlpha().getB());
                 })
+                .sorted(Comparator.naturalOrder())
                 .collect(Collectors.toList());
     }
 

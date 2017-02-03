@@ -1,6 +1,7 @@
 package ch.ge.ve.protopoc.service.model;
 
 import ch.ge.ve.protopoc.service.support.Hash;
+import com.google.common.collect.ComparisonChain;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -8,7 +9,7 @@ import java.util.Objects;
 /**
  * Model class containing one encryption of one ballot
  */
-public class Encryption implements Hash.Hashable {
+public class Encryption implements Hash.Hashable, Comparable<Encryption> {
     private final BigInteger a;
     private final BigInteger b;
 
@@ -50,5 +51,13 @@ public class Encryption implements Hash.Hashable {
     @Override
     public Object[] elementsToHash() {
         return new BigInteger[]{a, b};
+    }
+
+    @Override
+    public int compareTo(Encryption o) {
+        return ComparisonChain.start()
+                .compare(this.a, o.a)
+                .compare(this.b, o.b)
+                .result();
     }
 }
