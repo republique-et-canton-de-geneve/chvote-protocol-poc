@@ -247,7 +247,7 @@ public class Simulation {
         generalAlgorithms = new GeneralAlgorithms(hash, conversion, publicParameters.getEncryptionGroup());
         keyEstablishmentAlgorithms = new KeyEstablishmentAlgorithms(randomGenerator);
         electionPreparationAlgorithms = new ElectionPreparationAlgorithms(publicParameters, randomGenerator, hash);
-        voteCastingAuthorityAlgorithms = new VoteCastingAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);
+        voteCastingAuthorityAlgorithms = new VoteCastingAuthorityAlgorithms(publicParameters, electionSet, generalAlgorithms, randomGenerator, hash);
         voteConfirmationAuthorityAlgorithms = new VoteConfirmationAuthorityAlgorithms(publicParameters, generalAlgorithms, voteCastingAuthorityAlgorithms, hash);
         codeSheetPreparationAlgorithms = new CodeSheetPreparationAlgorithms(publicParameters);
         voteCastingClientAlgorithms = new VoteCastingClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);

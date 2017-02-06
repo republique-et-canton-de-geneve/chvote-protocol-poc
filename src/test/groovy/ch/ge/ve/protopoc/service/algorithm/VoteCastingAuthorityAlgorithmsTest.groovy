@@ -22,6 +22,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
     GeneralAlgorithms generalAlgorithms = Mock()
     RandomGenerator randomGenerator = Mock()
     Hash hash = Mock()
+    ElectionSet electionSet = Mock()
 
     VoteCastingAuthorityAlgorithms voteCastingAuthority
 
@@ -38,7 +39,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         publicParameters.securityParameters >> securityParameters
         securityParameters.l >> 16
 
-        voteCastingAuthority = new VoteCastingAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
+        voteCastingAuthority = new VoteCastingAuthorityAlgorithms(publicParameters, electionSet, generalAlgorithms, randomGenerator, hash)
     }
 
     def "checkBallot should correctly check the ballot"() {
@@ -50,6 +51,13 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         ]
         List<BigInteger> publicCredentials = [THREE, FOUR, ONE, NINE]
         generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], t as BigInteger[], FIVE) >> c
+        Voter voter0 = Mock()
+        Voter voter1 = Mock()
+        electionSet.voters >> [voter0, voter1]
+        Election election = Mock()
+        electionSet.elections >> [election]
+        electionSet.isEligible(_ as Voter, election) >> true
+        election.numberOfSelections >> 2
 
         expect:
         result == voteCastingAuthority.checkBallot(

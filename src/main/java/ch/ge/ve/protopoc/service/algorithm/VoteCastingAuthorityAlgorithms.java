@@ -27,13 +27,17 @@ import static java.math.BigInteger.ONE;
 public class VoteCastingAuthorityAlgorithms {
     private static final Logger log = LoggerFactory.getLogger(VoteConfirmationAuthorityAlgorithms.class);
     private final PublicParameters publicParameters;
+    private final ElectionSet electionSet;
     private final GeneralAlgorithms generalAlgorithms;
     private final RandomGenerator randomGenerator;
     private final Hash hash;
     private final Conversion conversion = new Conversion();
 
-    public VoteCastingAuthorityAlgorithms(PublicParameters publicParameters, GeneralAlgorithms generalAlgorithms, RandomGenerator randomGenerator, Hash hash) {
+    public VoteCastingAuthorityAlgorithms(PublicParameters publicParameters, ElectionSet electionSet,
+                                          GeneralAlgorithms generalAlgorithms, RandomGenerator randomGenerator,
+                                          Hash hash) {
         this.publicParameters = publicParameters;
+        this.electionSet = electionSet;
         this.generalAlgorithms = generalAlgorithms;
         this.randomGenerator = randomGenerator;
         this.hash = hash;
@@ -54,7 +58,13 @@ public class VoteCastingAuthorityAlgorithms {
         Preconditions.checkNotNull(i);
         Preconditions.checkNotNull(alpha);
         Preconditions.checkNotNull(alpha.getBold_a());
-        Preconditions.checkArgument(alpha.getBold_a().size() > 0);
+        int numberOfSelections = alpha.getBold_a().size();
+        Preconditions.checkArgument(numberOfSelections > 0);
+        Voter voter = electionSet.getVoters().get(i);
+        int k_i = electionSet.getElections().stream().filter(e -> electionSet.isEligible(voter, e)).mapToInt
+                (Election::getNumberOfSelections).sum();
+        Preconditions.checkArgument(numberOfSelections == k_i,
+                "A voter may not submit more than his allowed number of selections");
         Preconditions.checkNotNull(pk);
         Preconditions.checkNotNull(bold_x_circ);
         Preconditions.checkElementIndex(i, bold_x_circ.size());
