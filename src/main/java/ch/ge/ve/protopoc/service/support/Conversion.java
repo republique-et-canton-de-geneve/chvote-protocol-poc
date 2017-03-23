@@ -14,7 +14,7 @@ public class Conversion {
     private static final BigInteger BYTE_MULTIPLIER = BigInteger.valueOf(256L);
 
     /**
-     * Algorithm 4.1: ToByteArray
+     * Algorithm 4.3: ToByteArray
      *
      * @param x the integer to be converted
      * @return the byte array corresponding to the integer
@@ -24,7 +24,7 @@ public class Conversion {
     }
 
     /**
-     * Algorithm 4.2: ToByteArray
+     * Algorithm 4.4: ToByteArray
      *
      * @param x the integer to be converted
      * @param n the target length (in bytes)
@@ -45,7 +45,7 @@ public class Conversion {
     }
 
     /**
-     * Algorithm 4.3: ToInteger
+     * Algorithm 4.5: ToInteger
      *
      * @param byteArray the byte array to be converted
      * @return the corresponding integer (unsigned, non-injective conversion)
@@ -71,19 +71,19 @@ public class Conversion {
     }
 
     /**
-     * Algorithm 4.4: ToString
+     * Algorithm 4.6: ToString
      *
-     * @param x the integer to convert
-     * @param k the required String size
-     * @param A the alphabet to be used
+     * @param x       the integer to convert
+     * @param k       the required String size
+     * @param upper_a the alphabet to be used
      * @return a string of length k, using alphabet A, and representing x
      */
-    public String toString(BigInteger x, int k, List<Character> A) {
+    public String toString(BigInteger x, int k, List<Character> upper_a) {
         Preconditions.checkArgument(x.signum() >= 0, "x should be a non-negative integer");
-        int alphabetSize = A.size();
+        int alphabetSize = upper_a.size();
         BigInteger N = BigInteger.valueOf(alphabetSize);
         Preconditions.checkArgument(N.pow(k).compareTo(x) >= 0,
-                "x is too large to be encoded with k characters of alphabet A");
+                "x is too large to be encoded with k characters of alphabet upper_a");
 
         StringBuilder sb = new StringBuilder(k);
         BigInteger current = x;
@@ -91,42 +91,43 @@ public class Conversion {
             BigInteger[] divideAndRemainder = current.divideAndRemainder(N);
             current = divideAndRemainder[0];
             // always insert before the previous character
-            sb.insert(0, A.get(divideAndRemainder[1].intValue()));
+            sb.insert(0, upper_a.get(divideAndRemainder[1].intValue()));
         }
 
         return sb.toString();
     }
 
     /**
-     * Algorithm 2.5: ToInteger
+     * Algorithm 4.7: ToInteger
      *
-     * @param S the string to be converted
-     * @param A the alphabet to be used
+     * @param upper_s the string to be converted
+     * @param upper_a the alphabet to be used
      * @return the corresponding integer value
      */
-    public BigInteger toInteger(String S, List<Character> A) {
-        BigInteger N = BigInteger.valueOf(A.size());
+    public BigInteger toInteger(String upper_s, List<Character> upper_a) {
+        BigInteger upper_n = BigInteger.valueOf(upper_a.size());
 
         BigInteger x = BigInteger.ZERO;
-        for (int i = 0; i < S.length(); i++) {
-            int rank_A = A.indexOf(S.charAt(i));
-            Preconditions.checkArgument(rank_A >= 0,
-                    String.format("character %s not found in alphabet %s", S.charAt(i), A));
-            x = x.multiply(N).add(BigInteger.valueOf(rank_A));
+        for (int i = 0; i < upper_s.length(); i++) {
+            int rank_upper_a = upper_a.indexOf(upper_s.charAt(i));
+            Preconditions.checkArgument(rank_upper_a >= 0,
+                    String.format("character %s not found in alphabet %s", upper_s.charAt(i), upper_a));
+            x = x.multiply(upper_n).add(BigInteger.valueOf(rank_upper_a));
         }
 
         return x;
     }
 
     /**
-     * Algorithm 2.6: ToString
+     * Algorithm 4.8: ToString
      *
-     * @param byteArray the byte array to represent as String
+     * @param upper_b the byte array to represent as String
+     * @param upper_a the alphabet to use for the conversion
      * @return the corresponding string
      */
-    public String toString(byte[] byteArray, List<Character> alphabet) {
-        BigInteger x = toInteger(byteArray);
-        int k = (int) Math.ceil(8.0 * byteArray.length / (Math.log(alphabet.size()) / Math.log(2)));
-        return toString(x, k, alphabet);
+    public String toString(byte[] upper_b, List<Character> upper_a) {
+        BigInteger x_upper_b = toInteger(upper_b);
+        int k = (int) Math.ceil(8.0 * upper_b.length / (Math.log(upper_a.size()) / Math.log(2)));
+        return toString(x_upper_b, k, upper_a);
     }
 }
