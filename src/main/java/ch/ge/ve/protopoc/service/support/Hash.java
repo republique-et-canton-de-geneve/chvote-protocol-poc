@@ -43,7 +43,10 @@ public class Hash {
     }
 
     /**
-     * VarArgs version of {@link #recHash_L(Object)}
+     * Algorithm 4.9: RecHash_L, varargs version
+     * <p>
+     * Computes the hash value h(v_1, ..., v_k) \in B^L of multiple inputs v_1, ..., v_k in a recursive manner.
+     * </p>
      *
      * @param objects an array of objects to hash
      * @return The recursive hash as defined in section 4.3
@@ -65,8 +68,14 @@ public class Hash {
     }
 
     /**
+     * Algorithm 4.9: RecHash_L, non-varargs version
+     * <p>
+     * Computes the hash value h(v_1, ..., v_k) \in B^L of multiple inputs v_1, ..., v_k in a recursive manner.
+     * </p>
+     * <p>
      * This method performs the necessary casts and conversions for the hashing to be compliant to the definition in
      * section 4.3.
+     * </p>
      * <p>Tuples are represented as arrays of Objects and need to be cast afterwards. Diversity of inputs means that
      * ensuring type-safety is much more complex.</p>
      * <p>The <em>traditional</em> risks and downsides of casting and using the <tt>instanceof</tt> operator are
@@ -96,8 +105,8 @@ public class Hash {
     /**
      * Use the underlying digest algorithm to obtain a hash of the byte array, truncated to length L
      *
-     * @param byteArray
-     * @return
+     * @param byteArray the byte array to be hashed
+     * @return the hash of the provided byte array, truncated to L bytes
      */
     public byte[] hash_L(byte[] byteArray) {
         MessageDigest messageDigest = newMessageDigest();
