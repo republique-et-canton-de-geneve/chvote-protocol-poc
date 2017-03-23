@@ -3,7 +3,7 @@ package ch.ge.ve.protopoc.service.support;
 import java.math.BigInteger;
 
 /**
- * Missing javadoc!
+ * Commonly used BigInteger values.
  */
 public class BigIntegers {
     public static final BigInteger TWO = BigInteger.valueOf(2L);

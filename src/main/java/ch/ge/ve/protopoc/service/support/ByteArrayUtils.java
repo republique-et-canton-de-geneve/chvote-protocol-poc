@@ -64,4 +64,65 @@ public class ByteArrayUtils {
                 "The ending position may not be larger than the array's length");
         return Arrays.copyOfRange(local_a, start, end);
     }
+
+    /**
+     * Algorithm 4.1: MarkByteArray
+     * <p>
+     * Adds an integer watermark <tt>m</tt> to the bits of a given byte array.
+     * The bits of the watermark are spread equally across the bits of the byte array.
+     * </p>
+     *
+     * @param upper_b the byte array to watermark
+     * @param m       the watermark: 0 <= m <= m_max
+     * @param m_max   the maximal watermark: ||m_max|| <= 8 * |upper_b|
+     * @return the watermarked byte array
+     */
+    public static byte[] markByteArray(byte[] upper_b, int m, int m_max) {
+        Preconditions.checkArgument(0 <= m,
+                "m must be non-negative");
+        Preconditions.checkArgument(m <= m_max,
+                "m must be smaller or equal to m_max");
+        Preconditions.checkArgument(bitLength(m_max) <= 8 * upper_b.length,
+                "m_max must be smaller or equal to the number of bits in upper_b");
+        int l = bitLength(m_max);
+        double s = ((double) (8 * upper_b.length)) / ((double) l);
+        byte[] local_upper_b = new byte[upper_b.length];
+        System.arraycopy(upper_b, 0, local_upper_b, 0, upper_b.length);
+        for (int i = 0; i <= l - 1; i++) {
+            local_upper_b = ByteArrayUtils.setBit(local_upper_b, (int) Math.floor(i * s), m % 2 == 1);
+            m = m / 2;
+        }
+        return local_upper_b;
+    }
+
+    /**
+     * Algorithm 4.2: SetBit
+     * <p>
+     * Sets the i-th bit of a byte array B to b \in (0,1)
+     * </p>
+     *
+     * @param upper_b the byte array
+     * @param i       the position of the bit that must be set
+     * @param b       the value which the bit will take
+     * @return the modified byte array
+     */
+    private static byte[] setBit(byte[] upper_b, int i, boolean b) {
+        Preconditions.checkArgument(0 <= i, "i must be non-negative");
+        Preconditions.checkArgument(i <= 8 * upper_b.length, "i must be smaller or equal to the number of bits in " +
+                "upper_b");
+        byte[] local_upper_b = new byte[upper_b.length];
+        System.arraycopy(upper_b, 0, local_upper_b, 0, upper_b.length);
+        int j = i / 8;
+        int x = (int) Math.pow(2, i % 8);
+        if (!b) {
+            local_upper_b[j] = (byte) ((int) local_upper_b[j] & (0xFF - x));
+        } else {
+            local_upper_b[j] = (byte) ((int) local_upper_b[j] | x);
+        }
+        return local_upper_b;
+    }
+
+    private static int bitLength(int value) {
+        return Integer.SIZE - Integer.numberOfLeadingZeros(value);
+    }
 }
