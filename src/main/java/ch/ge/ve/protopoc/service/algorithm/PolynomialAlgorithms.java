@@ -30,83 +30,84 @@ public class PolynomialAlgorithms {
     }
 
     /**
-     * Algorithm 7.12: GenPoints
+     * Algorithm 7.7: GenPoints
      *
-     * @param n the vector containing the number of candidates per election
-     * @param k the vector containing the number of allowed selections per election
-     * @return a list of <i>n</i> random points picked from <i>t</i> different polynomials, along with the image of 0 for each polynomial
+     * @param bold_n the vector containing the number of candidates per election
+     * @param bold_k the vector containing the number of allowed selections per election
+     * @return a list of <i>bold_n</i> random points picked from <i>t</i> different polynomials, along with the image of 0 for each polynomial
      */
-    public PointsAndZeroImages genPoints(List<Integer> n, List<Integer> k) {
-        Preconditions.checkArgument(n.size() == k.size(),
-                String.format("|n| [%d] != |k| [%d]", n.size(), k.size()));
-        for (int i = 0; i < n.size(); i++) {
-            Preconditions.checkArgument(n.get(i) > k.get(i),
-                    String.format("n_%1$d [%2$d] <= k_%1$d [%3$d]", i, n.get(i), k.get(i)));
+    public PointsAndZeroImages genPoints(List<Integer> bold_n, List<Integer> bold_k) {
+        Preconditions.checkArgument(bold_n.size() == bold_k.size(),
+                String.format("|bold_n| [%d] != |bold_k| [%d]", bold_n.size(), bold_k.size()));
+        for (int i = 0; i < bold_n.size(); i++) {
+            Preconditions.checkArgument(bold_n.get(i) > bold_k.get(i),
+                    String.format("n_%1$d [%2$d] <= k_%1$d [%3$d]", i, bold_n.get(i), bold_k.get(i)));
         }
-        List<Point> points = new ArrayList<>();
-        List<BigInteger> y0s = new ArrayList<>();
+        List<Point> bold_p = new ArrayList<>();
+        List<BigInteger> bold_y = new ArrayList<>();
         int i = 0; // (used as subscript for x_i, y_i)
         // loop on election: index j (hence the a_j symbol)
-        for (int j = 0; j < n.size(); j++) {
-            Set<BigInteger> xValues = new HashSet<>();
-            List<BigInteger> a_j = genPolynomial(k.get(j) - 1);
-            for (int l = 0; l < n.get(j); l++) {
-                BigInteger x_i;
+        for (int j = 0; j < bold_n.size(); j++) {
+            Set<BigInteger> upper_x = new HashSet<>();
+            List<BigInteger> bold_a_j = genPolynomial(bold_k.get(j) - 1);
+            for (int l = 0; l < bold_n.get(j); l++) {
+                BigInteger x;
                 do {
-                    x_i = randomGenerator.randomInZq(primeField.getP_prime());
-                } while (x_i.compareTo(BigInteger.ZERO) == 0 || xValues.contains(x_i));
-                xValues.add(x_i);
-                BigInteger y_i = getYValue(x_i, a_j);
-                Point point = new Point(x_i, y_i);
-                points.add(point);
-                log.debug(String.format("Created point %d: %s", i, point));
+                    x = randomGenerator.randomInZq(primeField.getP_prime());
+                } while (x.compareTo(BigInteger.ZERO) == 0 || upper_x.contains(x));
+                upper_x.add(x);
+                BigInteger y = getYValue(x, bold_a_j);
+                Point p_i = new Point(x, y);
+                bold_p.add(p_i);
+                log.debug(String.format("Created point %d: %s", i, p_i));
                 i++;
             }
-            y0s.add(getYValue(BigInteger.ZERO, a_j));
+            bold_y.add(getYValue(BigInteger.ZERO, bold_a_j));
         }
-        return new PointsAndZeroImages(points, y0s);
+        return new PointsAndZeroImages(bold_p, bold_y);
     }
 
     /**
-     * Algorithm 7.13: GenPolynomial
+     * Algorithm 7.8: GenPolynomial
      *
      * @param d the degree of the polynomial (-1 means a 0 constant)
      * @return the list of coefficients of a random polynomial p(X) = \sum(i=1,d){a_i*X^i mod p'}
      */
     public List<BigInteger> genPolynomial(int d) {
         Preconditions.checkArgument(d >= -1, String.format("Value of d should be greater or equal to -1 (it is [%d]", d));
-        List<BigInteger> coefficients = new ArrayList<>();
+        List<BigInteger> bold_a = new ArrayList<>();
         if (d == -1) {
-            coefficients.add(BigInteger.ZERO);
+            bold_a.add(BigInteger.ZERO);
         } else {
             for (int i = 0; i <= d - 1; i++) {
-                coefficients.add(randomGenerator.randomInZq(primeField.getP_prime()));
+                bold_a.add(randomGenerator.randomInZq(primeField.getP_prime()));
             }
             // a_d \isin Z_p_prime \ {0}
-            coefficients.add(randomGenerator.
+            bold_a.add(randomGenerator.
                     // random in range 0 - p'-2
                             randomInZq(primeField.getP_prime().subtract(BigInteger.ONE))
                     // --> random in range 1 - p'-1
                     .add(BigInteger.ONE));
         }
-        return coefficients;
+        return bold_a;
     }
 
     /**
-     * Algorithm 7.14: GetYValue
+     * Algorithm 7.9: GetYValue
+     * <p>Generates the coefficients a_0, ..., a_d of a random polynomial</p>
      *
      * @param x value in Z_p_prime
-     * @param a the coefficients of the polynomial
+     * @param bold_a the coefficients of the polynomial
      * @return the computed value y
      */
-    public BigInteger getYValue(BigInteger x, List<BigInteger> a) {
-        Preconditions.checkArgument(a.size() >= 1,
-                String.format("The size of a should always be larger or equal to 1 (it is [%d]", a.size()));
+    public BigInteger getYValue(BigInteger x, List<BigInteger> bold_a) {
+        Preconditions.checkArgument(bold_a.size() >= 1,
+                String.format("The size of bold_a should always be larger or equal to 1 (it is [%d]", bold_a.size()));
         if (x.equals(BigInteger.ZERO)) {
-            return a.get(0);
+            return bold_a.get(0);
         } else {
             BigInteger y = BigInteger.ZERO;
-            for (BigInteger a_i : Lists.reverse(a)) {
+            for (BigInteger a_i : Lists.reverse(bold_a)) {
                 y = a_i.add(x.multiply(y).mod(primeField.getP_prime())).mod(primeField.getP_prime());
             }
             return y;
