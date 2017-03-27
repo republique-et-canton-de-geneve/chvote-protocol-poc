@@ -17,6 +17,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
 import static java.math.BigInteger.ONE;
@@ -76,7 +77,7 @@ public class VoteCastingClientAlgorithms {
     private List<BigInteger> computeBoldQ(List<Integer> bold_s) {
         List<BigInteger> bold_q;
         try {
-            bold_q = generalAlgorithms.getSelectedPrimes(bold_s);
+            bold_q = getSelectedPrimes(bold_s);
         } catch (NotEnoughPrimesInGroupException e) {
             throw new IncompatibleParametersException("Encryption Group too small for selection");
         }
@@ -102,6 +103,26 @@ public class VoteCastingClientAlgorithms {
         return query.getBold_r().stream().reduce(BigInteger::add)
                 .orElse(ZERO)
                 .mod(q);
+    }
+
+
+    /**
+     * Algorithm 7.19: getSelectedPrimes
+     *
+     * @param selections the indices of the selected primes (in increasing order, 1-based)
+     * @return the list of the primes selected
+     */
+    public List<BigInteger> getSelectedPrimes(List<Integer> selections) throws NotEnoughPrimesInGroupException {
+        Preconditions.checkArgument(selections.stream().allMatch(i -> i >= 1));
+        Preconditions.checkArgument(
+                selections.equals(selections.stream().sorted().collect(Collectors.toList())),
+                "The elements are not sorted!");
+        Integer s_k = selections.get(selections.size() - 1);
+        List<BigInteger> primes = generalAlgorithms.getPrimes(s_k);
+
+        return selections.stream()
+                .map(s_i -> primes.get(s_i - 1))
+                .collect(Collectors.toList());
     }
 
     /**

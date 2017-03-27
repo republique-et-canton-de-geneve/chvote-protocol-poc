@@ -59,7 +59,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         ]
         randomGenerator.randomInGq(encryptionGroup) >> FIVE // genBallotProof, omega_2
         and: "some valid selected primes"
-        generalAlgorithms.getSelectedPrimes([1]) >> [THREE]
+        generalAlgorithms.getPrimes(1) >> [THREE]
         and: "some arbitrary values for the proof challenge"
         // t_1 = g_circ ^ omega_1 mod p_circ = 3 ^ 3 mod 11 = 5
         // t_2 = omega_2 * pk ^ omega_3 mod p = 5 * 3 ^ 1 mod 11 = 4
@@ -99,6 +99,18 @@ class VoteCastingClientAlgorithmsTest extends Specification {
 
         and: "the provided randomness is returned"
         ballotQueryAndRand.bold_r == [ONE]
+    }
+
+    def "getSelectedPrimes"() {
+        given: "some valid selected primes"
+        generalAlgorithms.getPrimes(1) >> [THREE]
+
+        when:
+        def selectedPrimes = voteCastingClient.getSelectedPrimes(Arrays.asList(1))
+
+        then:
+        selectedPrimes.size() == 1
+        selectedPrimes.containsAll(THREE)
     }
 
     def "genQuery should generate a valid query for the ballot (incl. the randomness used)"() {

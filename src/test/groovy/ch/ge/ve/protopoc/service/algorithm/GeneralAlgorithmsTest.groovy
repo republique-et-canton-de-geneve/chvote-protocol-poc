@@ -72,20 +72,6 @@ class GeneralAlgorithmsTest extends Specification {
         thrown(NotEnoughPrimesInGroupException)
     }
 
-    def "getSelectedPrimes"() {
-        given:
-        jacobiSymbol.computeJacobiSymbol(THREE, ELEVEN) >> 1
-        jacobiSymbol.computeJacobiSymbol(FIVE, ELEVEN) >> 1
-        generalAlgorithms.populatePrimesCache(2)
-
-        when:
-        def selectedPrimes = generalAlgorithms.getSelectedPrimes(Arrays.asList(1))
-
-        then:
-        selectedPrimes.size() == 1
-        selectedPrimes.containsAll(THREE)
-    }
-
     def "getGenerators"() {
         when:
         def generators = generalAlgorithms.getGenerators(2)
