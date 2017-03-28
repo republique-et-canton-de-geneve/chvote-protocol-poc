@@ -17,11 +17,11 @@
  * {@link ch.ge.ve.protopoc.service.algorithm.VoteCastingClientAlgorithms}</li>
  * <li>Algorithms 7.22-7.25 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.VoteCastingAuthorityAlgorithms}</li>
- * <li>Algorithms 7.29-7.30 are implemented in class
+ * <li>Algorithms 7.29 and 7.39 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationVoterAlgorithms}</li>
- * <li>Algorithms 7.31-7.35 are implemented in class
+ * <li>Algorithms 7.30-7.33 and 7.38 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationClientAlgorithms}</li>
- * <li>Algorithms 7.36-7.39 are implemented in class
+ * <li>Algorithms 7.34-7.37 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationAuthorityAlgorithms}</li>
  * <li>Algorithms 7.40-7.47 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.MixingAuthorityAlgorithms}</li>
