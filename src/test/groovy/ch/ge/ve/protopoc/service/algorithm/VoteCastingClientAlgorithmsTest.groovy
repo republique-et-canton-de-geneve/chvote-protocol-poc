@@ -174,16 +174,23 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         beta_1.b >> [ONE]
         beta_1.c >> [[0x01, 0x02, 0x03, 0x04], [0x05, 0x06, 0x07, 0x08], [0x0A, 0x0B, 0x0C, 0x0D]]
         beta_1.d >> [THREE]
-        hash.recHash_L(ONE, ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 11 = 1
+        hash.recHash_L(ONE, ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-0 mod 11 = 1
 
         ObliviousTransferResponse beta_2 = Mock()
         beta_2.b >> [FIVE]
         beta_2.c >> [[0x10, 0x20, 0x30, 0x40], [0x50, 0x60, 0x70, 0x80], [0xA0, 0xB0, 0xC0, 0xD0]]
         beta_2.d >> [FOUR]
-        hash.recHash_L(FIVE, ONE) >> ([0xA0, 0xB3, 0xC0, 0xD0] as byte[]) // b_i * d_j^{-r_i} mod p = 5 * 4^-5 mod 11 = 5
+        hash.recHash_L(FIVE, ONE) >> ([0xA0, 0xB3, 0xC0, 0xD0] as byte[])
+        // b_i * d_j^{-r_i} mod p = 5 * 4^-0 mod 11 = 5
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
 
         when:
-        def pointMatrix = voteCastingClient.getPointMatrix([beta_1, beta_2], [1], [3], [FIVE])
+        def pointMatrix = voteCastingClient.getPointMatrix([beta_1, beta_2], [1], [3], [ZERO])
 
         then:
         pointMatrix == [
@@ -199,6 +206,10 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         beta.c >> [[0x01, 0x02, 0x03, 0x04], [0x05, 0x06, 0x07, 0x08], [0x0A, 0x0B, 0x0C, 0x0D]]
         beta.d >> [THREE]
         hash.recHash_L(ONE, ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 11 = 1
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
 
         when:
         def points = voteCastingClient.getPoints(beta, [1], [3], [FIVE])
@@ -223,7 +234,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         hash.recHash_L(point21) >> ([0xD1, 0xCF] as byte[])
 
         when:
-        def rc = voteCastingClient.getReturnCodes(pointMatrix)
+        def rc = voteCastingClient.getReturnCodes([1], pointMatrix)
 
         then:
         rc.size() == 1

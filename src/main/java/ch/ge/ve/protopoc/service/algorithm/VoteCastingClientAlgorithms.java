@@ -190,12 +190,14 @@ public class VoteCastingClientAlgorithms {
             BigInteger a,
             BigInteger b,
             EncryptionPublicKey pk) {
-        Preconditions.checkArgument(x.compareTo(publicParameters.getIdentificationGroup().getQ_circ()) < 1,
+        Preconditions.checkArgument(BigInteger.ZERO.compareTo(x) <= 0 &&
+                        x.compareTo(publicParameters.getIdentificationGroup().getQ_circ()) < 1,
                 "The private credential must be in Z_q_circ");
         Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(x_circ), "x_circ must be in G_q_circ");
         Preconditions.checkArgument(generalAlgorithms.isMember(m), "m must be in G_q");
-        Preconditions.checkArgument(r.compareTo(publicParameters.getEncryptionGroup().getQ()) < 1,
-                "");
+        Preconditions.checkArgument(BigInteger.ZERO.compareTo(r) <= 0 &&
+                        r.compareTo(publicParameters.getEncryptionGroup().getQ()) < 1,
+                "r must be in Z_q");
         Preconditions.checkArgument(generalAlgorithms.isMember(a), "a must be in G_q");
         Preconditions.checkArgument(generalAlgorithms.isMember(b), "b must be in G_q");
         Preconditions.checkArgument(generalAlgorithms.isMember(pk.getPublicKey()),
@@ -234,7 +236,7 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 7.22: GetPointMatrix
+     * Algorithm 7.26: GetPointMatrix
      *
      * @param bold_beta the vector of the oblivious transfer replies (from the different authorities)
      * @param bold_k    the vector of allowed number of selections per election
@@ -248,6 +250,25 @@ public class VoteCastingClientAlgorithms {
             List<Integer> bold_k,
             List<Integer> bold_s,
             List<BigInteger> bold_r) throws InvalidObliviousTransferResponseException {
+        Preconditions.checkArgument(bold_beta.stream().flatMap(beta -> beta.getB().stream())
+                        .allMatch(generalAlgorithms::isMember),
+                "All the b_j's in bold_beta must be in G_q");
+        Preconditions.checkArgument(bold_beta.stream().flatMap(beta -> beta.getD().stream())
+                        .allMatch(generalAlgorithms::isMember),
+                "All the d_j's in bold_beta must be in G_q");
+        Preconditions.checkArgument(bold_s.size() > 0,
+                "There needs to be at least one selection");
+        Preconditions.checkArgument(bold_s.stream().allMatch(i -> i >= 1),
+                "Selections must be strictly positive");
+        Preconditions.checkArgument(
+                bold_s.stream().sorted().collect(Collectors.toList()).equals(bold_s),
+                "The elements must be sorted");
+        Preconditions.checkArgument(bold_s.stream().distinct().count() == bold_s.size(),
+                "All selections must be distinct");
+        final BigInteger q = publicParameters.getEncryptionGroup().getQ();
+        Preconditions.checkArgument(bold_r.stream().allMatch(r_i -> BigInteger.ZERO.compareTo(r_i) <= 0 &&
+                        r_i.compareTo(q) < 0),
+                "All r_i must be in Z_q");
         List<List<Point>> bold_P = new ArrayList<>();
 
         for (ObliviousTransferResponse beta_j : bold_beta) {
@@ -258,7 +279,7 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 7.23: GetPoints
+     * Algorithm 7.27: GetPoints
      *
      * @param beta   the OT response (from one authority)
      * @param bold_k the vector of allowed number of selections per election
@@ -272,6 +293,19 @@ public class VoteCastingClientAlgorithms {
             List<Integer> bold_k,
             List<Integer> bold_s,
             List<BigInteger> bold_r) throws InvalidObliviousTransferResponseException {
+        Preconditions.checkArgument(beta.getB().stream().allMatch(generalAlgorithms::isMember),
+                "All the b_j's in bold_beta must be in G_q");
+        Preconditions.checkArgument(beta.getD().stream().allMatch(generalAlgorithms::isMember),
+                "All the d_j's in bold_beta must be in G_q");
+        Preconditions.checkArgument(bold_s.size() > 0,
+                "There needs to be at least one selection");
+        Preconditions.checkArgument(bold_s.stream().allMatch(i -> i >= 1),
+                "Selections must be strictly positive");
+        Preconditions.checkArgument(
+                bold_s.stream().sorted().collect(Collectors.toList()).equals(bold_s),
+                "The elements must be sorted");
+        Preconditions.checkArgument(bold_s.stream().distinct().count() == bold_s.size(),
+                "All selections must be distinct");
         List<Point> bold_p = new ArrayList<>();
         List<BigInteger> b = beta.getB();
         byte[][] c = beta.getC();
@@ -318,18 +352,18 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 7.24: GetReturnCodes
+     * Algorithm 7.28: GetReturnCodes
      *
+     * @param bold_s the list of selections
      * @param bold_P the point matrix containing the responses for each of the authorities
      * @return the return codes corresponding to the point matrix
      */
-    public List<String> getReturnCodes(List<List<Point>> bold_P) {
-        Preconditions.checkArgument(bold_P.size() == publicParameters.getS());
+    public List<String> getReturnCodes(List<Integer> bold_s, List<List<Point>> bold_P) {
         int length = bold_P.get(0).size();
         Preconditions.checkArgument(bold_P.stream().allMatch(l -> l.size() == length));
         List<Character> A_r = publicParameters.getA_r();
 
-        List<String> rc = new ArrayList<>();
+        List<String> bold_rc_s = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             byte[] rc_i = new byte[publicParameters.getL_r() / 8];
             for (int j = 0; j < publicParameters.getS(); j++) {
@@ -337,8 +371,9 @@ public class VoteCastingClientAlgorithms {
                         hash.recHash_L(bold_P.get(j).get(i)),
                         publicParameters.getL_r() / 8));
             }
-            rc.add(conversion.toString(rc_i, A_r));
+            byte[] upper_r = ByteArrayUtils.markByteArray(rc_i, bold_s.get(i) - 1, publicParameters.getN_max());
+            bold_rc_s.add(conversion.toString(upper_r, A_r));
         }
-        return rc;
+        return bold_rc_s;
     }
 }
