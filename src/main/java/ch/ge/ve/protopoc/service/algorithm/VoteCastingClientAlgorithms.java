@@ -42,16 +42,27 @@ public class VoteCastingClientAlgorithms {
     }
 
     /**
-     * Algorithm 7.19: GenBallot
+     * Algorithm 7.18: GenBallot
      *
-     * @param X      the voting code
-     * @param bold_s voters selection (indices)
-     * @param pk     the public encryption key
+     * @param upper_x the voting code
+     * @param bold_s  voters selection (indices)
+     * @param pk      the public encryption key
      * @return the combined ballot, OT query and random elements used
      * @throws IncompatibleParametersException when there is an issue with the public parameters
      */
-    public BallotQueryAndRand genBallot(String X, List<Integer> bold_s, EncryptionPublicKey pk) {
-        Preconditions.checkArgument(bold_s.size() > 0);
+    public BallotQueryAndRand genBallot(String upper_x, List<Integer> bold_s, EncryptionPublicKey pk) {
+        Preconditions.checkArgument(bold_s.size() > 0,
+                "There needs to be at least one selection");
+        Preconditions.checkArgument(bold_s.stream().sorted().collect(Collectors.toList()).equals(bold_s),
+                "The list of selections needs to be ordered");
+        Preconditions.checkArgument(bold_s.stream().allMatch(i -> i >= 1),
+                "Selections must be strictly positive");
+        Preconditions.checkArgument(bold_s.stream().distinct().count() == bold_s.size(),
+                "All selections must be distinct");
+        Preconditions.checkArgument(generalAlgorithms.isMember(pk.getPublicKey()),
+                "The key must be a member of G_q");
+        Preconditions.checkArgument(BigInteger.ONE.compareTo(pk.getPublicKey()) != 0,
+                "The key must not be 1");
 
         BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
         BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
@@ -59,7 +70,7 @@ public class VoteCastingClientAlgorithms {
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
 
-        BigInteger x = conversion.toInteger(X, publicParameters.getA_x());
+        BigInteger x = conversion.toInteger(upper_x, publicParameters.getA_x());
         BigInteger x_circ = modExp(g_circ, x, p_circ);
 
         List<BigInteger> bold_q = computeBoldQ(bold_s);
@@ -109,19 +120,25 @@ public class VoteCastingClientAlgorithms {
     /**
      * Algorithm 7.19: getSelectedPrimes
      *
-     * @param selections the indices of the selected primes (in increasing order, 1-based)
+     * @param bold_s the indices of the selected primes (in increasing order, 1-based)
      * @return the list of the primes selected
      */
-    public List<BigInteger> getSelectedPrimes(List<Integer> selections) throws NotEnoughPrimesInGroupException {
-        Preconditions.checkArgument(selections.stream().allMatch(i -> i >= 1));
+    public List<BigInteger> getSelectedPrimes(List<Integer> bold_s) throws NotEnoughPrimesInGroupException {
+        Preconditions.checkArgument(bold_s.size() > 0,
+                "There needs to be at least one selection");
+        Preconditions.checkArgument(bold_s.stream().allMatch(i -> i >= 1),
+                "Selections must be strictly positive");
         Preconditions.checkArgument(
-                selections.equals(selections.stream().sorted().collect(Collectors.toList())),
-                "The elements are not sorted!");
-        Integer s_k = selections.get(selections.size() - 1);
+                bold_s.stream().sorted().collect(Collectors.toList()).equals(bold_s),
+                "The elements must be sorted");
+        Preconditions.checkArgument(bold_s.stream().distinct().count() == bold_s.size(),
+                "All selections must be distinct");
+        Integer s_k = bold_s.get(bold_s.size() - 1);
         List<BigInteger> primes = generalAlgorithms.getPrimes(s_k);
 
-        return selections.stream()
-                .map(s_i -> primes.get(s_i - 1))
+        return bold_s.stream()
+                .map(s_i -> s_i - 1) // s_i is 1-based
+                .map(primes::get)
                 .collect(Collectors.toList());
     }
 
@@ -133,6 +150,10 @@ public class VoteCastingClientAlgorithms {
      * @return the generated oblivious transfer query
      */
     public ObliviousTransferQuery genQuery(List<BigInteger> bold_q, EncryptionPublicKey pk) {
+        Preconditions.checkArgument(generalAlgorithms.isMember(pk.getPublicKey()),
+                "The key must be a member of G_q");
+        Preconditions.checkArgument(BigInteger.ONE.compareTo(pk.getPublicKey()) != 0,
+                "The key must not be 1");
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
 
@@ -169,6 +190,16 @@ public class VoteCastingClientAlgorithms {
             BigInteger a,
             BigInteger b,
             EncryptionPublicKey pk) {
+        Preconditions.checkArgument(x.compareTo(publicParameters.getIdentificationGroup().getQ_circ()) < 1,
+                "The private credential must be in Z_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(x_circ), "x_circ must be in G_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isMember(m), "m must be in G_q");
+        Preconditions.checkArgument(r.compareTo(publicParameters.getEncryptionGroup().getQ()) < 1,
+                "");
+        Preconditions.checkArgument(generalAlgorithms.isMember(a), "a must be in G_q");
+        Preconditions.checkArgument(generalAlgorithms.isMember(b), "b must be in G_q");
+        Preconditions.checkArgument(generalAlgorithms.isMember(pk.getPublicKey()),
+                "The key must be a member of G_q");
         IdentificationGroup identificationGroup = publicParameters.getIdentificationGroup();
         BigInteger p_circ = identificationGroup.getP_circ();
         BigInteger q_circ = identificationGroup.getQ_circ();
@@ -189,9 +220,9 @@ public class VoteCastingClientAlgorithms {
         BigInteger t_2 = omega_2.multiply(modExp(pk.getPublicKey(), omega_3, p)).mod(p);
         BigInteger t_3 = modExp(g, omega_3, p);
 
-        BigInteger[] v = new BigInteger[]{x_circ, a, b};
+        BigInteger[] y = new BigInteger[]{x_circ, a, b};
         BigInteger[] t = new BigInteger[]{t_1, t_2, t_3};
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(v, t, q.min(q_circ));
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t, q.min(q_circ));
         log.debug(String.format("genBallotProof: c = %s", c));
 
         BigInteger s_1 = omega_1.add(c.multiply(x)).mod(q_circ);

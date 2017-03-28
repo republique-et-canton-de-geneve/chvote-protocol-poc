@@ -70,6 +70,11 @@ class VoteCastingClientAlgorithmsTest extends Specification {
                 FIVE // min(q, q_circ)
         ) >> FOUR // c
 
+        and: "the expected preconditions check"
+        generalAlgorithms.isMember_G_q_circ(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(NINE) >> true
+
         when: "generating a ballot"
         def ballotQueryAndRand = voteCastingClient.genBallot("f", [1], new EncryptionPublicKey(THREE, encryptionGroup))
 
@@ -117,6 +122,9 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         given: "some known randomness"
         randomGenerator.randomInZq(_) >> ONE
 
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(THREE) >> true
+
         when: "generating a query"
         def query = voteCastingClient.genQuery([THREE], new EncryptionPublicKey(THREE, encryptionGroup))
 
@@ -140,6 +148,10 @@ class VoteCastingClientAlgorithmsTest extends Specification {
                 [FIVE, FOUR, THREE] as BigInteger[],  // t_1, t_2, t_3
                 FIVE // min(q, q_circ)
         ) >> FOUR // c
+        and: "the expected preconditions verifications"
+        generalAlgorithms.isMember_G_q_circ(THREE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(NINE) >> true
 
         when: "generating a ballot ZKP"
         def pi = voteCastingClient.genBallotProof(FIVE, THREE, ONE, THREE, NINE, THREE,

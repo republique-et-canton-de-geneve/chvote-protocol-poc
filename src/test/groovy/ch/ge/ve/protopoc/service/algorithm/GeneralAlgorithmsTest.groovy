@@ -2,6 +2,7 @@ package ch.ge.ve.protopoc.service.algorithm
 
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException
 import ch.ge.ve.protopoc.service.model.EncryptionGroup
+import ch.ge.ve.protopoc.service.model.IdentificationGroup
 import ch.ge.ve.protopoc.service.support.Conversion
 import ch.ge.ve.protopoc.service.support.Hash
 import ch.ge.ve.protopoc.service.support.JacobiSymbol
@@ -23,9 +24,10 @@ class GeneralAlgorithmsTest extends Specification {
     static ELEVEN = BigInteger.valueOf(11L)
 
     EncryptionGroup eg = Mock()
+    IdentificationGroup ig = Mock()
 
     void setup() {
-        generalAlgorithms = new GeneralAlgorithms(hash, conversion, eg)
+        generalAlgorithms = new GeneralAlgorithms(hash, conversion, eg, ig)
 
         eg.p >> ELEVEN
         eg.q >> FIVE

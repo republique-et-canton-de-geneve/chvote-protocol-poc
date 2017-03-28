@@ -11,11 +11,11 @@
  * {@link ch.ge.ve.protopoc.service.algorithm.CodeSheetPreparationAlgorithms}</li>
  * <li>Algorithms 7.15 and 7.16 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.KeyEstablishmentAlgorithms}</li>
- * <li>Algorithm 7.18 is not included, since it only handles display to the voter which makes no sense in a
+ * <li>Algorithm 7.17 is not included, since it only handles display to the voter which makes no sense in a
  * simulation setting, it will be handled by the front-end.</li>
- * <li>Algorithms 7.19-7.24 are implemented in class
+ * <li>Algorithms 7.18-7.21 and 7.26-7.28 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.VoteCastingClientAlgorithms}</li>
- * <li>Algorithms 7.25-7.28 are implemented in class
+ * <li>Algorithms 7.22-7.25 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.VoteCastingAuthorityAlgorithms}</li>
  * <li>Algorithms 7.29-7.30 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.VoteConfirmationVoterAlgorithms}</li>

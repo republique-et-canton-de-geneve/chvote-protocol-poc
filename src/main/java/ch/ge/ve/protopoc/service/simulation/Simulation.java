@@ -244,7 +244,8 @@ public class Simulation {
 
     private void createAlgorithms() {
         log.info("instantiating algorithms classes");
-        generalAlgorithms = new GeneralAlgorithms(hash, conversion, publicParameters.getEncryptionGroup());
+        generalAlgorithms = new GeneralAlgorithms(hash, conversion, publicParameters.getEncryptionGroup(),
+                publicParameters.getIdentificationGroup());
         keyEstablishmentAlgorithms = new KeyEstablishmentAlgorithms(randomGenerator);
         electionPreparationAlgorithms = new ElectionPreparationAlgorithms(publicParameters, randomGenerator, hash);
         voteCastingAuthorityAlgorithms = new VoteCastingAuthorityAlgorithms(publicParameters, electionSet, generalAlgorithms, randomGenerator, hash);

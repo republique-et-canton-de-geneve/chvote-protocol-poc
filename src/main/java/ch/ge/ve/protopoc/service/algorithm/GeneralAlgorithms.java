@@ -3,6 +3,7 @@ package ch.ge.ve.protopoc.service.algorithm;
 import ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic;
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.EncryptionGroup;
+import ch.ge.ve.protopoc.service.model.IdentificationGroup;
 import ch.ge.ve.protopoc.service.support.ByteArrayUtils;
 import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
@@ -25,19 +26,23 @@ public class GeneralAlgorithms {
     private final Hash hash;
     private final Conversion conversion;
     private final EncryptionGroup encryptionGroup;
+    private final IdentificationGroup identificationGroup;
     private ImmutableList<BigInteger> cachedPrimes;
 
     /**
      * Constructor, defines all collaborators
      *
-     * @param hash
-     * @param conversion
-     * @param encryptionGroup
+     * @param hash                the hash implementation
+     * @param conversion          the conversion implementation
+     * @param encryptionGroup     the encryption group used
+     * @param identificationGroup the identification group used
      */
-    public GeneralAlgorithms(Hash hash, Conversion conversion, EncryptionGroup encryptionGroup) {
+    public GeneralAlgorithms(Hash hash, Conversion conversion, EncryptionGroup encryptionGroup,
+                             IdentificationGroup identificationGroup) {
         this.hash = hash;
         this.conversion = conversion;
         this.encryptionGroup = encryptionGroup;
+        this.identificationGroup = identificationGroup;
     }
 
     /**
@@ -93,12 +98,19 @@ public class GeneralAlgorithms {
      * @return true if x &isin; encryptionGroup, false otherwise
      */
     public boolean isMember(BigInteger x) {
-        if (x.compareTo(BigInteger.ONE) >= 0 &&
-                x.compareTo(encryptionGroup.getP()) <= -1) {
-            return BigIntegerArithmetic.jacobiSymbol(x, encryptionGroup.getP()) == 1;
-        } else {
-            return false;
-        }
+        return x.compareTo(BigInteger.ONE) >= 0 && x.compareTo(encryptionGroup.getP()) < 0 &&
+                BigIntegerArithmetic.jacobiSymbol(x, encryptionGroup.getP()) == 1;
+    }
+
+    /**
+     * Utility to verify membership for G_q_circ
+     *
+     * @param x a number
+     * @return true if x &isin; identificationGroup, false otherwise
+     */
+    public boolean isMember_G_q_circ(BigInteger x) {
+        return x.compareTo(BigInteger.ONE) >= 0 && x.compareTo(identificationGroup.getP_circ()) < 0 &&
+                BigIntegerArithmetic.jacobiSymbol(x, identificationGroup.getP_circ()) == 1;
     }
 
     /**
