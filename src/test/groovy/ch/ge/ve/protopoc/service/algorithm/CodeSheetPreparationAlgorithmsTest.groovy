@@ -108,10 +108,10 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         sheet_1.upper_y == "aad" // 2 + 1 = 3
         sheet_1.upper_fc == "baq" // [0x10, 0x10] -> 4112
         sheet_1.bold_rc == [
-                "ebq", // [0xC0, 0xD0] -> marked with 0, n_max = 3 -> [0x40, 0x50] -> 16464
-                "obW", // [0xE0, 0xF0] -> marked with 1, n_max = 3 -> [0xE0, 0x70] -> 57456
-                "edq", // [0xC0, 0xD0] -> marked with 2, n_max = 3 -> [0x40, 0xD0] -> 16592
-                "odW" // [0xE0, 0xF0] -> marked with 3, n_max = 3 -> [0xE0, 0xF0] -> 57584
+                "mdq", // [0xC0, 0xD0] -> marked with 0, n_max = 3 -> [0xC0, 0xD0] -> 49360
+                "ohW", // [0xE0, 0xF0] -> marked with 1, n_max = 3 -> [0xE1, 0xF0] -> 57840
+                "mdr", // [0xC0, 0xD0] -> marked with 2, n_max = 3 -> [0xC0, 0xD1] -> 49361
+                "ohX" // [0xE0, 0xF0] -> marked with 3, n_max = 3 -> [0xE1, 0xF1] -> 57841
         ]
         sheet_1.bold_k == [1, 1]
 
@@ -122,10 +122,10 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         sheet_2.upper_y == "aac" // 3 + 4 = 7 => mod 5 = 2
         sheet_2.upper_fc == "d5o" // [0x3E, 0x4E] -> 15950
         sheet_2.bold_rc == [
-                "efs", // [0xC1, 0xD2] -> marked with 0, n_max = 3 -> [0x41, 0x52] -> 16722
-                "on0", // [0xE3, 0xF4] -> marked with 1, n_max = 3 -> [0xE3, 0x74] -> 58228
-                "exw", // [0xC5, 0xD6] -> marked with 2, n_max= 3 -> [0x41, 0xD6] -> 16854
-                "oF4" // [0xE7, 0xF8] -> marked with 2, n_max= 3 -> [0xE7, 0xF8] -> 59384
+                "mds", // [0xC1, 0xD2] -> marked with 0, n_max = 3 -> [0xC0, 0xD2] -> 49362
+                "op0", // [0xE3, 0xF4] -> marked with 1, n_max = 3 -> [0xE3, 0xF4] -> 58356
+                "mtx", // [0xC5, 0xD6] -> marked with 2, n_max= 3 -> [0xC4, 0xD7] -> 50391
+                "oF5" // [0xE7, 0xF8] -> marked with 2, n_max= 3 -> [0xE7, 0xF9] -> 59385
         ]
         sheet_2.bold_k == [1, 0]
     }

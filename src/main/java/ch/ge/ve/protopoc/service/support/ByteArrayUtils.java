@@ -113,7 +113,7 @@ public class ByteArrayUtils {
         byte[] local_upper_b = new byte[upper_b.length];
         System.arraycopy(upper_b, 0, local_upper_b, 0, upper_b.length);
         int j = i / 8;
-        int x = (int) Math.pow(2, 7 - i % 8);
+        int x = (int) Math.pow(2, i % 8);
         if (!b) {
             local_upper_b[j] = (byte) ((int) local_upper_b[j] & (0xFF - x));
         } else {
