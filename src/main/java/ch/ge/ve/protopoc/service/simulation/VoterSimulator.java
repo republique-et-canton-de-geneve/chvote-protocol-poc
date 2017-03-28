@@ -37,6 +37,7 @@ public class VoterSimulator {
     public void sendCodeSheet(CodeSheet codeSheet) {
         Preconditions.checkState(this.codeSheet == null,
                 String.format("The code sheet may not be updated once set (at voter %d)", voterIndex));
+        Preconditions.checkArgument(codeSheet.getI() == voterIndex, "Voter received the wrong code list.é");
         this.codeSheet = codeSheet;
     }
 
@@ -55,28 +56,28 @@ public class VoterSimulator {
         List<String> returnCodes;
         try {
             log.info(String.format("Voter %d submitting vote", voterIndex));
-            returnCodes = votingClient.sumbitVote(codeSheet.getX_i(), selections);
+            returnCodes = votingClient.sumbitVote(codeSheet.getUpper_x(), selections);
         } catch (VoteCastingException e) {
             log.error(String.format("Voter %d: error during vote casting", voterIndex), e);
             throw new VoteProcessException(e);
         }
 
         log.info(String.format("Voter %d checking return codes", voterIndex));
-        if (!voteConfirmationVoterAlgorithms.checkReturnCodes(codeSheet.getRc_i(), returnCodes, selections)) {
+        if (!voteConfirmationVoterAlgorithms.checkReturnCodes(codeSheet.getBold_rc(), returnCodes, selections)) {
             throw new VoteProcessException(new ReturnCodesNotMatchingException("Return codes do not match"));
         }
 
         String finalizationCode;
         try {
             log.info(String.format("Voter %d confirming vote", voterIndex));
-            finalizationCode = votingClient.confirmVote(codeSheet.getY_i());
+            finalizationCode = votingClient.confirmVote(codeSheet.getUpper_y());
         } catch (VoteConfirmationException e) {
             log.error(String.format("Voter %d: error during vote confirmation", voterIndex), e);
             throw new VoteProcessException(e);
         }
 
         log.info(String.format("Voter %d checking finalization code", voterIndex));
-        if (!voteConfirmationVoterAlgorithms.checkFinalizationCode(codeSheet.getF_i(), finalizationCode)) {
+        if (!voteConfirmationVoterAlgorithms.checkFinalizationCode(codeSheet.getUpper_fc(), finalizationCode)) {
             throw new VoteProcessException(new FinalizationCodeNotMatchingException("Finalization code does not match"));
         }
 
