@@ -22,5 +22,6 @@ class ByteArrayUtilsTest extends Specification {
         [0xC1, 0xD2]             | 1 | 3     || [0xC1, 0x52]
         [0xC1, 0xD2]             | 0 | 15    || [0x41, 0x52]
         [0xCC, 0xDD]             | 0 | 15    || [0x44, 0x55]
+        [0xE3, 0xF4]             | 1 | 3     || [0xE3, 0x74]
     }
 }

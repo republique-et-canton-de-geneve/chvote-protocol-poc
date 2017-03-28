@@ -28,6 +28,7 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         publicParameters.a_r >> (defaultAlphabet as List<Character>)
         publicParameters.k_x >> 3
         publicParameters.k_y >> 3
+        publicParameters.n_max >> 3
 
         codeSheetPreparation = new CodeSheetPreparationAlgorithms(publicParameters)
 
@@ -104,10 +105,10 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         sheet_1.y_i == "aad" // 2 + 1 = 3
         sheet_1.f_i == "baq" // [0x10, 0x10] -> 4112
         sheet_1.rc_i == [
-                "mdq", // [0xC0, 0xD0] -> 49360
-                "odW", // [0xE0, 0xF0] -> 57584
-                "mdq", // [0xC0, 0xD0] -> 49360
-                "odW" // [0xE0, 0xF0] -> 57584
+                "ebq", // [0xC0, 0xD0] -> marked with 0, n_max = 3 -> [0x40, 0x50] -> 16464
+                "obW", // [0xE0, 0xF0] -> marked with 1, n_max = 3 -> [0xE0, 0x70] -> 57456
+                "edq", // [0xC0, 0xD0] -> marked with 2, n_max = 3 -> [0x40, 0xD0] -> 16592
+                "odW" // [0xE0, 0xF0] -> marked with 3, n_max = 3 -> [0xE0, 0xF0] -> 57584
         ]
         sheet_1.k_i == [1, 1]
 
@@ -118,10 +119,10 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         sheet_2.y_i == "aah" // 3 + 4 = 7
         sheet_2.f_i == "d5o" // [0x3E, 0x4E] -> 15950
         sheet_2.rc_i == [
-                "mhs", // [0xC1, 0xD2] -> 49618
-                "op0", // [0xE3, 0xF4] -> 58356
-                "mxw", // [0xC5, 0xD6] -> 50646
-                "oF4" // [0xE7, 0xF8] -> 59384
+                "efs", // [0xC1, 0xD2] -> marked with 0, n_max = 3 -> [0x41, 0x52] -> 16722
+                "on0", // [0xE3, 0xF4] -> marked with 1, n_max = 3 -> [0xE3, 0x74] -> 58228
+                "exw", // [0xC5, 0xD6] -> marked with 2, n_max= 3 -> [0x41, 0xD6] -> 16854
+                "oF4" // [0xE7, 0xF8] -> marked with 2, n_max= 3 -> [0xE7, 0xF8] -> 59384
         ]
         sheet_2.k_i == [1, 0]
     }

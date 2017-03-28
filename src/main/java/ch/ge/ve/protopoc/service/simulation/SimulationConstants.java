@@ -8,6 +8,8 @@ import java.math.BigInteger;
  * Missing javadoc!
  */
 public interface SimulationConstants {
+    int default_n_max = 1678;
+
     BigInteger p_RC0e = BigInteger.valueOf(167L);
     BigInteger q_RC0e = BigInteger.valueOf(83L);
     BigInteger g_RC0e = BigIntegers.FOUR;

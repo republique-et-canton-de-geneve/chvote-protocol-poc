@@ -68,7 +68,7 @@ public class Simulation {
     private TallyingAuthoritiesAlgorithm tallyingAuthoritiesAlgorithm;
     private ElectionAdministrationSimulator electionAdministrationSimulator;
 
-    public Simulation() throws NoSuchProviderException, NoSuchAlgorithmException {
+    private Simulation() throws NoSuchProviderException, NoSuchAlgorithmException {
         secureRandom = SecureRandom.getInstance("SHA1PRNG", "SUN");
         randomGenerator = new RandomGenerator(secureRandom);
     }
@@ -107,19 +107,19 @@ public class Simulation {
         performanceStats.start(performanceStats.keyGeneration);
         // parallelStream.forEach returns early, this is a workaround so that the call returns once all items have been
         // processed
-        boolean keyGenerationSuccess = authorities.parallelStream().map(aS -> {
+        boolean keyGenerationSuccess = authorities.parallelStream().allMatch(aS -> {
             aS.generateKeys();
             return true;
-        }).allMatch(b -> b);
+        });
         performanceStats.stop(performanceStats.keyGeneration);
         log.info("keyGenerationSuccess: " + keyGenerationSuccess);
 
         log.info("building public keys");
         performanceStats.start(performanceStats.publicKeyBuilding);
-        boolean publicKeyBuildingSuccess = authorities.parallelStream().map(aS -> {
+        boolean publicKeyBuildingSuccess = authorities.parallelStream().allMatch(aS -> {
             aS.buildPublicKey();
             return true;
-        }).allMatch(b -> b);
+        });
         performanceStats.stop(performanceStats.publicKeyBuilding);
         log.info("publicKeyBuildingSuccess: " + publicKeyBuildingSuccess);
 
@@ -130,19 +130,19 @@ public class Simulation {
 
         log.info("generating electorate data");
         performanceStats.start(performanceStats.generatingElectoralData);
-        boolean electorateDataGenerationSuccess = authorities.parallelStream().map(aS -> {
+        boolean electorateDataGenerationSuccess = authorities.parallelStream().allMatch(aS -> {
             aS.generateElectorateData();
             return true;
-        }).allMatch(b -> b);
+        });
         performanceStats.stop(performanceStats.generatingElectoralData);
         log.info("electorateDataGenerationSuccess: " + electorateDataGenerationSuccess);
 
         log.info("building public credentials");
         performanceStats.start(performanceStats.buildPublicCredentials);
-        boolean publicCredentialsBuildSuccess = authorities.parallelStream().map(aS -> {
+        boolean publicCredentialsBuildSuccess = authorities.parallelStream().allMatch(aS -> {
             aS.buildPublicCredentials();
             return true;
-        }).allMatch(b -> b);
+        });
         performanceStats.stop(performanceStats.buildPublicCredentials);
         log.info("publicCredentialsBuildSuccess: " + publicCredentialsBuildSuccess);
 
@@ -172,10 +172,10 @@ public class Simulation {
 
         log.info("starting decryption");
         performanceStats.start(performanceStats.decryption);
-        boolean decryptionSuccess = authorities.parallelStream().map(aS -> {
+        boolean decryptionSuccess = authorities.parallelStream().allMatch(aS -> {
             aS.startPartialDecryption();
             return true;
-        }).allMatch(b -> b);
+        });
         performanceStats.stop(performanceStats.decryption);
         log.info("decryptionSuccess: " + decryptionSuccess);
 
@@ -308,7 +308,7 @@ public class Simulation {
                 defaultAlphabet, 2 * securityParameters.getMu(),
                 defaultAlphabet, 8,
                 defaultAlphabet, 8,
-                l_m, 4);
+                l_m, 4, SimulationConstants.default_n_max);
     }
 
     private void createSecurityLevel1Parameters() {
@@ -326,7 +326,7 @@ public class Simulation {
                 defaultAlphabet, 2 * securityParameters.getMu(),
                 defaultAlphabet, 16,
                 defaultAlphabet, 16,
-                l_m, 4);
+                l_m, 4, SimulationConstants.default_n_max);
     }
 
     private void createSecurityLevel2Parameters() {
@@ -343,7 +343,7 @@ public class Simulation {
                 defaultAlphabet, 2 * securityParameters.getMu(),
                 defaultAlphabet, 16,
                 defaultAlphabet, 16,
-                l_m, 4);
+                l_m, 4, SimulationConstants.default_n_max);
     }
 
     private PrimeField createPrimeField(SecurityParameters securityParameters) {
