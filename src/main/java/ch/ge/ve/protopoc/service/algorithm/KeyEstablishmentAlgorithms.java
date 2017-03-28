@@ -4,6 +4,7 @@ import ch.ge.ve.protopoc.service.model.EncryptionGroup;
 import ch.ge.ve.protopoc.service.model.EncryptionPrivateKey;
 import ch.ge.ve.protopoc.service.model.EncryptionPublicKey;
 import ch.ge.ve.protopoc.service.support.RandomGenerator;
+import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -22,7 +23,7 @@ public class KeyEstablishmentAlgorithms {
     }
 
     /**
-     * Algorithm 7.7: genKeyPair
+     * Algorithm 7.15: genKeyPair
      *
      * @param eg the encryption group for which we need a {@link KeyPair}
      * @return a newly, randomly generated KeyPair
@@ -35,15 +36,17 @@ public class KeyEstablishmentAlgorithms {
     }
 
     /**
-     * Algorithm 7.8: GetPublicKey
+     * Algorithm 7.16: GetPublicKey
      *
      * @param publicKeys the set of public key shares that should be combined
      * @return the combined public key
      */
     public EncryptionPublicKey getPublicKey(List<EncryptionPublicKey> publicKeys) {
-        // check all encryption groups are equal
         BigInteger publicKey = BigInteger.ONE;
         EncryptionGroup eg = publicKeys.get(0).getEncryptionGroup();
+        Preconditions.checkArgument(publicKeys.stream().allMatch(pk -> pk.getEncryptionGroup().equals(eg)),
+                "All of the public keys should be defined within the same encryption group");
+
         for (EncryptionPublicKey key : publicKeys) {
             publicKey = publicKey.multiply(key.getPublicKey()).mod(eg.getP());
         }
