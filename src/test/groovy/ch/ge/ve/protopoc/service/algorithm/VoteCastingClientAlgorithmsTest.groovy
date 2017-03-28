@@ -144,17 +144,17 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         // t_2 = omega_2 * pk ^ omega_3 mod p = 5 * 3 ^ 1 mod 11 = 4
         // t_3 = g ^ omega_3 mod p = 3 ^ 1 mod 11 = 3
         generalAlgorithms.getNIZKPChallenge(
-                [THREE, NINE, THREE] as BigInteger[], // x_circ, a, b
+                [ONE, NINE, THREE] as BigInteger[], // x_circ, a, b
                 [FIVE, FOUR, THREE] as BigInteger[],  // t_1, t_2, t_3
                 FIVE // min(q, q_circ)
         ) >> FOUR // c
         and: "the expected preconditions verifications"
-        generalAlgorithms.isMember_G_q_circ(THREE) >> true
+        generalAlgorithms.isMember_G_q_circ(ONE) >> true
         generalAlgorithms.isMember(THREE) >> true
         generalAlgorithms.isMember(NINE) >> true
 
         when: "generating a ballot ZKP"
-        def pi = voteCastingClient.genBallotProof(FIVE, THREE, ONE, THREE, NINE, THREE,
+        def pi = voteCastingClient.genBallotProof(FIVE, THREE, ONE, ONE, NINE, THREE,
                 new EncryptionPublicKey(THREE, encryptionGroup))
 
         then:

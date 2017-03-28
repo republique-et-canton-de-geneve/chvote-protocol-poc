@@ -10,6 +10,7 @@ import spock.lang.Specification
 
 import static ch.ge.ve.protopoc.service.support.BigIntegers.*
 import static java.math.BigInteger.ONE
+import static java.math.BigInteger.ZERO
 
 /**
  * Tests on the vote casting algorithms on the authority side
@@ -19,6 +20,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
     EncryptionGroup encryptionGroup = Mock()
     IdentificationGroup identificationGroup = Mock()
     SecurityParameters securityParameters = Mock()
+    PrimeField primeField = Mock()
     GeneralAlgorithms generalAlgorithms = Mock()
     RandomGenerator randomGenerator = Mock()
     Hash hash = Mock()
@@ -35,6 +37,8 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         identificationGroup.p_circ >> ELEVEN
         identificationGroup.q_circ >> FIVE
         identificationGroup.g_circ >> THREE
+        publicParameters.primeField >> primeField
+        primeField.p_prime >> ELEVEN
         publicParameters.l_m >> 16
         publicParameters.securityParameters >> securityParameters
         securityParameters.l >> 16
@@ -58,6 +62,13 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         electionSet.elections >> [election]
         electionSet.isEligible(_ as Voter, election) >> true
         election.numberOfSelections >> 2
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isMember_G_q_circ(FOUR) >> true
 
         expect:
         result == voteCastingAuthority.checkBallot(
@@ -104,22 +115,30 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
 
     def "checkBallotProof should verify the validity of a provided proof"() {
         given: "a fixed encryption key and challenge"
-        def encryptionKey = new EncryptionPublicKey(ONE, encryptionGroup)
+        def encryptionKey = new EncryptionPublicKey(THREE, encryptionGroup)
         generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], t as BigInteger[], FIVE) >> c
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isMember_G_q_circ(FIVE) >> true
+        generalAlgorithms.isMember_G_q_circ(NINE) >> true
 
         expect: "the verification of the Proof to have the expected result"
         result == voteCastingAuthority.checkBallotProof(new NonInteractiveZKP(t, s), x_circ, a, b, encryptionKey)
 
         where: "the values are taken from the following table"
-        t                   | s                    | x_circ | a   | b    | c    || result
-        [FOUR, FIVE, THREE] | [THREE, FIVE, THREE] | THREE  | ONE | FIVE | FOUR || true // values from genBallotProof test
-        [NINE, FIVE, FOUR]  | [THREE, FIVE, THREE] | THREE  | ONE | FIVE | FOUR || false
-        [FOUR, FIVE, THREE] | [THREE, FIVE, FOUR]  | THREE  | ONE | FIVE | FOUR || false
+        t                   | s                    | x_circ | a    | b     | c    || result
+        [FIVE, FOUR, THREE] | [THREE, NINE, ZERO]  | ONE    | NINE | THREE | FOUR || true // values from genBallotProof
+        // test
+        [NINE, FOUR, THREE] | [THREE, NINE, ZERO]  | ONE    | NINE | THREE | FOUR || false
+        [FIVE, FOUR, THREE] | [THREE, NINE, THREE] | ONE    | NINE | THREE | FOUR || false
     }
 
     def "genResponse should generate a valid response to an OT query"() {
         given: "a fixed encryption key and challenge"
-        def encryptionKey = new EncryptionPublicKey(ONE, encryptionGroup)
+        def encryptionKey = new EncryptionPublicKey(THREE, encryptionGroup)
         List<Integer> candidatesNumberVector = [3]
         List<List<Integer>> selectionsMatrix = [[1], [1]]
         List<List<Point>> pointMatrix = [
@@ -145,23 +164,27 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
                 [0x40, 0x50] // l = 3
         ]
 
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+
         expect: "the generated response should match the expected values"
-        new ObliviousTransferResponseAndRand(
-                new ObliviousTransferResponse(
+        voteCastingAuthority.genResponse(i, bold_a, encryptionKey, candidatesNumberVector, selectionsMatrix,
+                pointMatrix) ==
+                new ObliviousTransferResponseAndRand(new ObliviousTransferResponse(
                         bold_b, bold_c as byte[][], bold_d
-                ), bold_r
-        ) == voteCastingAuthority.genResponse(i, bold_a, encryptionKey, candidatesNumberVector, selectionsMatrix,
-                pointMatrix)
+                ), bold_r)
 
         where: "the input / output values are"
         i | bold_a | r     | bold_b  | bold_c                                     | bold_d | bold_r
-        0 | [FOUR] | THREE | [NINE]  | [[0x01, 0x16], [0x24, 0x36], [0x43, 0x56]] | [ONE]  | [THREE]
-        1 | [FIVE] | TWO   | [THREE] | [[0x02, 0x13], [0x25, 0x33], [0x41, 0x53]] | [ONE]  | [TWO]
+        0 | [FOUR] | THREE | [NINE]  | [[0x01, 0x16], [0x24, 0x36], [0x43, 0x56]] | [FIVE] | [THREE]
+        1 | [FIVE] | TWO   | [THREE] | [[0x02, 0x13], [0x25, 0x33], [0x41, 0x53]] | [NINE] | [TWO]
     }
 
     def "genResponse should fail if the group is too small"() {
         given: "a fixed encryption key and challenge"
-        def pk = new EncryptionPublicKey(ONE, encryptionGroup)
+        def pk = new EncryptionPublicKey(THREE, encryptionGroup)
         List<Integer> candidatesNumberVector = [3]
         List<List<Integer>> selectionsMatrix = [[1], [1]]
         List<List<Point>> pointMatrix = [
@@ -180,6 +203,10 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         generalAlgorithms.getPrimes(3) >> {
             args -> throw new NotEnoughPrimesInGroupException("not enough of them")
         }
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(ONE) >> true
 
         when: "an attempt is made at generating a response"
         voteCastingAuthority.genResponse(1, [ONE], pk, candidatesNumberVector, selectionsMatrix, pointMatrix)
