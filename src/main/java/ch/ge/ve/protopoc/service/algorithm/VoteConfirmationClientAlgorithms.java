@@ -13,7 +13,10 @@ import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
 import static java.math.BigInteger.ZERO;
@@ -37,33 +40,42 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 7.31: GenConfirmation
+     * Algorithm 7.30: GenConfirmation
      *
-     * @param Y      the confirmation code
-     * @param bold_P the <tt>k</tt> per <tt>s</tt> point matrix, where k = sum(bold_k) and s is the number of authorities
-     * @param bold_k the number of selections per election
+     * @param upper_y            the confirmation code
+     * @param upper_bold_p_prime the <tt>k</tt> per <tt>s</tt> point matrix, where k = sum(bold_k) and s is the number of authorities
+     * @param bold_k             the number of selections per election
      * @return the public confirmation y_circ and the proof of knowledge of the secret confirmation y
      */
-    public Confirmation genConfirmation(String Y, List<List<Point>> bold_P, List<Integer> bold_k) {
-        Preconditions.checkNotNull(Y);
-        Preconditions.checkNotNull(bold_P);
-        Preconditions.checkArgument(bold_P.size() == publicParameters.getS());
+    public Confirmation genConfirmation(String upper_y, List<List<Point>> upper_bold_p_prime, List<Integer> bold_k) {
+        Preconditions.checkNotNull(upper_y);
+        Preconditions.checkNotNull(upper_bold_p_prime);
+
+        BigInteger p_prime = publicParameters.getPrimeField().getP_prime();
+        Preconditions.checkArgument(upper_bold_p_prime.stream().flatMap(Collection::stream)
+                        .allMatch(point -> BigInteger.ZERO.compareTo(point.x) <= 0 &&
+                                point.x.compareTo(p_prime) < 0 &&
+                                BigInteger.ZERO.compareTo(point.y) <= 0 &&
+                                point.y.compareTo(p_prime) < 0),
+                "All points' coordinates must be in Z_p_prime");
+        Preconditions.checkArgument(upper_bold_p_prime.size() == publicParameters.getS());
         Preconditions.checkNotNull(bold_k);
+        Preconditions.checkArgument(bold_k.stream().allMatch(k_j -> k_j >= 0),
+                "All k_j's must be greater than or equal to 0");
 
         BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
         BigInteger q_circ = publicParameters.getIdentificationGroup().getQ_circ();
         BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
 
-        List<BigInteger> y_js = new ArrayList<>();
-        for (int j = 0; j < publicParameters.getS(); j++) {
-            List<Point> bold_p_j = bold_P.get(j);
-            List<BigInteger> bold_y_j = getValues(bold_p_j, bold_k);
-            BigInteger y_j = conversion.toInteger(hash.recHash_L(bold_y_j.toArray())).mod(q_circ);
-            y_js.add(y_j);
-        }
-        BigInteger y = conversion.toInteger(Y, publicParameters.getA_y()).add(
-                y_js.stream().reduce(BigInteger::add).orElse(ZERO)
-        ).mod(q_circ);
+        List<BigInteger> h_js = IntStream.range(0, publicParameters.getS()).parallel()
+                .mapToObj(upper_bold_p_prime::get)
+                .map(bold_p_prime_j -> getValues(bold_p_prime_j, bold_k))
+                .map(bold_y_j -> conversion.toInteger(hash.recHash_L(bold_y_j.toArray())).mod(q_circ))
+                .collect(Collectors.toList());
+
+        BigInteger y = conversion.toInteger(upper_y, publicParameters.getA_y())
+                .add(h_js.stream().reduce(BigInteger::add).orElse(ZERO))
+                .mod(q_circ);
         BigInteger y_circ = modExp(g_circ, y, p_circ);
         NonInteractiveZKP pi = genConfirmationProof(y, y_circ);
 
@@ -71,13 +83,25 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 7.32: GetValues
+     * Algorithm 7.31: GetValues
      *
      * @param bold_p the combined list of points for the <tt>t</tt> polynomials (1 per election)
      * @param bold_k the list of the number of selections allowed by election
      * @return the list of values for <tt>A_j(0)</tt>
      */
     public List<BigInteger> getValues(List<Point> bold_p, List<Integer> bold_k) {
+        Preconditions.checkNotNull(bold_p);
+        BigInteger p_prime = publicParameters.getPrimeField().getP_prime();
+        Preconditions.checkArgument(bold_p.stream()
+                        .allMatch(point -> BigInteger.ZERO.compareTo(point.x) <= 0 &&
+                                point.x.compareTo(p_prime) < 0 &&
+                                BigInteger.ZERO.compareTo(point.y) <= 0 &&
+                                point.y.compareTo(p_prime) < 0),
+                "All points' coordinates must be in Z_p_prime");
+        Preconditions.checkNotNull(bold_k);
+        Preconditions.checkArgument(bold_k.stream().allMatch(k_j -> k_j >= 0),
+                "All k_j's must be greater than or equal to 0");
+
         List<BigInteger> bold_y = new ArrayList<>();
         int i = 0;
         for (Integer k_j : bold_k) {
@@ -90,13 +114,20 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 7.33: GetValue
+     * Algorithm 7.32: GetValue
      *
      * @param bold_p a list of <tt>k</tt> points defining the polynomial <tt>A(X)</tt> of degree <tt>k - 1</tt>
      * @return the interpolated value <tt>y = A(0)</tt>
      */
     public BigInteger getValue(List<Point> bold_p) {
+        Preconditions.checkNotNull(bold_p);
         BigInteger p_prime = publicParameters.getPrimeField().getP_prime();
+        Preconditions.checkArgument(bold_p.stream()
+                        .allMatch(point -> BigInteger.ZERO.compareTo(point.x) <= 0 &&
+                                point.x.compareTo(p_prime) < 0 &&
+                                BigInteger.ZERO.compareTo(point.y) <= 0 &&
+                                point.y.compareTo(p_prime) < 0),
+                "All points' coordinates must be in Z_p_prime");
 
         BigInteger y = ZERO;
         for (int i = 0; i < bold_p.size(); i++) {
@@ -120,7 +151,7 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 7.34: GenConfirmationProof
+     * Algorithm 7.33: GenConfirmationProof
      *
      * @param y      the secret confirmation credential
      * @param y_circ the public confirmation credential
@@ -130,6 +161,12 @@ public class VoteConfirmationClientAlgorithms {
         BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
         BigInteger q_circ = publicParameters.getIdentificationGroup().getQ_circ();
         BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
+
+        Preconditions.checkArgument(BigInteger.ZERO.compareTo(y) <= 0 &&
+                y.compareTo(q_circ) < 0, "y must be in Z_q_circ");
+        //noinspection SuspiciousNameCombination
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(y_circ),
+                "y_circ must be in G_q_circ");
 
         BigInteger omega = randomGenerator.randomInZq(q_circ);
 
@@ -143,14 +180,16 @@ public class VoteConfirmationClientAlgorithms {
     }
 
     /**
-     * Algorithm 7.35: GetFinalizationCode
+     * Algorithm 7.38: GetFinalizationCode
      *
-     * @param finalizationCodeParts the finalization code parts received from the authorities
+     * @param bold_delta the finalization code parts received from the authorities
      * @return the combined finalization code
      */
-    public String getFinalizationCode(List<FinalizationCodePart> finalizationCodeParts) {
-        Preconditions.checkArgument(finalizationCodeParts.size() == publicParameters.getS());
-        return finalizationCodeParts.stream().map(FinalizationCodePart::getF).reduce(ByteArrayUtils::xor)
+    public String getFinalizationCode(List<FinalizationCodePart> bold_delta) {
+        Preconditions.checkArgument(bold_delta.size() == publicParameters.getS());
+        return bold_delta.stream()
+                .map(FinalizationCodePart::getF) // extract F_j
+                .reduce(ByteArrayUtils::xor) // xor over j
                 .map(b -> conversion.toString(b, publicParameters.getA_f()))
                 .orElse("");
     }

@@ -66,6 +66,8 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         ]
         randomGenerator.randomInZq(FIVE) >> THREE // called by GenConfirmationProof - omega
         generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], _ as BigInteger[], _ as BigInteger) >> THREE // c
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember_G_q_circ(ONE) >> true
 
         // y = 154 + 3 + 2 + 1 + 0 mod 5 = 0
         // y_circ = g_circ ^ y mod p_circ = 3 ^ 0 mod 11 = 1
@@ -105,6 +107,8 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         and: "a known challenge value"
         // t = g_circ ^ omega mod p_circ = 3 ^ 4 mod 11 = 4
         generalAlgorithms.getNIZKPChallenge([NINE] as BigInteger[], [FOUR] as BigInteger[], FIVE) >> THREE
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember_G_q_circ(NINE) >> true
 
         expect: "the generated proof to have the expected value"
         // s = omega + c * y mod q_circ = 4 + 3 * 2 mod 5 = 0
