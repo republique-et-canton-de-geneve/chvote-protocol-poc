@@ -38,21 +38,21 @@ public class MixingAuthorityAlgorithms {
     /**
      * Algorithm 7.40: GetEncryptions
      *
-     * @param ballotList       the list of ballots submitted to the bulletin board
-     * @param confirmationList the list of confirmations submitted to the bulletin board
+     * @param upper_b the list of ballots submitted to the bulletin board
+     * @param upper_c the list of confirmations submitted to the bulletin board
      * @return the list of the encryptions for the valid, confirmed ballots
      */
-    public List<Encryption> getEncryptions(Collection<BallotEntry> ballotList, Collection<ConfirmationEntry> confirmationList) {
+    public List<Encryption> getEncryptions(Collection<BallotEntry> upper_b, Collection<ConfirmationEntry> upper_c) {
         BigInteger p = publicParameters.getEncryptionGroup().getP();
 
-        return ballotList.stream()
-                .filter(B -> voteConfirmationAuthorityAlgorithms.hasConfirmation(B.getI(), confirmationList))
-                .map(B -> {
-                    BigInteger a_j = B.getAlpha().getBold_a().stream()
+        return upper_b.stream()
+                .filter(ballotEntry -> voteConfirmationAuthorityAlgorithms.hasConfirmation(ballotEntry.getI(), upper_c))
+                .map(ballotEntry -> {
+                    BigInteger a_j = ballotEntry.getAlpha().getBold_a().stream()
                             .reduce(BigInteger::multiply)
                             .orElse(ONE)
                             .mod(p);
-                    return new Encryption(a_j, B.getAlpha().getB());
+                    return new Encryption(a_j, ballotEntry.getAlpha().getB());
                 })
                 .sorted(Comparator.naturalOrder())
                 .collect(Collectors.toList());
@@ -66,12 +66,15 @@ public class MixingAuthorityAlgorithms {
      * @return the result of a shuffle, with re-encryption of the values
      */
     public Shuffle genShuffle(List<Encryption> bold_e, EncryptionPublicKey pk) {
+        Preconditions.checkArgument(bold_e.stream().allMatch(e -> generalAlgorithms.isMember(e.getA()) &&
+                        generalAlgorithms.isMember(e.getB())),
+                "all e_i's should be in G_q^2");
         List<Integer> psy = genPermutation(bold_e.size());
 
         // Parallel streams do not preserve order.
         // But it is more efficient to distribute the re-encryptions across cores and sort them than to
         // re-encrypt sequentially
-        Map<Integer, ReEncryption> reEncryptionMap = IntStream.range(0, bold_e.size()).parallel().mapToObj(Integer::valueOf)
+        Map<Integer, ReEncryption> reEncryptionMap = IntStream.range(0, bold_e.size()).parallel().boxed()
                 .collect(toMap(identity(), i -> genReEncryption(bold_e.get(i), pk)));
         List<ReEncryption> reEncryptions = IntStream.range(0, bold_e.size())
                 .mapToObj(reEncryptionMap::get).collect(Collectors.toList());
@@ -90,22 +93,22 @@ public class MixingAuthorityAlgorithms {
 
     /**
      * Algorithm 7.42: GenPermutation
+     * <p>Generates a random permutation psy &isin; upper_psy_n following Knuth’s shuffle algorithm</p>
      *
-     * @param n the permutation size
+     * @param upper_n the permutation size
      * @return a random permutation following Knuth's shuffle algorithm (permutation is 0 based, to mirror java indices)
      */
-    public List<Integer> genPermutation(int n) {
-        Integer[] I = IntStream.range(0, n)
-                .mapToObj(Integer::valueOf)
+    public List<Integer> genPermutation(int upper_n) {
+        Integer[] upper_i = IntStream.range(0, upper_n).boxed()
                 .collect(Collectors.toList()).toArray(new Integer[0]);
 
         List<Integer> psy = new ArrayList<>();
 
         // indices are 0 base, as opposed to the 1 based in the algorithm
-        for (int i = 0; i < n; i++) {
-            int k = randomGenerator.randomIntInRange(i, n - 1);
-            psy.add(I[k]);
-            I[k] = I[i];
+        for (int i = 0; i < upper_n; i++) {
+            int k = randomGenerator.randomIntInRange(i, upper_n - 1);
+            psy.add(upper_i[k]);
+            upper_i[k] = upper_i[i];
         }
 
         return psy;
@@ -119,6 +122,10 @@ public class MixingAuthorityAlgorithms {
      * @return a re-encryption of the provided ElGamal encryption
      */
     public ReEncryption genReEncryption(Encryption e, EncryptionPublicKey publicKey) {
+        Preconditions.checkArgument(generalAlgorithms.isMember(e.getA()) &&
+                generalAlgorithms.isMember(e.getB()), "a and b should be in G_q^2");
+        Preconditions.checkArgument(generalAlgorithms.isMember(publicKey.getPublicKey()),
+                "pk should be in G_q");
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
@@ -146,27 +153,36 @@ public class MixingAuthorityAlgorithms {
     public ShuffleProof genShuffleProof(List<Encryption> bold_e, List<Encryption> bold_e_prime,
                                         List<BigInteger> bold_r_prime, List<Integer> psy,
                                         EncryptionPublicKey publicKey) {
-        int N = bold_e.size();
-        Preconditions.checkArgument(bold_e_prime.size() == N,
-                "The length of bold_e_prime should be equal to that of bold_e");
-        Preconditions.checkArgument(bold_r_prime.size() == N,
-                "The length of bold_r_prime should be equal to that of bold_e");
-        Preconditions.checkArgument(psy.size() == N,
-                "The length of psy should be equal to that of bold_e");
-
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
         BigInteger h = publicParameters.getEncryptionGroup().getH();
 
+        Preconditions.checkArgument(bold_e.parallelStream().allMatch(e ->
+                        generalAlgorithms.isMember(e.getA()) && generalAlgorithms.isMember(e.getB())),
+                "all e_i's should be in G_q^2");
+        Preconditions.checkArgument(bold_e_prime.parallelStream().allMatch(e_prime ->
+                        generalAlgorithms.isMember(e_prime.getA()) && generalAlgorithms.isMember(e_prime.getB())),
+                "all e_prime_i's should be in G_q^2");
+        Preconditions.checkArgument(bold_r_prime.parallelStream().allMatch(r_prime ->
+                        BigInteger.ZERO.compareTo(r_prime) <= 0 && r_prime.compareTo(q) < 0),
+                "all r_prime_i's should be in Z_q");
+        int upper_n = bold_e.size();
+        Preconditions.checkArgument(bold_e_prime.size() == upper_n,
+                "The length of bold_e_prime should be equal to that of bold_e");
+        Preconditions.checkArgument(bold_r_prime.size() == upper_n,
+                "The length of bold_r_prime should be equal to that of bold_e");
+        Preconditions.checkArgument(psy.size() == upper_n,
+                "The length of psy should be equal to that of bold_e");
+
         BigInteger pk = publicKey.getPublicKey();
 
 
-        List<BigInteger> bold_h = generalAlgorithms.getGenerators(N);
+        List<BigInteger> bold_h = generalAlgorithms.getGenerators(upper_n);
         PermutationCommitment permutationCommitment = genPermutationCommitment(psy, bold_h);
         List<BigInteger> bold_c = permutationCommitment.getBold_c();
         List<BigInteger> bold_r = permutationCommitment.getBold_r();
-        List<BigInteger> bold_u = generalAlgorithms.getChallenges(N, new List[]{bold_e, bold_e_prime, bold_c}, q);
+        List<BigInteger> bold_u = generalAlgorithms.getChallenges(upper_n, new List[]{bold_e, bold_e_prime, bold_c}, q);
 
         List<BigInteger> bold_u_prime = psy.stream()
                 .map(bold_u::get).collect(Collectors.toList());
@@ -180,17 +196,17 @@ public class MixingAuthorityAlgorithms {
         BigInteger omega_3 = randomGenerator.randomInZq(q);
         BigInteger omega_4 = randomGenerator.randomInZq(q);
 
-        List<BigInteger> bold_omega_circ = IntStream.range(0, N).parallel()
+        List<BigInteger> bold_omega_circ = IntStream.range(0, upper_n).parallel()
                 .mapToObj(i -> randomGenerator.randomInZq(q)).collect(Collectors.toList());
-        List<BigInteger> bold_omega_prime = IntStream.range(0, N).parallel()
+        List<BigInteger> bold_omega_prime = IntStream.range(0, upper_n).parallel()
                 .mapToObj(i -> randomGenerator.randomInZq(q)).collect(Collectors.toList());
 
-        ShuffleProof.T t = computeT(bold_e_prime, N, p, g, h, pk, bold_h, bold_c_circ,
-                omega_1, omega_2, omega_3, omega_4, bold_omega_circ, bold_omega_prime);
         Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_circ, pk};
+        ShuffleProof.T t = computeT(bold_e_prime, upper_n, p, g, h, pk, bold_h, bold_c_circ,
+                omega_1, omega_2, omega_3, omega_4, bold_omega_circ, bold_omega_prime);
         BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t.elementsToHash(), q);
 
-        ShuffleProof.S s = computeS(bold_r_prime, N, q, bold_r, bold_u, bold_u_prime, bold_r_circ,
+        ShuffleProof.S s = computeS(bold_r_prime, upper_n, q, bold_r, bold_u, bold_u_prime, bold_r_circ,
                 omega_1, omega_2, omega_3, omega_4, bold_omega_circ, bold_omega_prime, c);
 
         log.info("Shuffle proof generated");
@@ -274,8 +290,7 @@ public class MixingAuthorityAlgorithms {
         tmp_bold_c_circ.add(0, h);
         tmp_bold_c_circ.addAll(bold_c_circ);
 
-        Map<Integer, BigInteger> bold_t_circ_map = IntStream.range(0, N)
-                .parallel().mapToObj(Integer::valueOf)
+        Map<Integer, BigInteger> bold_t_circ_map = IntStream.range(0, N).parallel().boxed()
                 .collect(toMap(identity(), i -> modExp(g, bold_omega_circ.get(i), p)
                         .multiply(modExp(tmp_bold_c_circ.get(i), bold_omega_prime.get(i), p))
                         .mod(p)));
@@ -405,7 +420,7 @@ public class MixingAuthorityAlgorithms {
         List<BigInteger> tmp_bold_c_circ = new ArrayList<>();
         tmp_bold_c_circ.add(0, h);
         tmp_bold_c_circ.addAll(bold_c_circ);
-        Map<Integer, BigInteger> t_circ_prime_map = IntStream.range(0, N).parallel().mapToObj(Integer::valueOf)
+        Map<Integer, BigInteger> t_circ_prime_map = IntStream.range(0, N).parallel().boxed()
                 .collect(toMap(identity(), i -> modExp(tmp_bold_c_circ.get(i + 1), c.negate(), p)
                         .multiply(modExp(g, s_circ.get(i), p))
                         .multiply(modExp(tmp_bold_c_circ.get(i), s_prime.get(i), p))
@@ -441,11 +456,9 @@ public class MixingAuthorityAlgorithms {
         // Loop indexed over j_i instead of i, for performance reasons, with a reverse permutation lookup
         List<Integer> reversePsy = reversePermutation(psy);
 
-        Map<Integer, BigInteger> bold_r_map = IntStream.range(0, psy.size()).parallel()
-                .mapToObj(Integer::valueOf)
+        Map<Integer, BigInteger> bold_r_map = IntStream.range(0, psy.size()).parallel().boxed()
                 .collect(Collectors.toMap(identity(), j_i -> randomGenerator.randomInZq(q)));
-        Map<Integer, BigInteger> bold_c_map = IntStream.range(0, psy.size()).parallel()
-                .mapToObj(Integer::valueOf)
+        Map<Integer, BigInteger> bold_c_map = IntStream.range(0, psy.size()).parallel().boxed()
                 .collect(Collectors.toMap(identity(), j_i -> {
                     Integer i = reversePsy.get(j_i);
                     BigInteger r_j_i = bold_r_map.get(j_i);
@@ -492,8 +505,8 @@ public class MixingAuthorityAlgorithms {
     }
 
     private List<Integer> reversePermutation(List<Integer> psy) {
-        Preconditions.checkArgument(psy.containsAll(IntStream.range(0, psy.size())
-                        .mapToObj(Integer::valueOf).collect(Collectors.toList())),
+        Preconditions.checkArgument(psy.containsAll(
+                IntStream.range(0, psy.size()).boxed().collect(Collectors.toList())),
                 "The permutation should contain all number from 0 (inclusive) to length (exclusive)");
 
         return IntStream.range(0, psy.size()).mapToObj(psy::indexOf).collect(Collectors.toList());

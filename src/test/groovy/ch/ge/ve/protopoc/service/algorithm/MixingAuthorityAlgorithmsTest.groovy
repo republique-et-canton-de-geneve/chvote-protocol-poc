@@ -68,6 +68,13 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         ]
         def publicKey = new EncryptionPublicKey(THREE, encryptionGroup)
 
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isMember(NINE) >> true
+
         when:
         def shuffle = mixingAuthorityAlgorithms.genShuffle(bold_e, publicKey)
 
@@ -116,6 +123,11 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         def pk = new EncryptionPublicKey(THREE, encryptionGroup)
         randomGenerator.randomInZq(FIVE) >> r_prime
 
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(a) >> true
+        generalAlgorithms.isMember(b) >> true
+
         expect:
         mixingAuthorityAlgorithms.genReEncryption(new Encryption(a, b), pk) ==
                 new ReEncryption(new Encryption(a_prime, b_prime), r_prime)
@@ -163,6 +175,13 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         generalAlgorithms.getChallenges(3, _ as Object[], FIVE) >>
                 [TWO, FOUR, THREE]
         generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isMember(NINE) >> true
 
         when:
         def proof = mixingAuthorityAlgorithms.genShuffleProof(bold_e, bold_e_prime, bold_r_prime, psy, pk)
