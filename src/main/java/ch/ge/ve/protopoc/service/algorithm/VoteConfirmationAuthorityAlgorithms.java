@@ -32,38 +32,38 @@ public class VoteConfirmationAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 7.36: CheckConfirmation
+     * Algorithm 7.34: CheckConfirmation
      *
      * @param i           the voter index
      * @param gamma       the voter's confirmation, including public confirmation credential and proof of knowledge of
      *                    the private confirmation credential
      * @param bold_y_circ the list of public confirmation credentials, as generated during the preparation phase
-     * @param B           the current list of ballots
-     * @param C           the current list of confirmations
+     * @param upper_b     the current list of ballots
+     * @param upper_c     the current list of confirmations
      * @return true if the confirmation is allowed (ballot present, confirmation not present, credentials match) and the
      * proof is valid
      */
     public boolean checkConfirmation(Integer i, Confirmation gamma, List<BigInteger> bold_y_circ,
-                                     Collection<BallotEntry> B, Collection<ConfirmationEntry> C) {
-        return voteCastingAuthorityAlgorithms.hasBallot(i, B) &&
-                !hasConfirmation(i, C) &&
+                                     Collection<BallotEntry> upper_b, Collection<ConfirmationEntry> upper_c) {
+        return voteCastingAuthorityAlgorithms.hasBallot(i, upper_b) &&
+                !hasConfirmation(i, upper_c) &&
                 bold_y_circ.get(i).compareTo(gamma.getY_circ()) == 0 &&
                 checkConfirmationProof(gamma.getPi(), gamma.getY_circ());
     }
 
     /**
-     * Algorithm 7.37: HasConfirmation
+     * Algorithm 7.35: HasConfirmation
      *
-     * @param i the voter index
-     * @param C the list of confirmations
+     * @param i       the voter index
+     * @param upper_c the list of confirmations
      * @return true if the list of confirmation contains a confirmation for the given voter index, false otherwise
      */
-    public boolean hasConfirmation(Integer i, Collection<ConfirmationEntry> C) {
-        return C.stream().anyMatch(c -> c.getI().equals(i));
+    public boolean hasConfirmation(Integer i, Collection<ConfirmationEntry> upper_c) {
+        return upper_c.stream().anyMatch(c -> c.getI().equals(i));
     }
 
     /**
-     * Algorithm 7.38: CheckConfirmationProof
+     * Algorithm 7.36: CheckConfirmationProof
      *
      * @param pi     the proof of knowledge of private confirmation credential y, provided by the voting client
      * @param y_circ the public confirmation credential corresponding to the private credential y
@@ -84,6 +84,15 @@ public class VoteConfirmationAuthorityAlgorithms {
         BigInteger t = pi.getT().get(0);
         BigInteger s = pi.getS().get(0);
 
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(t),
+                "t must be in G_q_circ");
+        Preconditions.checkArgument(BigInteger.ZERO.compareTo(s) <= 0 &&
+                        s.compareTo(q_circ) < 0,
+                "s must be in Z_q_circ");
+        //noinspection SuspiciousNameCombination
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(y_circ),
+                "y_circ must be in G_q_circ");
+
         BigInteger c = generalAlgorithms.getNIZKPChallenge(new BigInteger[]{y_circ}, new BigInteger[]{t}, q_circ);
         BigInteger t_prime = modExp(g_circ, s, p_circ).multiply(modExp(y_circ, c.negate(), p_circ)).mod(p_circ);
 
@@ -93,19 +102,28 @@ public class VoteConfirmationAuthorityAlgorithms {
     /**
      * Algorithm 7.39: GetFinalization
      *
-     * @param i      the voter index
-     * @param bold_P the point matrix, one point per voter per candidate
-     * @param B      the current ballot list
+     * @param i            the voter index
+     * @param upper_bold_p the point matrix, one point per voter per candidate
+     * @param upper_b      the current ballot list
      * @return this authority's part of the finalization code
      */
-    public FinalizationCodePart getFinalization(Integer i, List<List<Point>> bold_P, Collection<BallotEntry> B) {
-        Object[] bold_p_i = bold_P.get(i).toArray();
-        byte[] F = ByteArrayUtils.truncate(hash.recHash_L(bold_p_i), publicParameters.getL_f() / 8);
+    public FinalizationCodePart getFinalization(Integer i, List<List<Point>> upper_bold_p, Collection<BallotEntry> upper_b) {
+        BigInteger p_prime = publicParameters.getPrimeField().getP_prime();
+        Preconditions.checkArgument(upper_bold_p.stream().flatMap(Collection::stream)
+                        .allMatch(point -> BigInteger.ZERO.compareTo(point.x) <= 0 &&
+                                point.x.compareTo(p_prime) < 0 &&
+                                BigInteger.ZERO.compareTo(point.y) <= 0 &&
+                                point.y.compareTo(p_prime) < 0),
+                "All points' coordinates must be in Z_p_prime");
+        Preconditions.checkElementIndex(i, upper_bold_p.size());
 
-        BallotEntry ballotEntry = B.stream().filter(b -> Objects.equals(b.getI(), i)).findFirst().orElseThrow(
+        Object[] bold_p_i = upper_bold_p.get(i).toArray();
+        byte[] upper_f_i = ByteArrayUtils.truncate(hash.recHash_L(bold_p_i), publicParameters.getL_f() / 8);
+
+        BallotEntry ballotEntry = upper_b.stream().filter(b -> Objects.equals(b.getI(), i)).findFirst().orElseThrow(
                 () -> new BallotNotFoundException(String.format("Couldn't find any ballot for voter %d", i))
         );
 
-        return new FinalizationCodePart(F, ballotEntry.getBold_r());
+        return new FinalizationCodePart(upper_f_i, ballotEntry.getBold_r());
     }
 }
