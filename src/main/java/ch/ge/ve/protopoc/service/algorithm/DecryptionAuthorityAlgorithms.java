@@ -243,6 +243,14 @@ public class DecryptionAuthorityAlgorithms {
      */
     public DecryptionProof genDecryptionProof(BigInteger sk_j, BigInteger pk_j, List<Encryption> bold_e,
                                               List<BigInteger> bold_b_prime) {
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q(sk_j), "sk_j must be in Z_q");
+        Preconditions.checkArgument(generalAlgorithms.isMember(pk_j), "pk_j must be in G_q");
+        Preconditions.checkArgument(bold_e.parallelStream().allMatch(e -> generalAlgorithms.isMember(e.getA()) &&
+                        generalAlgorithms.isMember(e.getB())),
+                "all e_i's must be in G_q^2");
+        Preconditions.checkArgument(bold_b_prime.parallelStream().allMatch(generalAlgorithms::isMember),
+                "all b_prime_i's must be in G_q^2");
+
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();

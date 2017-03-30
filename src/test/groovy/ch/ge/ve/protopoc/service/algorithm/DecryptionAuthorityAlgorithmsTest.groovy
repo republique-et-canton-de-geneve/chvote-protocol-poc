@@ -212,6 +212,14 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         randomGenerator.randomInZq(FIVE) >> TWO
         generalAlgorithms.getNIZKPChallenge(*_) >> ONE
 
+        and: "the expected preconditions"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
+
         expect:
         decryptionAuthorityAlgorithms.genDecryptionProof(sk_j, pk_j, bold_e, bold_b_prime) ==
                 new DecryptionProof([NINE, THREE, NINE, FIVE, FOUR], ZERO)
