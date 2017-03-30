@@ -103,6 +103,16 @@ public class GeneralAlgorithms {
     }
 
     /**
+     * Utility to verify membership for Z_q
+     *
+     * @param x a number
+     * @return true if x &isin; Z_q, false otherwise
+     */
+    public boolean isInZ_q(BigInteger x) {
+        return x.compareTo(BigInteger.ZERO) >= 0 && x.compareTo(encryptionGroup.getQ()) < 0;
+    }
+
+    /**
      * Utility to verify membership for G_q_circ
      *
      * @param x a number

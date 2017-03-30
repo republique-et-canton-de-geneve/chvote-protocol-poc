@@ -255,7 +255,7 @@ public class Simulation {
         voteConfirmationClientAlgorithms = new VoteConfirmationClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);
         voteConfirmationVoterAlgorithms = new VoteConfirmationVoterAlgorithms();
         mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, generalAlgorithms, voteConfirmationAuthorityAlgorithms, randomGenerator);
-        decryptionAuthorityAlgorithms = new DecryptionAuthorityAlgorithms(publicParameters, generalAlgorithms, mixingAuthorityAlgorithms, randomGenerator);
+        decryptionAuthorityAlgorithms = new DecryptionAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator);
         tallyingAuthoritiesAlgorithm = new TallyingAuthoritiesAlgorithm(publicParameters, generalAlgorithms);
         log.info("instantiated all algorithm classes");
     }
