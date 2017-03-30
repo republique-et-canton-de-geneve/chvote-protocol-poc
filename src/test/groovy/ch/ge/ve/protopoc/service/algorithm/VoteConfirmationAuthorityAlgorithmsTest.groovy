@@ -67,6 +67,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_circ(t[0]) >> true
         generalAlgorithms.isMember_G_q_circ(y_circ) >> true
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
 
         expect:
         voteConfirmationAuthority.checkConfirmation(i, gamma, bold_y_circ, ballotList, confirmationList) == result
@@ -109,6 +110,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_circ(t[0]) >> true
         generalAlgorithms.isMember_G_q_circ(y_circ) >> true
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
 
         expect:
         voteConfirmationAuthority.checkConfirmationProof(new NonInteractiveZKP(t, s), y_circ) == result

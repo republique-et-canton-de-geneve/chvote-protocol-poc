@@ -86,8 +86,7 @@ public class VoteConfirmationAuthorityAlgorithms {
 
         Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(t),
                 "t must be in G_q_circ");
-        Preconditions.checkArgument(BigInteger.ZERO.compareTo(s) <= 0 &&
-                        s.compareTo(q_circ) < 0,
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q_circ(s),
                 "s must be in Z_q_circ");
         //noinspection SuspiciousNameCombination
         Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(y_circ),

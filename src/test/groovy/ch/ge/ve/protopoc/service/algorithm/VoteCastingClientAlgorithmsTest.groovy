@@ -74,9 +74,11 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         generalAlgorithms.isMember_G_q_circ(ONE) >> true
         generalAlgorithms.isMember(THREE) >> true
         generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> x <= 0 && x < identificationGroup.q_circ }
 
         when: "generating a ballot"
-        def ballotQueryAndRand = voteCastingClient.genBallot("f", [1], new EncryptionPublicKey(THREE, encryptionGroup))
+        def ballotQueryAndRand = voteCastingClient.genBallot("a", [1], new EncryptionPublicKey(THREE, encryptionGroup))
 
         then: "x_circ has the expected value"
         // x = 5
@@ -152,9 +154,11 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         generalAlgorithms.isMember_G_q_circ(ONE) >> true
         generalAlgorithms.isMember(THREE) >> true
         generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
 
         when: "generating a ballot ZKP"
-        def pi = voteCastingClient.genBallotProof(FIVE, THREE, ONE, ONE, NINE, THREE,
+        def pi = voteCastingClient.genBallotProof(ZERO, THREE, ONE, ONE, NINE, THREE,
                 new EncryptionPublicKey(THREE, encryptionGroup))
 
         then:
@@ -188,6 +192,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         generalAlgorithms.isMember(THREE) >> true
         generalAlgorithms.isMember(FOUR) >> true
         generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
 
         when:
         def pointMatrix = voteCastingClient.getPointMatrix([beta_1, beta_2], [1], [3], [ZERO])

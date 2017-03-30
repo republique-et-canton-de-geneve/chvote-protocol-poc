@@ -225,6 +225,8 @@ class MixingAuthorityAlgorithmsTest extends Specification {
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
 
         expect:
         mixingAuthorityAlgorithms.genCommitmentChain(FOUR, bold_u) == new CommitmentChain(bold_c, bold_r)

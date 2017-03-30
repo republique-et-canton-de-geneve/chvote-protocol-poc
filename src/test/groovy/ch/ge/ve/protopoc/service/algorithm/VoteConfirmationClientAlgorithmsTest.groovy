@@ -57,6 +57,7 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
 
         ]
         def bold_k = [1]
+
         and: "known collaborators responses"
         hash.recHash_L(_) >>> [
                 [0x12] as byte[], // j = 1 --> y_1 = 18 mod 5 = 3
@@ -66,8 +67,10 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         ]
         randomGenerator.randomInZq(FIVE) >> THREE // called by GenConfirmationProof - omega
         generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], _ as BigInteger[], _ as BigInteger) >> THREE // c
+
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_circ(ONE) >> true
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
 
         // y = 154 + 3 + 2 + 1 + 0 mod 5 = 0
         // y_circ = g_circ ^ y mod p_circ = 3 ^ 0 mod 11 = 1
@@ -104,16 +107,18 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
     def "genConfirmationProof should generate a valid proof of knowledge for y"() {
         given: "a known random omega"
         randomGenerator.randomInZq(FIVE) >> FOUR // omega
+
         and: "a known challenge value"
         // t = g_circ ^ omega mod p_circ = 3 ^ 4 mod 11 = 4
         generalAlgorithms.getNIZKPChallenge([NINE] as BigInteger[], [FOUR] as BigInteger[], FIVE) >> THREE
+
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_circ(NINE) >> true
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
 
         expect: "the generated proof to have the expected value"
         // s = omega + c * y mod q_circ = 4 + 3 * 2 mod 5 = 0
         voteConfirmationClient.genConfirmationProof(TWO, NINE) == new NonInteractiveZKP([FOUR], [ZERO])
-
     }
 
     def "getFinalizationCode should correctly combine the given finalization code parts"() {

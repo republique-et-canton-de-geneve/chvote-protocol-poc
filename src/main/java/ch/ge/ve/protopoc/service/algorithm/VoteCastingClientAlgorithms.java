@@ -190,14 +190,12 @@ public class VoteCastingClientAlgorithms {
             BigInteger a,
             BigInteger b,
             EncryptionPublicKey pk) {
-        Preconditions.checkArgument(BigInteger.ZERO.compareTo(x) <= 0 &&
-                        x.compareTo(publicParameters.getIdentificationGroup().getQ_circ()) < 1,
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q_circ(x),
                 "The private credential must be in Z_q_circ");
-        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(x_circ), "x_circ must be in G_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(x_circ),
+                "x_circ must be in G_q_circ");
         Preconditions.checkArgument(generalAlgorithms.isMember(m), "m must be in G_q");
-        Preconditions.checkArgument(BigInteger.ZERO.compareTo(r) <= 0 &&
-                        r.compareTo(publicParameters.getEncryptionGroup().getQ()) < 1,
-                "r must be in Z_q");
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q(r), "r must be in Z_q");
         Preconditions.checkArgument(generalAlgorithms.isMember(a), "a must be in G_q");
         Preconditions.checkArgument(generalAlgorithms.isMember(b), "b must be in G_q");
         Preconditions.checkArgument(generalAlgorithms.isMember(pk.getPublicKey()),
@@ -266,8 +264,7 @@ public class VoteCastingClientAlgorithms {
         Preconditions.checkArgument(bold_s.stream().distinct().count() == bold_s.size(),
                 "All selections must be distinct");
         final BigInteger q = publicParameters.getEncryptionGroup().getQ();
-        Preconditions.checkArgument(bold_r.stream().allMatch(r_i -> BigInteger.ZERO.compareTo(r_i) <= 0 &&
-                        r_i.compareTo(q) < 0),
+        Preconditions.checkArgument(bold_r.stream().allMatch(generalAlgorithms::isInZ_q),
                 "All r_i must be in Z_q");
         List<List<Point>> bold_P = new ArrayList<>();
 

@@ -135,14 +135,9 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger s_1 = s.get(0);
         BigInteger s_2 = s.get(1);
         BigInteger s_3 = s.get(2);
-        Preconditions.checkArgument(BigInteger.ZERO.compareTo(s_1) <= 0 &&
-                        s_1.compareTo(publicParameters.getIdentificationGroup().getQ_circ()) < 0,
-                "s_1 must be in Z_q_circ");
-        Preconditions.checkArgument(generalAlgorithms.isMember(s_2),
-                "s_2 must be in G_q");
-        Preconditions.checkArgument(BigInteger.ZERO.compareTo(s_3) <= 0 &&
-                        s_3.compareTo(publicParameters.getEncryptionGroup().getQ()) < 0,
-                "s_3 must be in Z_q");
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q_circ(s_1), "s_1 must be in Z_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isMember(s_2), "s_2 must be in G_q");
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q(s_3), "s_3 must be in Z_q");
 
         Preconditions.checkArgument(pk.getEncryptionGroup() == publicParameters.getEncryptionGroup());
 

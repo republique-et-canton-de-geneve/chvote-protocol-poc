@@ -103,6 +103,17 @@ public class GeneralAlgorithms {
     }
 
     /**
+     * Utility to verify membership for G_q_circ
+     *
+     * @param x a number
+     * @return true if x &isin; identificationGroup, false otherwise
+     */
+    public boolean isMember_G_q_circ(BigInteger x) {
+        return x.compareTo(BigInteger.ONE) >= 0 && x.compareTo(identificationGroup.getP_circ()) < 0 &&
+                BigIntegerArithmetic.jacobiSymbol(x, identificationGroup.getP_circ()) == 1;
+    }
+
+    /**
      * Utility to verify membership for Z_q
      *
      * @param x a number
@@ -113,14 +124,13 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Utility to verify membership for G_q_circ
+     * Utility to verify membership for Z_q_circ
      *
      * @param x a number
-     * @return true if x &isin; identificationGroup, false otherwise
+     * @return true if x &isin; Z_q_circ, false otherwise
      */
-    public boolean isMember_G_q_circ(BigInteger x) {
-        return x.compareTo(BigInteger.ONE) >= 0 && x.compareTo(identificationGroup.getP_circ()) < 0 &&
-                BigIntegerArithmetic.jacobiSymbol(x, identificationGroup.getP_circ()) == 1;
+    public boolean isInZ_q_circ(BigInteger x) {
+        return x.compareTo(BigInteger.ZERO) >= 0 && x.compareTo(identificationGroup.getQ_circ()) < 0;
     }
 
     /**

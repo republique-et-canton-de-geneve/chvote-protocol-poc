@@ -69,6 +69,8 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         generalAlgorithms.isMember(FIVE) >> true
         generalAlgorithms.isMember(NINE) >> true
         generalAlgorithms.isMember_G_q_circ(FOUR) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
 
         expect:
         result == voteCastingAuthority.checkBallot(
@@ -124,6 +126,8 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         generalAlgorithms.isMember(NINE) >> true
         generalAlgorithms.isMember_G_q_circ(FIVE) >> true
         generalAlgorithms.isMember_G_q_circ(NINE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
 
         expect: "the verification of the Proof to have the expected result"
         result == voteCastingAuthority.checkBallotProof(new NonInteractiveZKP(t, s), x_circ, a, b, encryptionKey)

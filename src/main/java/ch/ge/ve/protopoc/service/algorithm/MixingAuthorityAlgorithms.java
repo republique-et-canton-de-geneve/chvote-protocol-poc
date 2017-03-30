@@ -164,8 +164,7 @@ public class MixingAuthorityAlgorithms {
         Preconditions.checkArgument(bold_e_prime.parallelStream().allMatch(e_prime ->
                         generalAlgorithms.isMember(e_prime.getA()) && generalAlgorithms.isMember(e_prime.getB())),
                 "all e_prime_i's should be in G_q^2");
-        Preconditions.checkArgument(bold_r_prime.parallelStream().allMatch(r_prime ->
-                        BigInteger.ZERO.compareTo(r_prime) <= 0 && r_prime.compareTo(q) < 0),
+        Preconditions.checkArgument(bold_r_prime.parallelStream().allMatch(generalAlgorithms::isInZ_q),
                 "all r_prime_i's should be in Z_q");
         int upper_n = bold_e.size();
         Preconditions.checkArgument(bold_e_prime.size() == upper_n,
@@ -380,10 +379,9 @@ public class MixingAuthorityAlgorithms {
         BigInteger g = publicParameters.getEncryptionGroup().getG();
 
         Preconditions.checkArgument(generalAlgorithms.isMember(c_0),
-                "c_0 msut be in G_q");
-        Preconditions.checkArgument(bold_u.parallelStream().allMatch(
-                u_i -> BigInteger.ZERO.compareTo(u_i) <= 0 && u_i.compareTo(q) < 0
-        ), "all u_i's must be in Z_q");
+                "c_0 must be in G_q");
+        Preconditions.checkArgument(bold_u.parallelStream().allMatch(generalAlgorithms::isInZ_q),
+                "all u_i's must be in Z_q");
 
         List<BigInteger> bold_c = new ArrayList<>();
         List<BigInteger> bold_r = new ArrayList<>();

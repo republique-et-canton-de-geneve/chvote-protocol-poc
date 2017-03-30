@@ -162,8 +162,8 @@ public class VoteConfirmationClientAlgorithms {
         BigInteger q_circ = publicParameters.getIdentificationGroup().getQ_circ();
         BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
 
-        Preconditions.checkArgument(BigInteger.ZERO.compareTo(y) <= 0 &&
-                y.compareTo(q_circ) < 0, "y must be in Z_q_circ");
+        //noinspection SuspiciousNameCombination
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q_circ(y), "y must be in Z_q_circ");
         //noinspection SuspiciousNameCombination
         Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(y_circ),
                 "y_circ must be in G_q_circ");
