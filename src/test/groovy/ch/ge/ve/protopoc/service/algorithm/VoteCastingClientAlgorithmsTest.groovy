@@ -61,11 +61,11 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         primeField.p_prime >> FIVE
         publicParameters.securityParameters >> securityParameters
         securityParameters.l >> 32
-        publicParameters.l_m >> 32
-        publicParameters.l_r >> 16
+        publicParameters.upper_l_m >> 4
+        publicParameters.upper_l_r >> 2
         publicParameters.s >> 2
-        publicParameters.a_x >> (defaultAlphabet as List<Character>)
-        publicParameters.a_r >> (defaultAlphabet as List<Character>)
+        publicParameters.upper_a_x >> (defaultAlphabet as List<Character>)
+        publicParameters.upper_a_r >> (defaultAlphabet as List<Character>)
         publicParameters.k_x >> 3
 
         voteCastingClient = new VoteCastingClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)

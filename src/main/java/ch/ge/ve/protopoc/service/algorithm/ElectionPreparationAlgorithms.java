@@ -102,13 +102,17 @@ public class ElectionPreparationAlgorithms {
      * @return the secret data for a single voter
      */
     public SecretVoterData genSecretVoterData(List<Point> bold_p) {
-        BigInteger x = randomGenerator.randomInZq(q_x);
-        BigInteger y = randomGenerator.randomInZq(q_y);
-        byte[] F = ByteArrayUtils.truncate(hash.recHash_L(bold_p.toArray()), publicParameters.getL_f() / 8);
+        BigInteger bigIntS = BigInteger.valueOf(publicParameters.getS());
+        BigInteger q_circ_prime_x = publicParameters.getQ_circ_x().divide(bigIntS);
+        BigInteger q_circ_prime_y = publicParameters.getQ_circ_y().divide(bigIntS);
+
+        BigInteger x = randomGenerator.randomInZq(q_circ_prime_x);
+        BigInteger y = randomGenerator.randomInZq(q_circ_prime_y);
+        byte[] F = ByteArrayUtils.truncate(hash.recHash_L(bold_p.toArray()), publicParameters.getUpper_l_f());
         byte[][] rc = new byte[bold_p.size()][];
 
         for (int i = 0; i < bold_p.size(); i++) {
-            rc[i] = ByteArrayUtils.truncate(hash.recHash_L(bold_p.get(i)), publicParameters.getL_r() / 8);
+            rc[i] = ByteArrayUtils.truncate(hash.recHash_L(bold_p.get(i)), publicParameters.getUpper_l_r());
         }
 
         return new SecretVoterData(x, y, F, rc);
@@ -123,9 +127,9 @@ public class ElectionPreparationAlgorithms {
      * @return the public data for a single voter, sent to the bulletin board
      */
     public Point getPublicVoterData(BigInteger x, BigInteger y, List<BigInteger> bold_y) {
-        BigInteger local_y = y.add(conversion.toInteger(hash.recHash_L(bold_y.toArray()))).mod(identificationGroup.getQ_circ());
+        BigInteger y_plus_h = y.add(conversion.toInteger(hash.recHash_L(bold_y.toArray()))).mod(identificationGroup.getQ_circ());
         BigInteger x_circ = modExp(identificationGroup.getG_circ(), x, identificationGroup.getP_circ());
-        BigInteger y_circ = modExp(identificationGroup.getG_circ(), local_y, identificationGroup.getP_circ());
+        BigInteger y_circ = modExp(identificationGroup.getG_circ(), y_plus_h, identificationGroup.getP_circ());
 
         return new Point(x_circ, y_circ);
     }

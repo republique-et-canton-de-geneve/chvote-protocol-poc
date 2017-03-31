@@ -94,7 +94,7 @@ public class VoteConfirmationClientAlgorithms {
                 .map(bold_y_j -> conversion.toInteger(hash.recHash_L(bold_y_j.toArray())).mod(q_circ))
                 .collect(Collectors.toList());
 
-        BigInteger y = conversion.toInteger(upper_y, publicParameters.getA_y())
+        BigInteger y = conversion.toInteger(upper_y, publicParameters.getUpper_a_y())
                 .add(h_js.stream().reduce(BigInteger::add).orElse(ZERO))
                 .mod(q_circ);
         BigInteger y_circ = modExp(g_circ, y, p_circ);
@@ -211,7 +211,7 @@ public class VoteConfirmationClientAlgorithms {
         return bold_delta.stream()
                 .map(FinalizationCodePart::getF) // extract F_j
                 .reduce(ByteArrayUtils::xor) // xor over j
-                .map(b -> conversion.toString(b, publicParameters.getA_f()))
+                .map(b -> conversion.toString(b, publicParameters.getUpper_a_f()))
                 .orElse("");
     }
 }

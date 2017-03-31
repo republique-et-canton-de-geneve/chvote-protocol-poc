@@ -26,6 +26,7 @@ import spock.lang.Specification
 
 import static ch.ge.ve.protopoc.service.support.BigIntegers.*
 import static java.math.BigInteger.ONE
+import static java.math.BigInteger.ZERO
 
 /**
  * Tests for the algorithms related to the code sheets preparation
@@ -40,16 +41,16 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray()
 
         publicParameters.s >> 2 // For the sake of simplifying the examples
-        publicParameters.l_x >> 16
-        publicParameters.l_y >> 16
-        publicParameters.l_f >> 16
-        publicParameters.l_r >> 16
-        publicParameters.a_x >> (defaultAlphabet as List<Character>)
-        publicParameters.a_y >> (defaultAlphabet as List<Character>)
-        publicParameters.a_f >> (defaultAlphabet as List<Character>)
-        publicParameters.a_r >> (defaultAlphabet as List<Character>)
-        publicParameters.k_x >> 3
-        publicParameters.k_y >> 3
+        publicParameters.q_circ_x >> FIVE
+        publicParameters.l_x >> 2
+        publicParameters.q_circ_y >> FIVE
+        publicParameters.l_y >> 2
+        publicParameters.upper_l_f >> 2
+        publicParameters.upper_l_r >> 2
+        publicParameters.upper_a_x >> (defaultAlphabet as List<Character>)
+        publicParameters.upper_a_y >> (defaultAlphabet as List<Character>)
+        publicParameters.upper_a_f >> (defaultAlphabet as List<Character>)
+        publicParameters.upper_a_r >> (defaultAlphabet as List<Character>)
         publicParameters.n_max >> 3
         publicParameters.identificationGroup >> identificationGroup
         identificationGroup.q_circ >> FIVE
@@ -94,8 +95,8 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         election2.numberOfSelections >> 1
 
         and: "the following values for voter 1"
-        voter1Authority1.x >> FIVE
-        voter1Authority2.x >> THREE
+        voter1Authority1.x >> ZERO
+        voter1Authority2.x >> TWO
         voter1Authority1.y >> TWO
         voter1Authority2.y >> ONE
         voter1Authority1.f >> ([0x01, 0x01] as byte[])
@@ -105,9 +106,9 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
 
         and: "the following values for voter 2"
         voter2Authority1.x >> FOUR
-        voter2Authority2.x >> ONE
-        voter2Authority1.y >> THREE
-        voter2Authority2.y >> FOUR
+        voter2Authority2.x >> ZERO
+        voter2Authority1.y >> ONE
+        voter2Authority2.y >> ONE
         voter2Authority1.f >> ([0x0F, 0x0F] as byte[])
         voter2Authority2.f >> ([0x31, 0x41] as byte[])
         voter2Authority1.rc >> ([[0x01, 0x02], [0x03, 0x04], [0x05, 0x06], [0x07, 0x08]] as byte[][])
@@ -125,8 +126,8 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         def sheet_1 = sheets.get(0)
         sheet_1.voter == voter1
         sheet_1.electionSet == electionSet
-        sheet_1.upper_x == "aad" // 5 + 3 = 8 => mod 5 = 3
-        sheet_1.upper_y == "aad" // 2 + 1 = 3
+        sheet_1.upper_x == "ac" // 0 + 2 = 2
+        sheet_1.upper_y == "ad" // 2 + 1 = 3
         sheet_1.upper_fc == "baq" // [0x10, 0x10] -> 4112
         sheet_1.bold_rc == [
                 "mdq", // [0xC0, 0xD0] -> marked with 0, n_max = 3 -> [0xC0, 0xD0] -> 49360
@@ -139,8 +140,8 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         def sheet_2 = sheets.get(1)
         sheet_2.voter == voter2
         sheet_2.electionSet == electionSet
-        sheet_2.upper_x == "aaa" // 4 + 1 = 5 => mod 5 = 0
-        sheet_2.upper_y == "aac" // 3 + 4 = 7 => mod 5 = 2
+        sheet_2.upper_x == "ae" // 4 + 0 = 4
+        sheet_2.upper_y == "ac" // 1 + 1 = 2
         sheet_2.upper_fc == "d5o" // [0x3E, 0x4E] -> 15950
         sheet_2.bold_rc == [
                 "mds", // [0xC1, 0xD2] -> marked with 0, n_max = 3 -> [0xC0, 0xD2] -> 49362

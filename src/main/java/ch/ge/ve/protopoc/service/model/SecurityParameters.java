@@ -28,14 +28,14 @@ import com.google.common.base.Preconditions;
  */
 public class SecurityParameters {
     /**
-     * Minimal privacy security level &lambda;
+     * Minimal privacy security level &sigma;
      */
-    private final int lambda;
+    private final int sigma;
 
     /**
-     * Minimal integrity security level &mu;
+     * Minimal integrity security level &tau;
      */
-    private final int mu;
+    private final int tau;
 
     /**
      * Output length of collision-resistant hash-function l (in bits)
@@ -47,22 +47,22 @@ public class SecurityParameters {
      */
     private final double epsilon;
 
-    public SecurityParameters(int lambda, int mu, int l, double epsilon) {
+    public SecurityParameters(int sigma, int tau, int l, double epsilon) {
         Preconditions.checkArgument(l % 8 == 0, "l should be a multiple of 8, so that l = 8L");
-        Preconditions.checkArgument(l >= 2 * Math.max(lambda, mu));
+        Preconditions.checkArgument(l >= 2 * Math.max(sigma, tau));
         Preconditions.checkArgument(0.0 < epsilon && epsilon <= 1.0);
-        this.lambda = lambda;
-        this.mu = mu;
+        this.sigma = sigma;
+        this.tau = tau;
         this.l = l;
         this.epsilon = epsilon;
     }
 
-    public int getLambda() {
-        return lambda;
+    public int getSigma() {
+        return sigma;
     }
 
-    public int getMu() {
-        return mu;
+    public int getTau() {
+        return tau;
     }
 
     public int getL() {

@@ -60,9 +60,9 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         primeField.p_prime >> SEVEN
         publicParameters.s >> 4
 
-        publicParameters.a_y >> (defaultAlphabet as List<Character>)
+        publicParameters.upper_a_y >> (defaultAlphabet as List<Character>)
         publicParameters.k_y >> 2
-        publicParameters.a_f >> (defaultAlphabet as List<Character>)
+        publicParameters.upper_a_f >> (defaultAlphabet as List<Character>)
 
         voteConfirmationClient = new VoteConfirmationClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
     }

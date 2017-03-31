@@ -323,14 +323,12 @@ public class Simulation {
                 SimulationConstants.q_circ_RC0s, SimulationConstants.g_circ_RC0s);
         PrimeField primeField = createPrimeField(securityParameters);
 
-        int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
-
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                defaultAlphabet, 2 * securityParameters.getMu(),
-                defaultAlphabet, 2 * securityParameters.getMu(),
-                defaultAlphabet, 8,
-                defaultAlphabet, 8,
-                l_m, 4, SimulationConstants.default_n_max);
+                identificationGroup.getQ_circ(), defaultAlphabet,
+                identificationGroup.getQ_circ(), defaultAlphabet,
+                defaultAlphabet, 1,
+                defaultAlphabet, 1,
+                4, SimulationConstants.default_n_max);
     }
 
     private void createSecurityLevel1Parameters() {
@@ -341,14 +339,12 @@ public class Simulation {
                 SimulationConstants.q_circ_RC1s, SimulationConstants.g_circ_RC1s);
         PrimeField primeField = createPrimeField(securityParameters);
 
-        int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
-
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                defaultAlphabet, 2 * securityParameters.getMu(),
-                defaultAlphabet, 2 * securityParameters.getMu(),
-                defaultAlphabet, 16,
-                defaultAlphabet, 16,
-                l_m, 4, SimulationConstants.default_n_max);
+                identificationGroup.getQ_circ(), defaultAlphabet,
+                identificationGroup.getQ_circ(), defaultAlphabet,
+                defaultAlphabet, 2,
+                defaultAlphabet, 2,
+                4, SimulationConstants.default_n_max);
     }
 
     private void createSecurityLevel2Parameters() {
@@ -358,21 +354,19 @@ public class Simulation {
         IdentificationGroup identificationGroup = createIdentificationGroup(SimulationConstants.p_circ_2048, securityParameters);
         PrimeField primeField = createPrimeField(securityParameters);
 
-        int l_m = 16 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));
-
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                defaultAlphabet, 2 * securityParameters.getMu(),
-                defaultAlphabet, 2 * securityParameters.getMu(),
-                defaultAlphabet, 16,
-                defaultAlphabet, 16,
-                l_m, 4, SimulationConstants.default_n_max);
+                identificationGroup.getQ_circ(), defaultAlphabet,
+                identificationGroup.getQ_circ(), defaultAlphabet,
+                defaultAlphabet, 2,
+                defaultAlphabet, 2,
+                4, SimulationConstants.default_n_max);
     }
 
     private PrimeField createPrimeField(SecurityParameters securityParameters) {
         log.info("creating prime field");
         PrimeField primeField = null;
         while (primeField == null) {
-            BigInteger p_prime = BigInteger.probablePrime(2 * securityParameters.getMu(), secureRandom);
+            BigInteger p_prime = BigInteger.probablePrime(2 * securityParameters.getTau(), secureRandom);
             primeField = new PrimeField(p_prime);
         }
         log.info("prime field created");
@@ -394,7 +388,7 @@ public class Simulation {
                 log.info("q_circ is not prime");
                 continue;
             }
-            if (q_circ.bitLength() < 2 * securityParameters.getMu()) {
+            if (q_circ.bitLength() < 2 * securityParameters.getTau()) {
                 log.info("|q_circ| < 2*mu");
                 continue;
             }
