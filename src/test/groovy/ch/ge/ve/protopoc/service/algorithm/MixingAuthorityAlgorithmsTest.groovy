@@ -21,6 +21,7 @@ class MixingAuthorityAlgorithmsTest extends Specification {
     EncryptionGroup encryptionGroup = Mock()
 
     MixingAuthorityAlgorithms mixingAuthorityAlgorithms
+    DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms
 
     void setup() {
         publicParameters.encryptionGroup >> encryptionGroup
@@ -30,6 +31,7 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         encryptionGroup.h >> FOUR
 
         mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, generalAlgorithms, voteConfirmationAuthorityAlgorithms, randomGenerator)
+        decryptionAuthorityAlgorithms = new DecryptionAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator)
     }
 
     def "getEncryptions should retrieve a list of valid, confirmed encryptions"() {
@@ -67,6 +69,13 @@ class MixingAuthorityAlgorithmsTest extends Specification {
                 new Encryption(FIVE, NINE)
         ]
         def publicKey = new EncryptionPublicKey(THREE, encryptionGroup)
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isMember(NINE) >> true
 
         when:
         def shuffle = mixingAuthorityAlgorithms.genShuffle(bold_e, publicKey)
@@ -116,6 +125,11 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         def pk = new EncryptionPublicKey(THREE, encryptionGroup)
         randomGenerator.randomInZq(FIVE) >> r_prime
 
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(a) >> true
+        generalAlgorithms.isMember(b) >> true
+
         expect:
         mixingAuthorityAlgorithms.genReEncryption(new Encryption(a, b), pk) ==
                 new ReEncryption(new Encryption(a_prime, b_prime), r_prime)
@@ -164,44 +178,29 @@ class MixingAuthorityAlgorithmsTest extends Specification {
                 [TWO, FOUR, THREE]
         generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
 
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
+
         when:
         def proof = mixingAuthorityAlgorithms.genShuffleProof(bold_e, bold_e_prime, bold_r_prime, psy, pk)
 
         then: "the proof should be valid"
-        mixingAuthorityAlgorithms.checkShuffleProof(proof, bold_e, bold_e_prime, pk)
-    }
-
-    def "checkShuffleProof should correctly validate a shuffle proof"() {
-        given:
-        def bold_e = [
-                new Encryption(FIVE, ONE),
-                new Encryption(THREE, FOUR),
-                new Encryption(FIVE, NINE)
-        ]
-        def bold_e_prime = [
-                new Encryption(ONE, FIVE),
-                new Encryption(FOUR, THREE),
-                new Encryption(ONE, FOUR)
-        ]
-        def pk = new EncryptionPublicKey(THREE, encryptionGroup)
-        def t = new ShuffleProof.T(THREE, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
-        def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
-        def bold_c = [NINE, THREE, THREE]
-        def bold_c_circ = [ONE, ONE, THREE]
-        def pi = new ShuffleProof(t, s, bold_c, bold_c_circ)
-
-        generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
-        generalAlgorithms.getChallenges(3, [bold_e, bold_e_prime, [NINE, THREE, THREE]] as List[], FIVE) >>
-                [TWO, FOUR, THREE]
-        generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
-
-        expect:
-        mixingAuthorityAlgorithms.checkShuffleProof(pi, bold_e, bold_e_prime, pk) // == true implied
+        decryptionAuthorityAlgorithms.checkShuffleProof(proof, bold_e, bold_e_prime, pk)
     }
 
     def "genPermutationCommitment should generate a valid permutation commitment"() {
         given:
         randomGenerator.randomInZq(FIVE) >>> random
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
 
         when:
         def commitment = mixingAuthorityAlgorithms.genPermutationCommitment(psy, bold_h)
@@ -224,11 +223,16 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         given:
         randomGenerator.randomInZq(FIVE) >>> bold_r
 
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
+
         expect:
-        mixingAuthorityAlgorithms.genCommitmentChain(FOUR, bold_u_prime) == new CommitmentChain(bold_c, bold_r)
+        mixingAuthorityAlgorithms.genCommitmentChain(FOUR, bold_u) == new CommitmentChain(bold_c, bold_r)
 
         where:
-        bold_u_prime       | bold_r            || bold_c
+        bold_u             | bold_r            || bold_c
         [FOUR, TWO, THREE] | [FOUR, ZERO, ONE] || [ONE, ONE, THREE]
     }
 }

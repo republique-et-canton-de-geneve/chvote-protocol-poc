@@ -11,6 +11,7 @@ import static java.math.BigInteger.ONE
  */
 class CodeSheetPreparationAlgorithmsTest extends Specification {
     PublicParameters publicParameters = Mock()
+    IdentificationGroup identificationGroup = Mock()
 
     CodeSheetPreparationAlgorithms codeSheetPreparation
 
@@ -28,6 +29,9 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         publicParameters.a_r >> (defaultAlphabet as List<Character>)
         publicParameters.k_x >> 3
         publicParameters.k_y >> 3
+        publicParameters.n_max >> 3
+        publicParameters.identificationGroup >> identificationGroup
+        identificationGroup.q_circ >> FIVE
 
         codeSheetPreparation = new CodeSheetPreparationAlgorithms(publicParameters)
 
@@ -100,29 +104,29 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         def sheet_1 = sheets.get(0)
         sheet_1.voter == voter1
         sheet_1.electionSet == electionSet
-        sheet_1.x_i == "aai" // 5 + 3 = 8
-        sheet_1.y_i == "aad" // 2 + 1 = 3
-        sheet_1.f_i == "baq" // [0x10, 0x10] -> 4112
-        sheet_1.rc_i == [
-                "mdq", // [0xC0, 0xD0] -> 49360
-                "odW", // [0xE0, 0xF0] -> 57584
-                "mdq", // [0xC0, 0xD0] -> 49360
-                "odW" // [0xE0, 0xF0] -> 57584
+        sheet_1.upper_x == "aad" // 5 + 3 = 8 => mod 5 = 3
+        sheet_1.upper_y == "aad" // 2 + 1 = 3
+        sheet_1.upper_fc == "baq" // [0x10, 0x10] -> 4112
+        sheet_1.bold_rc == [
+                "mdq", // [0xC0, 0xD0] -> marked with 0, n_max = 3 -> [0xC0, 0xD0] -> 49360
+                "ohW", // [0xE0, 0xF0] -> marked with 1, n_max = 3 -> [0xE1, 0xF0] -> 57840
+                "mdr", // [0xC0, 0xD0] -> marked with 2, n_max = 3 -> [0xC0, 0xD1] -> 49361
+                "ohX" // [0xE0, 0xF0] -> marked with 3, n_max = 3 -> [0xE1, 0xF1] -> 57841
         ]
-        sheet_1.k_i == [1, 1]
+        sheet_1.bold_k == [1, 1]
 
         def sheet_2 = sheets.get(1)
         sheet_2.voter == voter2
         sheet_2.electionSet == electionSet
-        sheet_2.x_i == "aaf" // 4 + 1 = 5
-        sheet_2.y_i == "aah" // 3 + 4 = 7
-        sheet_2.f_i == "d5o" // [0x3E, 0x4E] -> 15950
-        sheet_2.rc_i == [
-                "mhs", // [0xC1, 0xD2] -> 49618
-                "op0", // [0xE3, 0xF4] -> 58356
-                "mxw", // [0xC5, 0xD6] -> 50646
-                "oF4" // [0xE7, 0xF8] -> 59384
+        sheet_2.upper_x == "aaa" // 4 + 1 = 5 => mod 5 = 0
+        sheet_2.upper_y == "aac" // 3 + 4 = 7 => mod 5 = 2
+        sheet_2.upper_fc == "d5o" // [0x3E, 0x4E] -> 15950
+        sheet_2.bold_rc == [
+                "mds", // [0xC1, 0xD2] -> marked with 0, n_max = 3 -> [0xC0, 0xD2] -> 49362
+                "op0", // [0xE3, 0xF4] -> marked with 1, n_max = 3 -> [0xE3, 0xF4] -> 58356
+                "mtx", // [0xC5, 0xD6] -> marked with 2, n_max= 3 -> [0xC4, 0xD7] -> 50391
+                "oF5" // [0xE7, 0xF8] -> marked with 2, n_max= 3 -> [0xE7, 0xF9] -> 59385
         ]
-        sheet_2.k_i == [1, 0]
+        sheet_2.bold_k == [1, 0]
     }
 }

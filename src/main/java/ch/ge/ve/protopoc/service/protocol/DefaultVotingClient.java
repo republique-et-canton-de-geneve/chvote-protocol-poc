@@ -74,7 +74,7 @@ public class DefaultVotingClient implements VotingClientService {
 
         stopwatch.reset().start();
         pointMatrix = computePointMatrix(selections, obliviousTransferResponses);
-        List<String> returnCodes = voteCastingClientAlgorithms.getReturnCodes(pointMatrix);
+        List<String> returnCodes = voteCastingClientAlgorithms.getReturnCodes(selections, pointMatrix);
         stopwatch.stop();
         stats.returnCodesComputationTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 

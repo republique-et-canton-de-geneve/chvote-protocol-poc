@@ -55,6 +55,11 @@ public class PublicParameters {
      */
     private final int s;
 
+    /**
+     * Maximal number of accepted candidates
+     */
+    private final int n_max;
+
     public PublicParameters(SecurityParameters securityParameters,
                             EncryptionGroup encryptionGroup,
                             IdentificationGroup identificationGroup,
@@ -68,7 +73,8 @@ public class PublicParameters {
                             List<Character> A_f,
                             int l_f,
                             int l_m,
-                            int s) {
+                            int s,
+                            int n_max) {
         // All tests that only impact properties of a given element are performed locally at the constructor level
         // Preconditions tested here are those that impact a combination of the properties of the lower level elements
         Preconditions.checkArgument(encryptionGroup.getH().compareTo(BigIntegers.TWO) >= 0,
@@ -102,6 +108,7 @@ public class PublicParameters {
         this.l_f = l_f;
         this.l_m = l_m;
         this.s = s;
+        this.n_max = n_max;
     }
 
     public SecurityParameters getSecurityParameters() {
@@ -178,5 +185,9 @@ public class PublicParameters {
 
     private int getLength(int bitLength, int alphabetSize) {
         return (int) Math.ceil(bitLength / (Math.log(alphabetSize) / Math.log(2)));
+    }
+
+    public int getN_max() {
+        return n_max;
     }
 }

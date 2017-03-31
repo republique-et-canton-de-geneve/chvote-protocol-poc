@@ -27,13 +27,13 @@ public class VoteConfirmationVoterAlgorithms {
     }
 
     /**
-     * Algorithm 7.30: CheckFinalizationCode
+     * Algorithm 7.39: CheckFinalizationCode
      *
-     * @param F       the printed finalization code, received before the vote casting phase
-     * @param F_prime the displayed finalization code, shown during the vote casting session
+     * @param upper_fc       the printed finalization code, received before the vote casting phase
+     * @param upper_fc_prime the displayed finalization code, shown during the vote casting session
      * @return true if both finalization codes match, false otherwise
      */
-    public boolean checkFinalizationCode(String F, String F_prime) {
-        return F.equals(F_prime);
+    public boolean checkFinalizationCode(String upper_fc, String upper_fc_prime) {
+        return upper_fc.equals(upper_fc_prime);
     }
 }

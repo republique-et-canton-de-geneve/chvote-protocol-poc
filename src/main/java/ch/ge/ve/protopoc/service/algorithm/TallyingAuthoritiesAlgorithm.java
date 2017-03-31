@@ -35,26 +35,41 @@ public class TallyingAuthoritiesAlgorithm {
     /**
      * Algorithm 7.51: GenDecryptionProofs
      *
-     * @param bold_pi_prime the vector of the decryption proofs, by authority
-     * @param bold_pk       the vector of the public key shares, by authority
-     * @param bold_e        the vector of the encrypted ballots
-     * @param bold_B_prime  the matrix of partial decryptions, by authority, by ballot
+     * @param bold_pi_prime      the vector of the decryption proofs, by authority
+     * @param bold_pk            the vector of the public key shares, by authority
+     * @param bold_e             the vector of the encrypted ballots
+     * @param upper_bold_b_prime the matrix of partial decryptions, by authority, by ballot
      * @return true if all the proofs are valid, false otherwise
      */
     public boolean checkDecryptionProofs(List<DecryptionProof> bold_pi_prime, List<BigInteger> bold_pk,
-                                         List<Encryption> bold_e, List<List<BigInteger>> bold_B_prime) {
+                                         List<Encryption> bold_e, List<List<BigInteger>> upper_bold_b_prime) {
+        // Validity checks
+        Preconditions.checkArgument(bold_pi_prime.parallelStream().allMatch(pi_prime ->
+                        pi_prime.getT().parallelStream().allMatch(generalAlgorithms::isMember) &&
+                                generalAlgorithms.isInZ_q(pi_prime.getS())),
+                "all pi_prime_i's t's should be in G_q, and s in Z_q");
+        Preconditions.checkArgument(bold_pk.parallelStream().allMatch(generalAlgorithms::isMember),
+                "all public key shares should be in G_q");
+        Preconditions.checkArgument(bold_e.parallelStream().allMatch(e -> generalAlgorithms.isMember(e.getA()) &&
+                        generalAlgorithms.isMember(e.getB())),
+                "all e_i's must be in G_q^2");
+        Preconditions.checkArgument(upper_bold_b_prime.parallelStream()
+                        .flatMap(List::parallelStream).allMatch(generalAlgorithms::isMember),
+                "all elements within upper_bold_b_prime should be in G_q");
+
+        // Size checks
         int s = publicParameters.getS();
         int N = bold_e.size();
         Preconditions.checkArgument(bold_pi_prime.size() == s,
                 "There should be as many decryption proofs as authorities");
         Preconditions.checkArgument(bold_pk.size() == s,
                 "There should be as many public key shares as authorities");
-        Preconditions.checkArgument(bold_B_prime.size() == s,
-                "There should be as many rows to bold_B_prime as there are authorities");
-        Preconditions.checkArgument(bold_B_prime.stream().map(List::size).allMatch(l -> l == N),
-                "There should be as many columns to bold_B_prime as there are encryptions");
+        Preconditions.checkArgument(upper_bold_b_prime.size() == s,
+                "There should be as many rows to upper_bold_b_prime as there are authorities");
+        Preconditions.checkArgument(upper_bold_b_prime.stream().map(List::size).allMatch(l -> l == N),
+                "There should be as many columns to upper_bold_b_prime as there are encryptions");
         return IntStream.range(0, s).allMatch(j ->
-                checkDecryptionProof(bold_pi_prime.get(j), bold_pk.get(j), bold_e, bold_B_prime.get(j)));
+                checkDecryptionProof(bold_pi_prime.get(j), bold_pk.get(j), bold_e, upper_bold_b_prime.get(j)));
     }
 
     /**
@@ -68,13 +83,23 @@ public class TallyingAuthoritiesAlgorithm {
      */
     public boolean checkDecryptionProof(DecryptionProof pi_prime, BigInteger pk_j, List<Encryption> bold_e,
                                         List<BigInteger> bold_b_prime) {
+        // Validity checks
+        Preconditions.checkArgument(pi_prime.getT().parallelStream().allMatch(generalAlgorithms::isMember),
+                "all pi.t elements must be in G_q");
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q(pi_prime.getS()),
+                "pi.s must be in Z_q");
+        Preconditions.checkArgument(generalAlgorithms.isMember(pk_j),
+                "the public key must be in G_q");
+        Preconditions.checkArgument(bold_b_prime.parallelStream().allMatch(generalAlgorithms::isMember),
+                "all elements of bold_b_prime must be in G_q");
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
 
         List<BigInteger> bold_b = bold_e.stream().map(Encryption::getB).collect(Collectors.toList());
         Object[] y = {pk_j, bold_b, bold_b_prime};
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, pi_prime.getT().toArray(new BigInteger[0]), q);
+        BigInteger[] t = pi_prime.getT().toArray(new BigInteger[0]);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t, q);
         BigInteger t_prime_0 = modExp(pk_j, c.negate(), p).multiply(modExp(g, pi_prime.getS(), p)).mod(p);
         List<BigInteger> t_prime = IntStream.range(0, bold_b.size())
                 .mapToObj(i ->
@@ -83,7 +108,8 @@ public class TallyingAuthoritiesAlgorithm {
                 .collect(Collectors.toList());
         t_prime.add(0, t_prime_0);
 
-        boolean isProofValid = IntStream.range(0, t_prime.size()).allMatch(i -> pi_prime.getT().get(i).compareTo(t_prime.get(i)) == 0);
+        boolean isProofValid = IntStream.range(0, t_prime.size()).allMatch(i ->
+                pi_prime.getT().get(i).compareTo(t_prime.get(i)) == 0);
         if (!isProofValid) {
             log.error("Invalid decryption proof found");
         }
@@ -91,22 +117,31 @@ public class TallyingAuthoritiesAlgorithm {
     }
 
     /**
-     * Algorithm 7.43: GetDecryptions
+     * Algorithm 7.53: GetDecryptions
      *
-     * @param bold_e       the ElGamal encryptions of the ballots
-     * @param bold_B_prime the matrix of partial decryptions, per authority, per ballot
+     * @param bold_e             the ElGamal encryptions of the ballots
+     * @param upper_bold_b_prime the matrix of partial decryptions, per authority, per ballot
      * @return the list of decryptions, by assembling the partial decryptions obtained from the authorities
      */
-    public List<BigInteger> getDecryptions(List<Encryption> bold_e, List<List<BigInteger>> bold_B_prime) {
+    public List<BigInteger> getDecryptions(List<Encryption> bold_e, List<List<BigInteger>> upper_bold_b_prime) {
+        // Validity checks
+        Preconditions.checkArgument(bold_e.parallelStream().allMatch(e -> generalAlgorithms.isMember(e.getA()) &&
+                        generalAlgorithms.isMember(e.getB())),
+                "all e_i's must be in G_q^2");
+        Preconditions.checkArgument(upper_bold_b_prime.parallelStream()
+                        .flatMap(List::parallelStream).allMatch(generalAlgorithms::isMember),
+                "all elements within upper_bold_b_prime should be in G_q");
+
+        // Size checks
         int N = bold_e.size();
         int s = publicParameters.getS();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
-        Preconditions.checkArgument(bold_B_prime.size() == s,
-                "There should be one row in bold_B_prime per authority");
-        Preconditions.checkArgument(bold_B_prime.stream().map(List::size).allMatch(l -> l == N),
-                "Each row of bold_B_prime should contain one partial decryption per ballot");
+        Preconditions.checkArgument(upper_bold_b_prime.size() == s,
+                "There should be one row in upper_bold_b_prime per authority");
+        Preconditions.checkArgument(upper_bold_b_prime.stream().map(List::size).allMatch(l -> l == N),
+                "Each row of upper_bold_b_prime should contain one partial decryption per ballot");
         return IntStream.range(0, N).mapToObj(i -> {
-            BigInteger b_prime_i = IntStream.range(0, s).mapToObj(j -> bold_B_prime.get(j).get(i))
+            BigInteger b_prime_i = IntStream.range(0, s).mapToObj(j -> upper_bold_b_prime.get(j).get(i))
                     .reduce(BigInteger::multiply)
                     .orElse(ONE)
                     .mod(p);
@@ -122,6 +157,9 @@ public class TallyingAuthoritiesAlgorithm {
      * @return the final tally <tt>t = (t_0, ..., t_n)</tt>, where t_i is the number of votes candidate i received
      */
     public List<Long> getTally(List<BigInteger> bold_m, int n) {
+        Preconditions.checkArgument(bold_m.parallelStream().allMatch(generalAlgorithms::isMember),
+                "all m_i's must be in G_q");
+        Preconditions.checkArgument(n >= 2, "There must be at least two candidates");
         List<BigInteger> bold_p;
         try {
             bold_p = generalAlgorithms.getPrimes(n);

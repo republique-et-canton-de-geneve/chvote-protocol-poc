@@ -3,6 +3,7 @@ package ch.ge.ve.protopoc.service.algorithm;
 import ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic;
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.EncryptionGroup;
+import ch.ge.ve.protopoc.service.model.IdentificationGroup;
 import ch.ge.ve.protopoc.service.support.ByteArrayUtils;
 import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
@@ -25,38 +26,28 @@ public class GeneralAlgorithms {
     private final Hash hash;
     private final Conversion conversion;
     private final EncryptionGroup encryptionGroup;
+    private final IdentificationGroup identificationGroup;
     private ImmutableList<BigInteger> cachedPrimes;
 
     /**
      * Constructor, defines all collaborators
      *
-     * @param hash
-     * @param conversion
-     * @param encryptionGroup
+     * @param hash                the hash implementation
+     * @param conversion          the conversion implementation
+     * @param encryptionGroup     the encryption group used
+     * @param identificationGroup the identification group used
      */
-    public GeneralAlgorithms(Hash hash, Conversion conversion, EncryptionGroup encryptionGroup) {
+    public GeneralAlgorithms(Hash hash, Conversion conversion, EncryptionGroup encryptionGroup,
+                             IdentificationGroup identificationGroup) {
         this.hash = hash;
         this.conversion = conversion;
         this.encryptionGroup = encryptionGroup;
+        this.identificationGroup = identificationGroup;
     }
 
     /**
-     * Algorithm 7.1 : isMember
-     *
-     * @param x A number
-     * @return true if x &isin; encryptionGroup, false otherwise
-     */
-    public boolean isMember(BigInteger x) {
-        if (x.compareTo(BigInteger.ONE) >= 0 &&
-                x.compareTo(encryptionGroup.getP()) <= -1) {
-            return BigIntegerArithmetic.jacobiSymbol(x, encryptionGroup.getP()) == 1;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Algorithm 7.2: getPrimes
+     * Algorithm 7.1: GetPrimes
+     * <p>This implementation makes use of a cache, as suggested in the comment of the algorithm</p>
      *
      * @param n the number of requested primes
      * @return the ordered list of the n first primes found in the group
@@ -101,26 +92,49 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 7.3: getSelectedPrimes
+     * Algorithm 7.2 : isMember
      *
-     * @param selections the indices of the selected primes (in increasing order, 1-based)
-     * @return the list of the primes selected
+     * @param x A number
+     * @return true if x &isin; encryptionGroup, false otherwise
      */
-    public List<BigInteger> getSelectedPrimes(List<Integer> selections) throws NotEnoughPrimesInGroupException {
-        Preconditions.checkArgument(selections.stream().allMatch(i -> i >= 1));
-        Preconditions.checkArgument(
-                selections.equals(selections.stream().sorted().collect(Collectors.toList())),
-                "The elements are not sorted!");
-        Integer s_k = selections.get(selections.size() - 1);
-        List<BigInteger> primes = getPrimes(s_k);
-
-        return selections.stream()
-                .map(s_i -> primes.get(s_i - 1))
-                .collect(Collectors.toList());
+    public boolean isMember(BigInteger x) {
+        return x.compareTo(BigInteger.ONE) >= 0 && x.compareTo(encryptionGroup.getP()) < 0 &&
+                BigIntegerArithmetic.jacobiSymbol(x, encryptionGroup.getP()) == 1;
     }
 
     /**
-     * Algorithm 7.4: GetGenerators
+     * Utility to verify membership for G_q_circ
+     *
+     * @param x a number
+     * @return true if x &isin; identificationGroup, false otherwise
+     */
+    public boolean isMember_G_q_circ(BigInteger x) {
+        return x.compareTo(BigInteger.ONE) >= 0 && x.compareTo(identificationGroup.getP_circ()) < 0 &&
+                BigIntegerArithmetic.jacobiSymbol(x, identificationGroup.getP_circ()) == 1;
+    }
+
+    /**
+     * Utility to verify membership for Z_q
+     *
+     * @param x a number
+     * @return true if x &isin; Z_q, false otherwise
+     */
+    public boolean isInZ_q(BigInteger x) {
+        return x.compareTo(BigInteger.ZERO) >= 0 && x.compareTo(encryptionGroup.getQ()) < 0;
+    }
+
+    /**
+     * Utility to verify membership for Z_q_circ
+     *
+     * @param x a number
+     * @return true if x &isin; Z_q_circ, false otherwise
+     */
+    public boolean isInZ_q_circ(BigInteger x) {
+        return x.compareTo(BigInteger.ZERO) >= 0 && x.compareTo(identificationGroup.getQ_circ()) < 0;
+    }
+
+    /**
+     * Algorithm 7.3: GetGenerators
      * Create a number of independent generators for the encryption group given
      *
      * @param n number of generators to be computed
@@ -150,32 +164,32 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 7.5: GetNIZKPChallenge
+     * Algorithm 7.4: GetNIZKPChallenge
      *
-     * @param y    the public values vector (domain unspecified)
-     * @param t    the commitments vector (domain unspecified)
-     * @param c_ub the upper-bound of the challenge
+     * @param y the public values vector (domain unspecified)
+     * @param t the commitments vector (domain unspecified)
+     * @param u the upper-bound of the challenge
      * @return the computed challenge
      */
-    public BigInteger getNIZKPChallenge(Object[] y, Object[] t, BigInteger c_ub) {
-        return conversion.toInteger(hash.recHash_L(y, t)).mod(c_ub);
+    public BigInteger getNIZKPChallenge(Object[] y, Object[] t, BigInteger u) {
+        return conversion.toInteger(hash.recHash_L(y, t)).mod(u);
     }
 
     /**
-     * Algorithm 7.6: GetChallenges
+     * Algorithm 7.5: GetChallenges
      *
-     * @param n    the number of challenges requested
-     * @param y    the public values vector (domain unspecified)
-     * @param c_ub the upper-bound of the challenge
+     * @param n the number of challenges requested
+     * @param y the public values vector (domain unspecified)
+     * @param u the upper-bound of the challenge
      * @return a list challenges, of length n
      */
-    public List<BigInteger> getChallenges(int n, Object[] y, BigInteger c_ub) {
+    public List<BigInteger> getChallenges(int n, Object[] y, BigInteger u) {
         byte[] upper_h = hash.recHash_L(y);
-        Map<Integer, BigInteger> challengesMap = IntStream.range(1, n + 1).parallel().mapToObj(Integer::valueOf)
+        Map<Integer, BigInteger> challengesMap = IntStream.rangeClosed(1, n).parallel().boxed()
                 .collect(toMap(identity(), i -> {
                     byte[] upper_i = hash.recHash_L(BigInteger.valueOf(i));
-                    return conversion.toInteger(hash.hash_L(ByteArrayUtils.concatenate(upper_h, upper_i))).mod(c_ub);
+                    return conversion.toInteger(hash.hash_L(ByteArrayUtils.concatenate(upper_h, upper_i))).mod(u);
                 }));
-        return IntStream.range(1, n + 1).mapToObj(challengesMap::get).collect(Collectors.toList());
+        return IntStream.rangeClosed(1, n).mapToObj(challengesMap::get).collect(Collectors.toList());
     }
 }

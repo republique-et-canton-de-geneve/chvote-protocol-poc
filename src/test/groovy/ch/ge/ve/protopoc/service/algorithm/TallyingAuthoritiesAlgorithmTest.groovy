@@ -56,6 +56,13 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
                 [FIVE, THREE, FOUR, NINE]
         ]
         generalAlgorithms.getNIZKPChallenge(*_) >>> [ONE, TWO]
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
 
         expect: "the decryption proofs check to succeed"
         tallyingAuthoritiesAlgorithm.checkDecryptionProofs(bold_pi_prime, bold_pk, bold_e, bold_B_prime)
@@ -78,6 +85,13 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
         ]
         def bold_b_prime = [FOUR, FIVE, NINE, THREE]
         generalAlgorithms.getNIZKPChallenge(*_) >> ONE
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
 
         expect: "The check of a single decryption proof to succeed"
         tallyingAuthoritiesAlgorithm.checkDecryptionProof(pi_prime, pk_j, bold_e, bold_b_prime)
@@ -100,6 +114,13 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
                 [FOUR, FIVE, NINE, THREE],
                 [FIVE, THREE, FOUR, NINE]
         ]
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
 
         expect: "The decryption to be successful and have the expected result"
         tallyingAuthoritiesAlgorithm.getDecryptions(bold_e, bold_B_prime) == [FIVE, FIVE, FIVE, THREE]
@@ -117,16 +138,26 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
         and: "some sample m values"
         def m = [2 * 11, 2 * 19, 2 * 29, 3 * 19, 7 * 11].collect { BigInteger.valueOf(it) }
 
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(BigInteger.valueOf(2 * 11)) >> true
+        generalAlgorithms.isMember(BigInteger.valueOf(2 * 19)) >> true
+        generalAlgorithms.isMember(BigInteger.valueOf(2 * 29)) >> true
+        generalAlgorithms.isMember(BigInteger.valueOf(3 * 19)) >> true
+        generalAlgorithms.isMember(BigInteger.valueOf(7 * 11)) >> true
+
         expect:
         tallyingAuthoritiesAlgorithm.getTally(m, 6) == [3, 1, 1, 2, 2, 1] as List<Long>
     }
 
     def "getTally should fail if the group is too small for the requested number of primes"() {
         given: "some mock parameters"
-        List<BigInteger> m = Mock()
+        List<BigInteger> m = [ONE]
 
         and: "an exception thrown when trying to get some primes"
         generalAlgorithms.getPrimes(_) >> { throw new NotEnoughPrimesInGroupException("p is too small") }
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
 
         when:
         tallyingAuthoritiesAlgorithm.getTally(m, 200)

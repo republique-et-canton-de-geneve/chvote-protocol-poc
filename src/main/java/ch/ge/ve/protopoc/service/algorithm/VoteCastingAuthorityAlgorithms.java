@@ -44,36 +44,42 @@ public class VoteCastingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 7.25: CheckBallot
+     * Algorithm 7.22: CheckBallot
      *
      * @param i           the voter index
      * @param alpha       the submitted ballot, including the oblivious transfer query
      * @param pk          the encryption public key
      * @param bold_x_circ the vector of public voter credentials
-     * @param B           the current ballot list
-     * @return
+     * @param upper_b     the current ballot list
+     * @return true if the ballot was valid
      */
     public boolean checkBallot(Integer i, BallotAndQuery alpha, EncryptionPublicKey pk,
-                               List<BigInteger> bold_x_circ, Collection<BallotEntry> B) {
+                               List<BigInteger> bold_x_circ, Collection<BallotEntry> upper_b) {
         Preconditions.checkNotNull(i);
         Preconditions.checkNotNull(alpha);
-        Preconditions.checkNotNull(alpha.getBold_a());
-        int numberOfSelections = alpha.getBold_a().size();
+        List<BigInteger> bold_a = alpha.getBold_a();
+        Preconditions.checkNotNull(bold_a);
+        Preconditions.checkArgument(bold_a.stream().allMatch(generalAlgorithms::isMember),
+                "All of the a_j's must be members of G_q");
+        Preconditions.checkArgument(generalAlgorithms.isMember(alpha.getB()),
+                "b must be a member of G_q");
+
+        int numberOfSelections = bold_a.size();
         Preconditions.checkArgument(numberOfSelections > 0);
         Voter voter = electionSet.getVoters().get(i);
-        int k_i = electionSet.getElections().stream().filter(e -> electionSet.isEligible(voter, e)).mapToInt
-                (Election::getNumberOfSelections).sum();
+        int k_i = electionSet.getElections().stream().filter(e -> electionSet.isEligible(voter, e))
+                .mapToInt(Election::getNumberOfSelections).sum();
         Preconditions.checkArgument(numberOfSelections == k_i,
                 "A voter may not submit more than his allowed number of selections");
         Preconditions.checkNotNull(pk);
         Preconditions.checkNotNull(bold_x_circ);
         Preconditions.checkElementIndex(i, bold_x_circ.size());
-        Preconditions.checkNotNull(B);
+        Preconditions.checkNotNull(upper_b);
 
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger x_circ_i = bold_x_circ.get(i);
-        if (!hasBallot(i, B) && alpha.getX_circ().compareTo(x_circ_i) == 0) {
-            BigInteger a = alpha.getBold_a().stream().reduce(BigInteger::multiply)
+        if (!hasBallot(i, upper_b) && alpha.getX_circ().compareTo(x_circ_i) == 0) {
+            BigInteger a = bold_a.stream().reduce(BigInteger::multiply)
                     .orElse(ONE)
                     .mod(p);
             return checkBallotProof(alpha.getPi(), alpha.getX_circ(), a, alpha.getB(), pk);
@@ -82,7 +88,7 @@ public class VoteCastingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 7.26: HasBallot
+     * Algorithm 7.23: HasBallot
      *
      * @param i the voter index
      * @param B the current ballot list
@@ -96,7 +102,7 @@ public class VoteCastingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 7.27: CheckBallotProof
+     * Algorithm 7.24: CheckBallotProof
      *
      * @param pi     the proof
      * @param x_circ public voting credential
@@ -108,13 +114,31 @@ public class VoteCastingAuthorityAlgorithms {
     public boolean checkBallotProof(NonInteractiveZKP pi, BigInteger x_circ, BigInteger a, BigInteger b,
                                     EncryptionPublicKey pk) {
         Preconditions.checkNotNull(pi);
-        Preconditions.checkNotNull(pi.getT());
-        Preconditions.checkNotNull(pi.getS());
+        List<BigInteger> t = pi.getT();
+        Preconditions.checkNotNull(t);
+        List<BigInteger> s = pi.getS();
+        Preconditions.checkNotNull(s);
         Preconditions.checkNotNull(x_circ);
         Preconditions.checkNotNull(a);
         Preconditions.checkNotNull(b);
         Preconditions.checkNotNull(pk);
         Preconditions.checkNotNull(pk.getPublicKey());
+        Preconditions.checkArgument(t.size() == 3, "t contains three elements");
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(t.get(0)),
+                "t_1 must be in G_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isMember(t.get(1)),
+                "t_2 must be in G_q");
+        Preconditions.checkArgument(generalAlgorithms.isMember(t.get(2)),
+                "t_3 must be in G_q");
+
+        Preconditions.checkArgument(s.size() == 3, "s contains three elements");
+        BigInteger s_1 = s.get(0);
+        BigInteger s_2 = s.get(1);
+        BigInteger s_3 = s.get(2);
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q_circ(s_1), "s_1 must be in Z_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isMember(s_2), "s_2 must be in G_q");
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q(s_3), "s_3 must be in Z_q");
+
         Preconditions.checkArgument(pk.getEncryptionGroup() == publicParameters.getEncryptionGroup());
 
         log.debug(String.format("checkBallotProof: a = %s", a));
@@ -127,47 +151,57 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
 
         BigInteger[] y = new BigInteger[]{x_circ, a, b};
-        BigInteger[] t = new BigInteger[3];
-        pi.getT().toArray(t);
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t, q.min(q_circ));
+        BigInteger[] t_array = new BigInteger[3];
+        t.toArray(t_array);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t_array, q.min(q_circ));
         log.debug(String.format("checkBallotProof: c = %s", c));
-
-        BigInteger s_1 = pi.getS().get(0);
-        BigInteger s_2 = pi.getS().get(1);
-        BigInteger s_3 = pi.getS().get(2);
 
         BigInteger t_prime_1 = modExp(x_circ, c.negate(), p_circ).multiply(modExp(g_circ, s_1, p_circ)).mod(p_circ);
         BigInteger t_prime_2 = modExp(a, c.negate(), p).multiply(s_2).multiply(modExp(pk.getPublicKey(), s_3, p)).mod(p);
         BigInteger t_prime_3 = modExp(b, c.negate(), p).multiply(modExp(g, s_3, p)).mod(p);
 
-        return t[0].compareTo(t_prime_1) == 0 &&
-                t[1].compareTo(t_prime_2) == 0 &&
-                t[2].compareTo(t_prime_3) == 0;
+        return t_array[0].compareTo(t_prime_1) == 0 &&
+                t_array[1].compareTo(t_prime_2) == 0 &&
+                t_array[2].compareTo(t_prime_3) == 0;
     }
 
     /**
      * Algorithm 7.28: GenResponse
      *
-     * @param i      the voter index
-     * @param bold_a the vector of the queries
-     * @param pk     the encryption public key
-     * @param bold_n the vector of number of candidates per election
-     * @param bold_K the matrix of number of selections per voter per election
-     * @param bold_P the matrix of points per voter per candidate
+     * @param i            the voter index
+     * @param bold_a       the vector of the queries
+     * @param pk           the encryption public key
+     * @param bold_n       the vector of number of candidates per election
+     * @param bold_K       the matrix of number of selections per voter per election
+     * @param upper_bold_p the matrix of points per voter per candidate
      * @return the OT response, along with the randomness used
      * @throws IncompatibleParametersException if not enough primes exist in the encryption group for the number of candidates
      */
     public ObliviousTransferResponseAndRand genResponse(Integer i, List<BigInteger> bold_a, EncryptionPublicKey pk,
                                                         List<Integer> bold_n,
                                                         List<List<Integer>> bold_K,
-                                                        List<List<Point>> bold_P) {
+                                                        List<List<Point>> upper_bold_p) {
+        Preconditions.checkArgument(bold_a.stream().allMatch(generalAlgorithms::isMember),
+                "All queries a_i must be in G_q");
+        Preconditions.checkArgument(pk.getPublicKey().compareTo(BigInteger.ONE) != 0,
+                "The encryption key may not be 1");
+        Preconditions.checkArgument(generalAlgorithms.isMember(pk.getPublicKey()),
+                "The public key must be a member of G_q");
+
+        BigInteger p_prime = publicParameters.getPrimeField().getP_prime();
+        Preconditions.checkArgument(upper_bold_p.stream().flatMap(Collection::stream)
+                        .allMatch(point -> BigInteger.ZERO.compareTo(point.x) <= 0 &&
+                                point.x.compareTo(p_prime) < 0 &&
+                                BigInteger.ZERO.compareTo(point.y) <= 0 &&
+                                point.y.compareTo(p_prime) < 0),
+                "All points' coordinates must be in Z_p_prime");
         Preconditions.checkArgument(bold_K.size() > 0);
         final int t = bold_K.get(0).size();
         Preconditions.checkArgument(bold_K.stream().allMatch(bold_k_i -> bold_k_i.size() == t));
 
         final int n = bold_n.stream().reduce((a, b) -> a + b).orElse(0);
-        Preconditions.checkArgument(bold_P.size() > 0);
-        Preconditions.checkArgument(bold_P.stream().allMatch(bold_p_i -> bold_p_i.size() == n));
+        Preconditions.checkArgument(upper_bold_p.size() > 0);
+        Preconditions.checkArgument(upper_bold_p.stream().allMatch(bold_p_i -> bold_p_i.size() == n));
 
         final int k_sum = bold_K.get(i).stream().reduce((a, b) -> a + b).orElse(0);
         Preconditions.checkArgument(bold_a.size() == k_sum);
@@ -188,24 +222,21 @@ public class VoteCastingAuthorityAlgorithms {
             throw new IncompatibleParametersException(e);
         }
 
-        // u = k_offset + l \in [0, k_ij)
-        int k_offset = 0; // index 0 based, as opposed to the specification 1 based
-        // v = n_offset + l \in [0, n_j)
-        int n_offset = 0; // same comment
+        int u = 0; // index 0 based, as opposed to the specification 1 based
+        int v = 0; // same comment
 
         for (int j = 0; j < t; j++) {
             BigInteger r_j = randomGenerator.randomInZq(q);
 
             Integer k_ij = bold_K.get(i).get(j);
             for (int l = 0; l < k_ij; l++) {
-                bold_b.add(modExp(bold_a.get(k_offset + l), r_j, p));
+                bold_b.add(modExp(bold_a.get(u++), r_j, p));
             }
-            k_offset += k_ij;
 
             Integer n_j = bold_n.get(j);
             for (int l = 0; l < n_j; l++) {
-                int v = n_offset + l;
-                Point point_iv = bold_P.get(i).get(v);
+                Point point_iv = upper_bold_p.get(i).get(v);
+                @SuppressWarnings("SuspiciousNameCombination")
                 byte[] M_v = ByteArrayUtils.concatenate(
                         conversion.toByteArray(point_iv.x, upper_l_m / 2),
                         conversion.toByteArray(point_iv.y, upper_l_m / 2)
@@ -220,8 +251,8 @@ public class VoteCastingAuthorityAlgorithms {
                 bold_upper_k = ByteArrayUtils.truncate(bold_upper_k, upper_l_m);
                 bold_c[v] = ByteArrayUtils.xor(M_v, bold_upper_k);
                 log.debug(String.format("bold_c[%d] = %s", v, Arrays.toString(bold_c[v])));
+                v++;
             }
-            n_offset += n_j;
 
             bold_d.add(modExp(pk.getPublicKey(), r_j, p));
             bold_r.add(r_j);

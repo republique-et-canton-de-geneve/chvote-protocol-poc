@@ -59,7 +59,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         ]
         randomGenerator.randomInGq(encryptionGroup) >> FIVE // genBallotProof, omega_2
         and: "some valid selected primes"
-        generalAlgorithms.getSelectedPrimes([1]) >> [THREE]
+        generalAlgorithms.getPrimes(1) >> [THREE]
         and: "some arbitrary values for the proof challenge"
         // t_1 = g_circ ^ omega_1 mod p_circ = 3 ^ 3 mod 11 = 5
         // t_2 = omega_2 * pk ^ omega_3 mod p = 5 * 3 ^ 1 mod 11 = 4
@@ -70,8 +70,15 @@ class VoteCastingClientAlgorithmsTest extends Specification {
                 FIVE // min(q, q_circ)
         ) >> FOUR // c
 
+        and: "the expected preconditions check"
+        generalAlgorithms.isMember_G_q_circ(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> x <= 0 && x < identificationGroup.q_circ }
+
         when: "generating a ballot"
-        def ballotQueryAndRand = voteCastingClient.genBallot("f", [1], new EncryptionPublicKey(THREE, encryptionGroup))
+        def ballotQueryAndRand = voteCastingClient.genBallot("a", [1], new EncryptionPublicKey(THREE, encryptionGroup))
 
         then: "x_circ has the expected value"
         // x = 5
@@ -101,9 +108,24 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         ballotQueryAndRand.bold_r == [ONE]
     }
 
+    def "getSelectedPrimes"() {
+        given: "some valid selected primes"
+        generalAlgorithms.getPrimes(1) >> [THREE]
+
+        when:
+        def selectedPrimes = voteCastingClient.getSelectedPrimes(Arrays.asList(1))
+
+        then:
+        selectedPrimes.size() == 1
+        selectedPrimes.containsAll(THREE)
+    }
+
     def "genQuery should generate a valid query for the ballot (incl. the randomness used)"() {
         given: "some known randomness"
         randomGenerator.randomInZq(_) >> ONE
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(THREE) >> true
 
         when: "generating a query"
         def query = voteCastingClient.genQuery([THREE], new EncryptionPublicKey(THREE, encryptionGroup))
@@ -124,13 +146,19 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         // t_2 = omega_2 * pk ^ omega_3 mod p = 5 * 3 ^ 1 mod 11 = 4
         // t_3 = g ^ omega_3 mod p = 3 ^ 1 mod 11 = 3
         generalAlgorithms.getNIZKPChallenge(
-                [THREE, NINE, THREE] as BigInteger[], // x_circ, a, b
+                [ONE, NINE, THREE] as BigInteger[], // x_circ, a, b
                 [FIVE, FOUR, THREE] as BigInteger[],  // t_1, t_2, t_3
                 FIVE // min(q, q_circ)
         ) >> FOUR // c
+        and: "the expected preconditions verifications"
+        generalAlgorithms.isMember_G_q_circ(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(NINE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
 
         when: "generating a ballot ZKP"
-        def pi = voteCastingClient.genBallotProof(FIVE, THREE, ONE, THREE, NINE, THREE,
+        def pi = voteCastingClient.genBallotProof(ZERO, THREE, ONE, ONE, NINE, THREE,
                 new EncryptionPublicKey(THREE, encryptionGroup))
 
         then:
@@ -150,16 +178,24 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         beta_1.b >> [ONE]
         beta_1.c >> [[0x01, 0x02, 0x03, 0x04], [0x05, 0x06, 0x07, 0x08], [0x0A, 0x0B, 0x0C, 0x0D]]
         beta_1.d >> [THREE]
-        hash.recHash_L(ONE, ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 11 = 1
+        hash.recHash_L(ONE, ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-0 mod 11 = 1
 
         ObliviousTransferResponse beta_2 = Mock()
         beta_2.b >> [FIVE]
         beta_2.c >> [[0x10, 0x20, 0x30, 0x40], [0x50, 0x60, 0x70, 0x80], [0xA0, 0xB0, 0xC0, 0xD0]]
         beta_2.d >> [FOUR]
-        hash.recHash_L(FIVE, ONE) >> ([0xA0, 0xB3, 0xC0, 0xD0] as byte[]) // b_i * d_j^{-r_i} mod p = 5 * 4^-5 mod 11 = 5
+        hash.recHash_L(FIVE, ONE) >> ([0xA0, 0xB3, 0xC0, 0xD0] as byte[])
+        // b_i * d_j^{-r_i} mod p = 5 * 4^-0 mod 11 = 5
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
+        generalAlgorithms.isMember(FOUR) >> true
+        generalAlgorithms.isMember(FIVE) >> true
+        generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
 
         when:
-        def pointMatrix = voteCastingClient.getPointMatrix([beta_1, beta_2], [1], [3], [FIVE])
+        def pointMatrix = voteCastingClient.getPointMatrix([beta_1, beta_2], [1], [3], [ZERO])
 
         then:
         pointMatrix == [
@@ -175,6 +211,10 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         beta.c >> [[0x01, 0x02, 0x03, 0x04], [0x05, 0x06, 0x07, 0x08], [0x0A, 0x0B, 0x0C, 0x0D]]
         beta.d >> [THREE]
         hash.recHash_L(ONE, ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 11 = 1
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember(ONE) >> true
+        generalAlgorithms.isMember(THREE) >> true
 
         when:
         def points = voteCastingClient.getPoints(beta, [1], [3], [FIVE])
@@ -199,7 +239,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         hash.recHash_L(point21) >> ([0xD1, 0xCF] as byte[])
 
         when:
-        def rc = voteCastingClient.getReturnCodes(pointMatrix)
+        def rc = voteCastingClient.getReturnCodes([1], pointMatrix)
 
         then:
         rc.size() == 1

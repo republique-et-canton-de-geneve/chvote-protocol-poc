@@ -64,6 +64,11 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         def pi = new NonInteractiveZKP(t, s)
         def gamma = new Confirmation(y_circ, pi)
 
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember_G_q_circ(t[0]) >> true
+        generalAlgorithms.isMember_G_q_circ(y_circ) >> true
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
+
         expect:
         voteConfirmationAuthority.checkConfirmation(i, gamma, bold_y_circ, ballotList, confirmationList) == result
 
@@ -101,6 +106,11 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
     def "checkConfirmationProof should correctly validate the confirmation proof"() {
         given:
         generalAlgorithms.getNIZKPChallenge([y_circ] as BigInteger[], t as BigInteger[], FIVE) >> THREE
+
+        and: "the expected preconditions checks"
+        generalAlgorithms.isMember_G_q_circ(t[0]) >> true
+        generalAlgorithms.isMember_G_q_circ(y_circ) >> true
+        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
 
         expect:
         voteConfirmationAuthority.checkConfirmationProof(new NonInteractiveZKP(t, s), y_circ) == result

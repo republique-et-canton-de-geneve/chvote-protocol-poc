@@ -6,22 +6,29 @@ import java.util.List;
  * Contains all the information needed for the printing of a code sheet
  */
 public class CodeSheet {
+    private final Integer i;
     private final Voter voter;
     private final ElectionSet electionSet;
-    private final List<Integer> k_i;
-    private final String x_i;
-    private final String y_i;
-    private final String f_i;
-    private final List<String> rc_i;
+    private final List<Integer> bold_k;
+    private final String upper_x;
+    private final String upper_y;
+    private final String upper_fc;
+    private final List<String> bold_rc;
 
-    public CodeSheet(Voter v_i, ElectionSet electionSet, List<Integer> k_i, String x_i, String y_i, String f_i, List<String> rc_i) {
-        voter = v_i;
+    public CodeSheet(Integer i, Voter upper_v, ElectionSet electionSet, List<Integer> bold_k, String upper_x, String upper_y, String
+            upper_fc, List<String> bold_rc) {
+        this.i = i;
+        voter = upper_v;
         this.electionSet = electionSet;
-        this.k_i = k_i;
-        this.x_i = x_i;
-        this.y_i = y_i;
-        this.f_i = f_i;
-        this.rc_i = rc_i;
+        this.bold_k = bold_k;
+        this.upper_x = upper_x;
+        this.upper_y = upper_y;
+        this.upper_fc = upper_fc;
+        this.bold_rc = bold_rc;
+    }
+
+    public Integer getI() {
+        return i;
     }
 
     public Voter getVoter() {
@@ -32,23 +39,23 @@ public class CodeSheet {
         return electionSet;
     }
 
-    public List<Integer> getK_i() {
-        return k_i;
+    public List<Integer> getBold_k() {
+        return bold_k;
     }
 
-    public String getX_i() {
-        return x_i;
+    public String getUpper_x() {
+        return upper_x;
     }
 
-    public String getY_i() {
-        return y_i;
+    public String getUpper_y() {
+        return upper_y;
     }
 
-    public String getF_i() {
-        return f_i;
+    public String getUpper_fc() {
+        return upper_fc;
     }
 
-    public List<String> getRc_i() {
-        return rc_i;
+    public List<String> getBold_rc() {
+        return bold_rc;
     }
 }
