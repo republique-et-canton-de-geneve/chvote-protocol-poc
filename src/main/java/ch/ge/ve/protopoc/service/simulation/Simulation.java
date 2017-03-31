@@ -310,6 +310,8 @@ public class Simulation {
             case 2:
                 createSecurityLevel2Parameters();
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown security level");
         }
         log.info("public parameters created");
     }
