@@ -91,7 +91,7 @@ public class VoteCastingClientAlgorithms {
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
 
-        BigInteger x = conversion.toInteger(upper_x, publicParameters.getA_x());
+        BigInteger x = conversion.toInteger(upper_x, publicParameters.getUpper_a_x());
         BigInteger x_circ = modExp(g_circ, x, p_circ);
 
         List<BigInteger> bold_q = computeBoldQ(bold_s);
@@ -330,7 +330,7 @@ public class VoteCastingClientAlgorithms {
         List<BigInteger> d = beta.getD();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger p_prime = publicParameters.getPrimeField().getP_prime();
-        int upper_l_m = publicParameters.getL_m() / 8;
+        int upper_l_m = publicParameters.getUpper_l_m();
 
         int i = 0; // 0 based indices in java, as opposed to the 1-based specification
         for (int j = 0; j < bold_k.size(); j++) {
@@ -379,15 +379,15 @@ public class VoteCastingClientAlgorithms {
     public List<String> getReturnCodes(List<Integer> bold_s, List<List<Point>> bold_P) {
         int length = bold_P.get(0).size();
         Preconditions.checkArgument(bold_P.stream().allMatch(l -> l.size() == length));
-        List<Character> A_r = publicParameters.getA_r();
+        List<Character> A_r = publicParameters.getUpper_a_r();
 
         List<String> bold_rc_s = new ArrayList<>();
         for (int i = 0; i < length; i++) {
-            byte[] rc_i = new byte[publicParameters.getL_r() / 8];
+            byte[] rc_i = new byte[publicParameters.getUpper_l_r()];
             for (int j = 0; j < publicParameters.getS(); j++) {
                 rc_i = ByteArrayUtils.xor(rc_i, ByteArrayUtils.truncate(
                         hash.recHash_L(bold_P.get(j).get(i)),
-                        publicParameters.getL_r() / 8));
+                        publicParameters.getUpper_l_r()));
             }
             byte[] upper_r = ByteArrayUtils.markByteArray(rc_i, bold_s.get(i) - 1, publicParameters.getN_max());
             bold_rc_s.add(conversion.toString(upper_r, A_r));

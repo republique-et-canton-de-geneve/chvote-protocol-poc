@@ -19,57 +19,13 @@
  - #L%                                                                                            -
  -------------------------------------------------------------------------------------------------*/
 
-package ch.ge.ve.protopoc.service.model;
-
-import com.google.common.base.Preconditions;
+package ch.ge.ve.protopoc.service.support;
 
 /**
- * This class defines the security parameters to be used
+ * Additional math primitives missing from {@link Math}
  */
-public class SecurityParameters {
-    /**
-     * Minimal privacy security level &sigma;
-     */
-    private final int sigma;
-
-    /**
-     * Minimal integrity security level &tau;
-     */
-    private final int tau;
-
-    /**
-     * Output length of collision-resistant hash-function l (in bits)
-     */
-    private final int l;
-
-    /**
-     * Deterrence factor &epsilon; (with 0 &lt; &epsilon; &le; 1)
-     */
-    private final double epsilon;
-
-    public SecurityParameters(int sigma, int tau, int l, double epsilon) {
-        Preconditions.checkArgument(l % 8 == 0, "l should be a multiple of 8, so that l = 8L");
-        Preconditions.checkArgument(l >= 2 * Math.max(sigma, tau));
-        Preconditions.checkArgument(0.0 < epsilon && epsilon <= 1.0);
-        this.sigma = sigma;
-        this.tau = tau;
-        this.l = l;
-        this.epsilon = epsilon;
-    }
-
-    public int getSigma() {
-        return sigma;
-    }
-
-    public int getTau() {
-        return tau;
-    }
-
-    public int getL() {
-        return l;
-    }
-
-    public double getEpsilon() {
-        return epsilon;
+public class MoreMath {
+    public static double log2(double value) {
+        return Math.log(value) / Math.log(2);
     }
 }

@@ -58,7 +58,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         publicParameters.primeField >> primeField
         primeField.p_prime >> SEVEN
         publicParameters.s >> 4
-        publicParameters.l_f >> 16
+        publicParameters.upper_l_f >> 2
 
         voteConfirmationAuthority =
                 new VoteConfirmationAuthorityAlgorithms(publicParameters, generalAlgorithms, voteCastingAuthority, hash)

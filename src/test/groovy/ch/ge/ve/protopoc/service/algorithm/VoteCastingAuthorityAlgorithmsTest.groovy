@@ -60,7 +60,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         identificationGroup.g_circ >> THREE
         publicParameters.primeField >> primeField
         primeField.p_prime >> ELEVEN
-        publicParameters.l_m >> 16
+        publicParameters.upper_l_m >> 2
         publicParameters.securityParameters >> securityParameters
         securityParameters.l >> 16
 

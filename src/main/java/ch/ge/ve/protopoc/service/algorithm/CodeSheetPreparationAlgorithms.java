@@ -92,9 +92,10 @@ public class CodeSheetPreparationAlgorithms {
     private String compute_upper_x(List<SecretVoterData> secretVoterDataList) {
         BigInteger sum_x_ij = IntStream.range(0, s).mapToObj(secretVoterDataList::get)
                 .map(SecretVoterData::getX)
-                .reduce(BigInteger::add).orElse(BigInteger.ZERO)
-                .mod(publicParameters.getIdentificationGroup().getQ_circ());
-        return conversion.toString(sum_x_ij, publicParameters.getK_x(), publicParameters.getA_x());
+                .reduce(BigInteger::add).orElse(BigInteger.ZERO);
+        Preconditions.checkArgument(sum_x_ij.compareTo(publicParameters.getQ_circ_x()) < 0,
+                "the sum of the x_ij's must be lesser than q_circ_x");
+        return conversion.toString(sum_x_ij, publicParameters.getL_x(), publicParameters.getUpper_a_x());
     }
 
     /**
@@ -106,10 +107,11 @@ public class CodeSheetPreparationAlgorithms {
     private String compute_upper_y(List<SecretVoterData> secretVoterDataList) {
         BigInteger sum_y_ij = IntStream.range(0, s).mapToObj(secretVoterDataList::get)
                 .map(SecretVoterData::getY)
-                .reduce(BigInteger::add).orElse(BigInteger.ZERO)
-                .mod(publicParameters.getIdentificationGroup().getQ_circ());
+                .reduce(BigInteger::add).orElse(BigInteger.ZERO);
+        Preconditions.checkArgument(sum_y_ij.compareTo(publicParameters.getQ_circ_y()) < 0,
+                "the sum of the y_ij's must be lesser than q_circ_y");
         //noinspection SuspiciousNameCombination
-        return conversion.toString(sum_y_ij, publicParameters.getK_y(), publicParameters.getA_y());
+        return conversion.toString(sum_y_ij, publicParameters.getL_y(), publicParameters.getUpper_a_y());
     }
 
     /**
@@ -119,7 +121,7 @@ public class CodeSheetPreparationAlgorithms {
      * @return the result of xoring the individual <tt>F_ij</tt>s
      */
     private String compute_upper_fc(List<SecretVoterData> secretVoterDataList) {
-        List<Character> A_f = publicParameters.getA_f();
+        List<Character> A_f = publicParameters.getUpper_a_f();
         return IntStream.range(0, s).mapToObj(secretVoterDataList::get)
                 .map(SecretVoterData::getF)
                 .reduce(ByteArrayUtils::xor)
@@ -136,7 +138,7 @@ public class CodeSheetPreparationAlgorithms {
      * @return for each k, the result of xoring the individual <tt>RC_ijk</tt>s
      */
     private List<String> compute_bold_rc(ElectionSet electionSet, List<SecretVoterData> secretVoterDataList) {
-        List<Character> upper_a_r = publicParameters.getA_r();
+        List<Character> upper_a_r = publicParameters.getUpper_a_r();
         return IntStream.range(0, electionSet.getCandidates().size()).mapToObj(k ->
                 IntStream.range(0, s).mapToObj(secretVoterDataList::get)
                         .map(secretVoterData -> secretVoterData.getRc()[k])

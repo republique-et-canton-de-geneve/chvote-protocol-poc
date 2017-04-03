@@ -138,7 +138,7 @@ public class VoteConfirmationAuthorityAlgorithms {
         Preconditions.checkElementIndex(i, upper_bold_p.size());
 
         Object[] bold_p_i = upper_bold_p.get(i).toArray();
-        byte[] upper_f_i = ByteArrayUtils.truncate(hash.recHash_L(bold_p_i), publicParameters.getL_f() / 8);
+        byte[] upper_f_i = ByteArrayUtils.truncate(hash.recHash_L(bold_p_i), publicParameters.getUpper_l_f());
 
         BallotEntry ballotEntry = upper_b.stream().filter(b -> Objects.equals(b.getI(), i)).findFirst().orElseThrow(
                 () -> new BallotNotFoundException(String.format("Couldn't find any ballot for voter %d", i))

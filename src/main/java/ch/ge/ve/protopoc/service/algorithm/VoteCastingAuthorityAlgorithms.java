@@ -229,7 +229,7 @@ public class VoteCastingAuthorityAlgorithms {
 
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
-        int upper_l_m = publicParameters.getL_m() / 8;
+        int upper_l_m = publicParameters.getUpper_l_m();
 
         List<BigInteger> bold_b = new ArrayList<>();
         byte[][] bold_c = new byte[n][];
