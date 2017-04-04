@@ -16,7 +16,7 @@
 - [Contributing](#Contributing)
     - [Pull request policies](#pull-request-policies)
 	- [Security](#security)
-- [Licence](#licence)
+- [License](#license)
 - [Future](#future)
 
 # Overview
