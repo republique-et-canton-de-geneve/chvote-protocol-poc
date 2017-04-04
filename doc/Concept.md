@@ -2,6 +2,8 @@
 
 ## Introduction
 
+
+
 ## Terminology
 
 ## Sequence diagrams
@@ -11,24 +13,24 @@ real context usage.
 
 ### Initialization
 
-![Initialization sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Initialization%20-%20sequence%20diagram.png)
+![Initialization sequence diagram](sequence/Initialization%20-%20sequence%20diagram.png)
 
 ### Code sheet printing
 
-![Code sheet printing sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Print%20Code%20Sheets%20-%20sequence%20diagram.png)
+![Code sheet printing sequence diagram](sequence/Print%20Code%20Sheets%20-%20sequence%20diagram.png)
 
 ### Vote casting phase
 
-![Vote casting sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Voting%20Phase%20-%20sequence%20diagram.png)
+![Vote casting sequence diagram](sequence/Voting%20Phase%20-%20sequence%20diagram.png)
 
 ### Mixing
 
-![Mixing sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Mixing%20-%20sequence%20diagram.png)
+![Mixing sequence diagram](sequence/Mixing%20-%20sequence%20diagram.png)
 
 ### Decryption
 
-![Decryption sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Decryption%20-%20sequence%20diagram.png)
+![Decryption sequence diagram](sequence/Decryption%20-%20sequence%20diagram.png)
 
 ### Tallying
 
-![Tallying sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Tallying%20-%20sequence%20diagram.png)
+![Tallying sequence diagram](sequence/Tallying%20-%20sequence%20diagram.png)
