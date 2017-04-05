@@ -97,7 +97,7 @@ public class DefaultVotingClient implements VotingClientService {
         pointMatrix = computePointMatrix(selections, obliviousTransferResponses);
         List<String> returnCodes = voteCastingClientAlgorithms.getReturnCodes(selections, pointMatrix);
         stopwatch.stop();
-        stats.returnCodesComputationTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+        stats.verificationCodesComputationTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
         return returnCodes;
     }
@@ -169,7 +169,7 @@ public class DefaultVotingClient implements VotingClientService {
 
     public class Stats {
         private long voteEncodingTime;
-        private long returnCodesComputationTime;
+        private long verificationCodesComputationTime;
         private long confirmationEncodingTime;
         private long finalizationCodeComputationTime;
 
@@ -177,8 +177,8 @@ public class DefaultVotingClient implements VotingClientService {
             return voteEncodingTime;
         }
 
-        public long getReturnCodesComputationTime() {
-            return returnCodesComputationTime;
+        public long getVerificationCodesComputationTime() {
+            return verificationCodesComputationTime;
         }
 
         public long getConfirmationEncodingTime() {

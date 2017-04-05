@@ -74,18 +74,18 @@ public class VoterSimulator {
                 votingPageData.getCandidateCounts());
         log.info(String.format("Voter %d selections: %s", voterIndex, selections));
 
-        List<String> returnCodes;
+        List<String> verificationCodes;
         try {
             log.info(String.format("Voter %d submitting vote", voterIndex));
-            returnCodes = votingClient.sumbitVote(codeSheet.getUpper_x(), selections);
+            verificationCodes = votingClient.sumbitVote(codeSheet.getUpper_x(), selections);
         } catch (VoteCastingException e) {
             log.error(String.format("Voter %d: error during vote casting", voterIndex), e);
             throw new VoteProcessException(e);
         }
 
-        log.info(String.format("Voter %d checking return codes", voterIndex));
-        if (!voteConfirmationVoterAlgorithms.checkReturnCodes(codeSheet.getBold_rc(), returnCodes, selections)) {
-            throw new VoteProcessException(new ReturnCodesNotMatchingException("Return codes do not match"));
+        log.info(String.format("Voter %d checking verification codes", voterIndex));
+        if (!voteConfirmationVoterAlgorithms.checkReturnCodes(codeSheet.getBold_rc(), verificationCodes, selections)) {
+            throw new VoteProcessException(new VerificationCodesNotMatchingException("Verification codes do not match"));
         }
 
         String finalizationCode;

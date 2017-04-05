@@ -113,17 +113,17 @@ public class DecryptionAuthorityAlgorithms {
 
         int N = bold_e.size();
         List<BigInteger> bold_c = pi.getBold_c();
-        List<BigInteger> bold_c_circ = pi.getBold_c_circ();
+        List<BigInteger> bold_c_hat = pi.getBold_c_hat();
         BigInteger t_1 = pi.getT().getT_1();
         BigInteger t_2 = pi.getT().getT_2();
         BigInteger t_3 = pi.getT().getT_3();
         List<BigInteger> t_4 = pi.getT().getT_4();
-        List<BigInteger> t_circ = pi.getT().getT_circ();
+        List<BigInteger> t_hat = pi.getT().getT_hat();
         BigInteger s_1 = pi.getS().getS_1();
         BigInteger s_2 = pi.getS().getS_2();
         BigInteger s_3 = pi.getS().getS_3();
         BigInteger s_4 = pi.getS().getS_4();
-        List<BigInteger> s_circ = pi.getS().getS_circ();
+        List<BigInteger> s_hat = pi.getS().getS_hat();
         List<BigInteger> s_prime = pi.getS().getS_prime();
 
         // Size checks
@@ -131,14 +131,14 @@ public class DecryptionAuthorityAlgorithms {
                 "The length of bold_e_prime should be identical to that of bold_e");
         Preconditions.checkArgument(bold_c.size() == N,
                 "The length of bold_c should be identical to that of bold_e");
-        Preconditions.checkArgument(bold_c_circ.size() == N,
-                "The length of bold_c_circ should be identical to that of bold_e");
+        Preconditions.checkArgument(bold_c_hat.size() == N,
+                "The length of bold_c_hat should be identical to that of bold_e");
         Preconditions.checkArgument(t_4.size() == 2,
                 "t_4 should contain two elements");
-        Preconditions.checkArgument(t_circ.size() == N,
-                "The length of t_circ should be identical to that of bold_e");
-        Preconditions.checkArgument(s_circ.size() == N,
-                "The length of s_circ should be identical to that of bold_e");
+        Preconditions.checkArgument(t_hat.size() == N,
+                "The length of t_hat should be identical to that of bold_e");
+        Preconditions.checkArgument(s_hat.size() == N,
+                "The length of s_hat should be identical to that of bold_e");
         Preconditions.checkArgument(s_prime.size() == N,
                 "The length of s_prime should be identical to that of bold_e");
 
@@ -148,20 +148,20 @@ public class DecryptionAuthorityAlgorithms {
         Preconditions.checkArgument(generalAlgorithms.isMember(t_3), "t_3 must be in G_q");
         Preconditions.checkArgument(t_4.parallelStream().allMatch(generalAlgorithms::isMember),
                 "t_4_1 and t_4_2 be in G_q");
-        Preconditions.checkArgument(t_circ.parallelStream().allMatch(generalAlgorithms::isMember),
-                "all t_circ_i's must be in G_q");
+        Preconditions.checkArgument(t_hat.parallelStream().allMatch(generalAlgorithms::isMember),
+                "all t_hat_i's must be in G_q");
         Preconditions.checkArgument(generalAlgorithms.isInZ_q(s_1), "s_1 must be in Z_q");
         Preconditions.checkArgument(generalAlgorithms.isInZ_q(s_2), "s_2 must be in Z_q");
         Preconditions.checkArgument(generalAlgorithms.isInZ_q(s_3), "s_3 must be in Z_q");
         Preconditions.checkArgument(generalAlgorithms.isInZ_q(s_4), "s_4 must be in Z_q");
-        Preconditions.checkArgument(s_circ.parallelStream().allMatch(generalAlgorithms::isInZ_q),
-                "all s_circ_i's must be in Z_q");
+        Preconditions.checkArgument(s_hat.parallelStream().allMatch(generalAlgorithms::isInZ_q),
+                "all s_hat_i's must be in Z_q");
         Preconditions.checkArgument(s_prime.parallelStream().allMatch(generalAlgorithms::isInZ_q),
                 "all s_prime_i's must be in Z_q");
         Preconditions.checkArgument(bold_c.parallelStream().allMatch(generalAlgorithms::isMember),
                 "all c_i's must be in G_q");
-        Preconditions.checkArgument(bold_c_circ.parallelStream().allMatch(generalAlgorithms::isMember),
-                "all c_circ_i's must be in G_q");
+        Preconditions.checkArgument(bold_c_hat.parallelStream().allMatch(generalAlgorithms::isMember),
+                "all c_hat_i's must be in G_q");
         Preconditions.checkArgument(bold_e.parallelStream().allMatch(e -> generalAlgorithms.isMember(e.getA()) &&
                         generalAlgorithms.isMember(e.getB())),
                 "all e_i's must be in G_q^2");
@@ -172,7 +172,7 @@ public class DecryptionAuthorityAlgorithms {
 
         List<BigInteger> bold_h = generalAlgorithms.getGenerators(N);
         List<BigInteger> bold_u = generalAlgorithms.getChallenges(N, new List[]{bold_e, bold_e_prime, bold_c}, q);
-        Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_circ, pk};
+        Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_hat, pk};
         BigInteger c = generalAlgorithms.getNIZKPChallenge(y, pi.getT().elementsToHash(), q);
 
         BigInteger c_prod = bold_c.stream().reduce(multiplyMod(p)).orElse(ONE);
@@ -181,7 +181,7 @@ public class DecryptionAuthorityAlgorithms {
 
         BigInteger u = bold_u.stream().reduce(multiplyMod(q)).orElse(ONE);
 
-        BigInteger c_circ = bold_c_circ.get(N - 1).multiply(modExp(h, u.negate(), p));
+        BigInteger c_hat = bold_c_hat.get(N - 1).multiply(modExp(h, u.negate(), p));
         BigInteger c_tilde = IntStream.range(0, N).mapToObj(i -> modExp(bold_c.get(i), bold_u.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
 
@@ -191,7 +191,7 @@ public class DecryptionAuthorityAlgorithms {
                 .reduce(multiplyMod(p)).orElse(ONE);
 
         BigInteger t_prime_1 = modExp(c_bar, c.negate(), p).multiply(modExp(g, s_1, p)).mod(p);
-        BigInteger t_prime_2 = modExp(c_circ, c.negate(), p).multiply(modExp(g, s_2, p)).mod(p);
+        BigInteger t_prime_2 = modExp(c_hat, c.negate(), p).multiply(modExp(g, s_2, p)).mod(p);
         BigInteger h_i_s_prime_i = IntStream.range(0, N).parallel()
                 .mapToObj(i -> modExp(bold_h.get(i), s_prime.get(i), p))
                 .reduce(multiplyMod(p)).orElse(ONE);
@@ -214,23 +214,23 @@ public class DecryptionAuthorityAlgorithms {
                 .multiply(b_prime_i_s_prime_i)
                 .mod(p);
 
-        // add c_circ_0: h, thus offsetting the indices for c_circ by 1.
-        List<BigInteger> tmp_bold_c_circ = new ArrayList<>();
-        tmp_bold_c_circ.add(0, h);
-        tmp_bold_c_circ.addAll(bold_c_circ);
-        Map<Integer, BigInteger> t_circ_prime_map = IntStream.range(0, N).parallel().boxed()
-                .collect(toMap(identity(), i -> modExp(tmp_bold_c_circ.get(i + 1), c.negate(), p)
-                        .multiply(modExp(g, s_circ.get(i), p))
-                        .multiply(modExp(tmp_bold_c_circ.get(i), s_prime.get(i), p))
+        // add c_hat_0: h, thus offsetting the indices for c_hat by 1.
+        List<BigInteger> tmp_bold_c_hat = new ArrayList<>();
+        tmp_bold_c_hat.add(0, h);
+        tmp_bold_c_hat.addAll(bold_c_hat);
+        Map<Integer, BigInteger> t_hat_prime_map = IntStream.range(0, N).parallel().boxed()
+                .collect(toMap(identity(), i -> modExp(tmp_bold_c_hat.get(i + 1), c.negate(), p)
+                        .multiply(modExp(g, s_hat.get(i), p))
+                        .multiply(modExp(tmp_bold_c_hat.get(i), s_prime.get(i), p))
                         .mod(p)));
-        List<BigInteger> t_circ_prime = IntStream.range(0, N).mapToObj(t_circ_prime_map::get).collect(Collectors.toList());
+        List<BigInteger> t_hat_prime = IntStream.range(0, N).mapToObj(t_hat_prime_map::get).collect(Collectors.toList());
 
         boolean isProofValid = t_1.compareTo(t_prime_1) == 0 &&
                 t_2.compareTo(t_prime_2) == 0 &&
                 t_3.compareTo(t_prime_3) == 0 &&
                 t_4.get(0).compareTo(t_prime_4_1) == 0 &&
                 t_4.get(1).compareTo(t_prime_4_2) == 0 &&
-                IntStream.range(0, N).map(i -> t_circ.get(i).compareTo(t_circ_prime.get(i))).allMatch(i -> i == 0);
+                IntStream.range(0, N).map(i -> t_hat.get(i).compareTo(t_hat_prime.get(i))).allMatch(i -> i == 0);
         if (!isProofValid) {
             log.error("Invalid proof found");
         }

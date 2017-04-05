@@ -66,7 +66,7 @@ public class VoteConfirmationClientAlgorithms {
      * @param upper_y            the confirmation code
      * @param upper_bold_p_prime the <tt>k</tt> per <tt>s</tt> point matrix, where k = sum(bold_k) and s is the number of authorities
      * @param bold_k             the number of selections per election
-     * @return the public confirmation y_circ and the proof of knowledge of the secret confirmation y
+     * @return the public confirmation y_hat and the proof of knowledge of the secret confirmation y
      */
     public Confirmation genConfirmation(String upper_y, List<List<Point>> upper_bold_p_prime, List<Integer> bold_k) {
         Preconditions.checkNotNull(upper_y);
@@ -84,23 +84,23 @@ public class VoteConfirmationClientAlgorithms {
         Preconditions.checkArgument(bold_k.stream().allMatch(k_j -> k_j >= 0),
                 "All k_j's must be greater than or equal to 0");
 
-        BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
-        BigInteger q_circ = publicParameters.getIdentificationGroup().getQ_circ();
-        BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
+        BigInteger p_hat = publicParameters.getIdentificationGroup().getP_hat();
+        BigInteger q_hat = publicParameters.getIdentificationGroup().getQ_hat();
+        BigInteger g_hat = publicParameters.getIdentificationGroup().getG_hat();
 
         List<BigInteger> h_js = IntStream.range(0, publicParameters.getS()).parallel()
                 .mapToObj(upper_bold_p_prime::get)
                 .map(bold_p_prime_j -> getValues(bold_p_prime_j, bold_k))
-                .map(bold_y_j -> conversion.toInteger(hash.recHash_L(bold_y_j.toArray())).mod(q_circ))
+                .map(bold_y_j -> conversion.toInteger(hash.recHash_L(bold_y_j.toArray())).mod(q_hat))
                 .collect(Collectors.toList());
 
         BigInteger y = conversion.toInteger(upper_y, publicParameters.getUpper_a_y())
                 .add(h_js.stream().reduce(BigInteger::add).orElse(ZERO))
-                .mod(q_circ);
-        BigInteger y_circ = modExp(g_circ, y, p_circ);
-        NonInteractiveZKP pi = genConfirmationProof(y, y_circ);
+                .mod(q_hat);
+        BigInteger y_hat = modExp(g_hat, y, p_hat);
+        NonInteractiveZKP pi = genConfirmationProof(y, y_hat);
 
-        return new Confirmation(y_circ, pi);
+        return new Confirmation(y_hat, pi);
     }
 
     /**
@@ -174,29 +174,29 @@ public class VoteConfirmationClientAlgorithms {
     /**
      * Algorithm 7.33: GenConfirmationProof
      *
-     * @param y      the secret confirmation credential
-     * @param y_circ the public confirmation credential
+     * @param y     the secret confirmation credential
+     * @param y_hat the public confirmation credential
      * @return a proof of knowledge of the secret confirmation credential
      */
-    public NonInteractiveZKP genConfirmationProof(BigInteger y, BigInteger y_circ) {
-        BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
-        BigInteger q_circ = publicParameters.getIdentificationGroup().getQ_circ();
-        BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
+    public NonInteractiveZKP genConfirmationProof(BigInteger y, BigInteger y_hat) {
+        BigInteger p_hat = publicParameters.getIdentificationGroup().getP_hat();
+        BigInteger q_hat = publicParameters.getIdentificationGroup().getQ_hat();
+        BigInteger g_hat = publicParameters.getIdentificationGroup().getG_hat();
 
         //noinspection SuspiciousNameCombination
-        Preconditions.checkArgument(generalAlgorithms.isInZ_q_circ(y), "y must be in Z_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q_hat(y), "y must be in Z_q_hat");
         //noinspection SuspiciousNameCombination
-        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(y_circ),
-                "y_circ must be in G_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_hat(y_hat),
+                "y_hat must be in G_q_hat");
 
-        BigInteger omega = randomGenerator.randomInZq(q_circ);
+        BigInteger omega = randomGenerator.randomInZq(q_hat);
 
-        BigInteger t = modExp(g_circ, omega, p_circ);
-        BigInteger[] bold_v = new BigInteger[]{y_circ};
+        BigInteger t = modExp(g_hat, omega, p_hat);
+        BigInteger[] bold_v = new BigInteger[]{y_hat};
         BigInteger[] bold_t = new BigInteger[]{t};
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(bold_v, bold_t, q_circ);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(bold_v, bold_t, q_hat);
 
-        BigInteger s = omega.add(c.multiply(y)).mod(q_circ);
+        BigInteger s = omega.add(c.multiply(y)).mod(q_hat);
         return new NonInteractiveZKP(singletonList(t), singletonList(s));
     }
 

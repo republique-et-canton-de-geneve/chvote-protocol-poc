@@ -211,64 +211,64 @@ public class MixingAuthorityAlgorithms {
                 .map(bold_u::get).collect(Collectors.toList());
 
         CommitmentChain commitmentChain = genCommitmentChain(h, bold_u_prime);
-        List<BigInteger> bold_c_circ = commitmentChain.getBold_c();
-        List<BigInteger> bold_r_circ = commitmentChain.getBold_r();
+        List<BigInteger> bold_c_hat = commitmentChain.getBold_c();
+        List<BigInteger> bold_r_hat = commitmentChain.getBold_r();
 
         BigInteger omega_1 = randomGenerator.randomInZq(q);
         BigInteger omega_2 = randomGenerator.randomInZq(q);
         BigInteger omega_3 = randomGenerator.randomInZq(q);
         BigInteger omega_4 = randomGenerator.randomInZq(q);
 
-        List<BigInteger> bold_omega_circ = IntStream.range(0, upper_n).parallel()
+        List<BigInteger> bold_omega_hat = IntStream.range(0, upper_n).parallel()
                 .mapToObj(i -> randomGenerator.randomInZq(q)).collect(Collectors.toList());
         List<BigInteger> bold_omega_prime = IntStream.range(0, upper_n).parallel()
                 .mapToObj(i -> randomGenerator.randomInZq(q)).collect(Collectors.toList());
 
-        Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_circ, pk};
-        ShuffleProof.T t = computeT(bold_e_prime, upper_n, p, g, h, pk, bold_h, bold_c_circ,
-                omega_1, omega_2, omega_3, omega_4, bold_omega_circ, bold_omega_prime);
+        Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_hat, pk};
+        ShuffleProof.T t = computeT(bold_e_prime, upper_n, p, g, h, pk, bold_h, bold_c_hat,
+                omega_1, omega_2, omega_3, omega_4, bold_omega_hat, bold_omega_prime);
         BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t.elementsToHash(), q);
 
-        ShuffleProof.S s = computeS(bold_r_prime, upper_n, q, bold_r, bold_u, bold_u_prime, bold_r_circ,
-                omega_1, omega_2, omega_3, omega_4, bold_omega_circ, bold_omega_prime, c);
+        ShuffleProof.S s = computeS(bold_r_prime, upper_n, q, bold_r, bold_u, bold_u_prime, bold_r_hat,
+                omega_1, omega_2, omega_3, omega_4, bold_omega_hat, bold_omega_prime, c);
 
         log.info("Shuffle proof generated");
-        return new ShuffleProof(t, s, bold_c, bold_c_circ);
+        return new ShuffleProof(t, s, bold_c, bold_c_hat);
     }
 
     private ShuffleProof.S computeS(List<BigInteger> bold_r_prime, int N, BigInteger q, List<BigInteger> bold_r,
-                                    List<BigInteger> bold_u, List<BigInteger> bold_u_prime, List<BigInteger> bold_r_circ,
+                                    List<BigInteger> bold_u, List<BigInteger> bold_u_prime, List<BigInteger> bold_r_hat,
                                     BigInteger omega_1, BigInteger omega_2, BigInteger omega_3, BigInteger omega_4,
-                                    List<BigInteger> bold_omega_circ, List<BigInteger> bold_omega_prime, BigInteger c) {
+                                    List<BigInteger> bold_omega_hat, List<BigInteger> bold_omega_prime, BigInteger c) {
         BigInteger s_1 = computeS1(q, bold_r, omega_1, c);
 
         List<BigInteger> v = computeV(N, q, bold_u_prime);
 
-        BigInteger s_2 = computeSi(N, q, bold_r_circ, omega_2, c, v);
+        BigInteger s_2 = computeSi(N, q, bold_r_hat, omega_2, c, v);
         BigInteger s_3 = computeSi(N, q, bold_r, omega_3, c, bold_u);
         BigInteger s_4 = computeSi(N, q, bold_r_prime, omega_4, c, bold_u);
 
-        List<BigInteger> s_circ = new ArrayList<>();
+        List<BigInteger> s_hat = new ArrayList<>();
         List<BigInteger> s_prime = new ArrayList<>();
         for (int i = 0; i < N; i++) {
-            BigInteger s_circ_i = bold_omega_circ.get(i).add(c.multiply(bold_r_circ.get(i))).mod(q);
-            s_circ.add(s_circ_i);
+            BigInteger s_hat_i = bold_omega_hat.get(i).add(c.multiply(bold_r_hat.get(i))).mod(q);
+            s_hat.add(s_hat_i);
 
             BigInteger s_prime_i = bold_omega_prime.get(i).add(c.multiply(bold_u_prime.get(i))).mod(q);
             s_prime.add(s_prime_i);
         }
 
-        return new ShuffleProof.S(s_1, s_2, s_3, s_4, s_circ, s_prime);
+        return new ShuffleProof.S(s_1, s_2, s_3, s_4, s_hat, s_prime);
     }
 
-    private BigInteger computeSi(int N, BigInteger q, List<BigInteger> bold_r_circ, BigInteger omega_2, BigInteger c, List<BigInteger> v) {
-        BigInteger r_circ = IntStream.range(0, N)
+    private BigInteger computeSi(int N, BigInteger q, List<BigInteger> bold_r_hat, BigInteger omega_2, BigInteger c, List<BigInteger> v) {
+        BigInteger r_hat = IntStream.range(0, N)
                 .parallel()
-                .mapToObj(i -> bold_r_circ.get(i).multiply(v.get(i)).mod(q))
+                .mapToObj(i -> bold_r_hat.get(i).multiply(v.get(i)).mod(q))
                 .reduce(BigInteger::add)
                 .orElse(ZERO)
                 .mod(q);
-        return omega_2.add(c.multiply(r_circ)).mod(q);
+        return omega_2.add(c.multiply(r_hat)).mod(q);
     }
 
     private List<BigInteger> computeV(int N, BigInteger q, List<BigInteger> bold_u_prime) {
@@ -293,9 +293,9 @@ public class MixingAuthorityAlgorithms {
     }
 
     private ShuffleProof.T computeT(List<Encryption> bold_e_prime, int N, BigInteger p, BigInteger g, BigInteger h,
-                                    BigInteger pk, List<BigInteger> bold_h, List<BigInteger> bold_c_circ,
+                                    BigInteger pk, List<BigInteger> bold_h, List<BigInteger> bold_c_hat,
                                     BigInteger omega_1, BigInteger omega_2, BigInteger omega_3, BigInteger omega_4,
-                                    List<BigInteger> bold_omega_circ, List<BigInteger> bold_omega_prime) {
+                                    List<BigInteger> bold_omega_hat, List<BigInteger> bold_omega_prime) {
         BigInteger t_1 = modExp(g, omega_1, p);
         BigInteger t_2 = modExp(g, omega_2, p);
 
@@ -308,20 +308,20 @@ public class MixingAuthorityAlgorithms {
         BigInteger b_prime_prod = getBPrimeProd(bold_e_prime, N, p, bold_omega_prime);
         BigInteger t_4_2 = modExp(g, omega_4.negate(), p).multiply(b_prime_prod).mod(p);
 
-        // insert c_circ_0, thus offsetting c_circ indices by 1...
-        List<BigInteger> tmp_bold_c_circ = new ArrayList<>();
-        tmp_bold_c_circ.add(0, h);
-        tmp_bold_c_circ.addAll(bold_c_circ);
+        // insert c_hat_0, thus offsetting c_hat indices by 1...
+        List<BigInteger> tmp_bold_c_hat = new ArrayList<>();
+        tmp_bold_c_hat.add(0, h);
+        tmp_bold_c_hat.addAll(bold_c_hat);
 
-        Map<Integer, BigInteger> bold_t_circ_map = IntStream.range(0, N).parallel().boxed()
-                .collect(toMap(identity(), i -> modExp(g, bold_omega_circ.get(i), p)
-                        .multiply(modExp(tmp_bold_c_circ.get(i), bold_omega_prime.get(i), p))
+        Map<Integer, BigInteger> bold_t_hat_map = IntStream.range(0, N).parallel().boxed()
+                .collect(toMap(identity(), i -> modExp(g, bold_omega_hat.get(i), p)
+                        .multiply(modExp(tmp_bold_c_hat.get(i), bold_omega_prime.get(i), p))
                         .mod(p)));
 
-        List<BigInteger> bold_t_circ = IntStream.range(0, N)
-                .mapToObj(bold_t_circ_map::get).collect(Collectors.toList());
-        tmp_bold_c_circ.remove(0); // restore c_circ to its former state
-        return new ShuffleProof.T(t_1, t_2, t_3, Arrays.asList(t_4_1, t_4_2), bold_t_circ);
+        List<BigInteger> bold_t_hat = IntStream.range(0, N)
+                .mapToObj(bold_t_hat_map::get).collect(Collectors.toList());
+        tmp_bold_c_hat.remove(0); // restore c_hat to its former state
+        return new ShuffleProof.T(t_1, t_2, t_3, Arrays.asList(t_4_1, t_4_2), bold_t_hat);
     }
 
     private BigInteger getBPrimeProd(List<Encryption> bold_e_prime, int N, BigInteger p, List<BigInteger> bold_omega_prime) {
