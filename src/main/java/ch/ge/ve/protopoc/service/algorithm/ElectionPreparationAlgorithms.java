@@ -74,22 +74,22 @@ public class ElectionPreparationAlgorithms {
         List<List<Point>> randomPoints = new ArrayList<>();
         List<List<Integer>> allowedSelections = new ArrayList<>();
 
-        // for i = 1, ..., N
+        // for i = 1, ..., upper_n_upper_e (aka N_E)
         for (Voter voter : electionSet.getVoters()) {
             // for j = 1, ..., t
             List<Election> elections = electionSet.getElections();
-            List<Integer> n = elections.stream()
+            List<Integer> bold_n = elections.stream()
                     .map(Election::getNumberOfCandidates)
                     .collect(Collectors.toList());
-            List<Integer> k_i = elections.stream()
+            List<Integer> bold_k_i = elections.stream()
                     .map(e -> electionSet.isEligible(voter, e) ? e.getNumberOfSelections() : 0)
                     .collect(Collectors.toList());
-            PointsAndZeroImages pointsAndZeroImages = polynomialAlgorithms.genPoints(n, k_i);
+            PointsAndZeroImages pointsAndZeroImages = polynomialAlgorithms.genPoints(bold_n, bold_k_i);
             SecretVoterData d_i = genSecretVoterData(pointsAndZeroImages.getPoints());
             secretVoterDataList.add(d_i);
             publicVoterDataList.add(getPublicVoterData(d_i.getX(), d_i.getY(), pointsAndZeroImages.getY0s()));
             randomPoints.add(pointsAndZeroImages.getPoints());
-            allowedSelections.add(k_i);
+            allowedSelections.add(bold_k_i);
         }
 
         return new ElectorateData(secretVoterDataList, publicVoterDataList, randomPoints, allowedSelections);

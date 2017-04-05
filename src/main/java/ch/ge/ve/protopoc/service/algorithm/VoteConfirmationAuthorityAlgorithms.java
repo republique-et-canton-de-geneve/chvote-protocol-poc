@@ -120,7 +120,7 @@ public class VoteConfirmationAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 7.39: GetFinalization
+     * Algorithm 7.37: GetFinalization
      *
      * @param i            the voter index
      * @param upper_bold_p the point matrix, one point per voter per candidate

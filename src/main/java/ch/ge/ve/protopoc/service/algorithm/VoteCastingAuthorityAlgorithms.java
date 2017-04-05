@@ -187,7 +187,7 @@ public class VoteCastingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 7.28: GenResponse
+     * Algorithm 7.25: GenResponse
      *
      * @param i            the voter index
      * @param bold_a       the vector of the queries
