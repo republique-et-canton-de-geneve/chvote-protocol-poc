@@ -53,9 +53,9 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         encryptionGroup.q >> FIVE
         encryptionGroup.g >> THREE
         publicParameters.identificationGroup >> identificationGroup
-        identificationGroup.p_circ >> ELEVEN
-        identificationGroup.q_circ >> FIVE
-        identificationGroup.g_circ >> THREE
+        identificationGroup.p_hat >> ELEVEN
+        identificationGroup.q_hat >> FIVE
+        identificationGroup.g_hat >> THREE
         publicParameters.primeField >> primeField
         primeField.p_prime >> SEVEN
         publicParameters.s >> 4
@@ -90,13 +90,13 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], _ as BigInteger[], _ as BigInteger) >> THREE // c
 
         and: "the expected preconditions checks"
-        generalAlgorithms.isMember_G_q_circ(ONE) >> true
-        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
+        generalAlgorithms.isMember_G_q_hat(ONE) >> true
+        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         // y = 154 + 3 + 2 + 1 + 0 mod 5 = 0
-        // y_circ = g_circ ^ y mod p_circ = 3 ^ 0 mod 11 = 1
-        // t = g_circ ^ omega mod p_circ = 3 ^ 3 mod 11 = 5
-        // s = omega + c * y mod q_circ = 3 + 3 * 0 mod 11 = 3
+        // y_hat = g_hat ^ y mod p_hat = 3 ^ 0 mod 11 = 1
+        // t = g_hat ^ omega mod p_hat = 3 ^ 3 mod 11 = 5
+        // s = omega + c * y mod q_hat = 3 + 3 * 0 mod 11 = 3
         expect:
         voteConfirmationClient.genConfirmation(confirmationCode, bold_P, bold_k) ==
                 new Confirmation(ONE, new NonInteractiveZKP([FIVE], [THREE]))
@@ -130,15 +130,15 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         randomGenerator.randomInZq(FIVE) >> FOUR // omega
 
         and: "a known challenge value"
-        // t = g_circ ^ omega mod p_circ = 3 ^ 4 mod 11 = 4
+        // t = g_hat ^ omega mod p_hat = 3 ^ 4 mod 11 = 4
         generalAlgorithms.getNIZKPChallenge([NINE] as BigInteger[], [FOUR] as BigInteger[], FIVE) >> THREE
 
         and: "the expected preconditions checks"
-        generalAlgorithms.isMember_G_q_circ(NINE) >> true
-        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
+        generalAlgorithms.isMember_G_q_hat(NINE) >> true
+        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect: "the generated proof to have the expected value"
-        // s = omega + c * y mod q_circ = 4 + 3 * 2 mod 5 = 0
+        // s = omega + c * y mod q_hat = 4 + 3 * 2 mod 5 = 0
         voteConfirmationClient.genConfirmationProof(TWO, NINE) == new NonInteractiveZKP([FOUR], [ZERO])
     }
 

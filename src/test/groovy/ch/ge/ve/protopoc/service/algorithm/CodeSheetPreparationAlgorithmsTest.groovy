@@ -41,9 +41,9 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray()
 
         publicParameters.s >> 2 // For the sake of simplifying the examples
-        publicParameters.q_circ_x >> FIVE
+        publicParameters.q_hat_x >> FIVE
         publicParameters.l_x >> 2
-        publicParameters.q_circ_y >> FIVE
+        publicParameters.q_hat_y >> FIVE
         publicParameters.l_y >> 2
         publicParameters.upper_l_f >> 2
         publicParameters.upper_l_r >> 2
@@ -53,7 +53,7 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         publicParameters.upper_a_r >> (defaultAlphabet as List<Character>)
         publicParameters.n_max >> 3
         publicParameters.identificationGroup >> identificationGroup
-        identificationGroup.q_circ >> FIVE
+        identificationGroup.q_hat >> FIVE
 
         codeSheetPreparation = new CodeSheetPreparationAlgorithms(publicParameters)
 

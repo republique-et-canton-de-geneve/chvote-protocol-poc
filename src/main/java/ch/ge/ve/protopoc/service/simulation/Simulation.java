@@ -324,8 +324,8 @@ public class Simulation {
         PrimeField primeField = createPrimeField(securityParameters);
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                identificationGroup.getQ_circ(), defaultAlphabet,
-                identificationGroup.getQ_circ(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
                 defaultAlphabet, 1,
                 defaultAlphabet, 1,
                 4, SimulationConstants.default_n_max);
@@ -340,8 +340,8 @@ public class Simulation {
         PrimeField primeField = createPrimeField(securityParameters);
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                identificationGroup.getQ_circ(), defaultAlphabet,
-                identificationGroup.getQ_circ(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
                 defaultAlphabet, 2,
                 defaultAlphabet, 2,
                 4, SimulationConstants.default_n_max);
@@ -355,8 +355,8 @@ public class Simulation {
         PrimeField primeField = createPrimeField(securityParameters);
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                identificationGroup.getQ_circ(), defaultAlphabet,
-                identificationGroup.getQ_circ(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
                 defaultAlphabet, 2,
                 defaultAlphabet, 2,
                 4, SimulationConstants.default_n_max);

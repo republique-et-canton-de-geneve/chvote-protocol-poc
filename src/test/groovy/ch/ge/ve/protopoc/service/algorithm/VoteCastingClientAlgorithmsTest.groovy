@@ -54,9 +54,9 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         encryptionGroup.q >> FIVE
         encryptionGroup.g >> THREE
         publicParameters.identificationGroup >> identificationGroup
-        identificationGroup.p_circ >> ELEVEN
-        identificationGroup.q_circ >> FIVE
-        identificationGroup.g_circ >> THREE
+        identificationGroup.p_hat >> ELEVEN
+        identificationGroup.q_hat >> FIVE
+        identificationGroup.g_hat >> THREE
         publicParameters.primeField >> primeField
         primeField.p_prime >> FIVE
         publicParameters.securityParameters >> securityParameters
@@ -82,29 +82,29 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         and: "some valid selected primes"
         generalAlgorithms.getPrimes(1) >> [THREE]
         and: "some arbitrary values for the proof challenge"
-        // t_1 = g_circ ^ omega_1 mod p_circ = 3 ^ 3 mod 11 = 5
+        // t_1 = g_hat ^ omega_1 mod p_hat = 3 ^ 3 mod 11 = 5
         // t_2 = omega_2 * pk ^ omega_3 mod p = 5 * 3 ^ 1 mod 11 = 4
         // t_3 = g ^ omega_3 mod p = 3 ^ 1 mod 11 = 3
         generalAlgorithms.getNIZKPChallenge(
-                [ONE, NINE, THREE] as BigInteger[], // x_circ, a, b
+                [ONE, NINE, THREE] as BigInteger[], // x_hat, a, b
                 [FIVE, FOUR, THREE] as BigInteger[],  // t_1, t_2, t_3
-                FIVE // min(q, q_circ)
+                FIVE // min(q, q_hat)
         ) >> FOUR // c
 
         and: "the expected preconditions check"
-        generalAlgorithms.isMember_G_q_circ(ONE) >> true
+        generalAlgorithms.isMember_G_q_hat(ONE) >> true
         generalAlgorithms.isMember(THREE) >> true
         generalAlgorithms.isMember(NINE) >> true
         generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
-        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> x <= 0 && x < identificationGroup.q_circ }
+        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> x <= 0 && x < identificationGroup.q_hat }
 
         when: "generating a ballot"
         def ballotQueryAndRand = voteCastingClient.genBallot("a", [1], new EncryptionPublicKey(THREE, encryptionGroup))
 
-        then: "x_circ has the expected value"
+        then: "x_hat has the expected value"
         // x = 5
-        // x_circ = g_circ ^ x mod p_circ = 3 ^ 5 mod 11 = 1
-        ballotQueryAndRand.alpha.x_circ == ONE
+        // x_hat = g_hat ^ x mod p_hat = 3 ^ 5 mod 11 = 1
+        ballotQueryAndRand.alpha.x_hat == ONE
 
         and: "bold_a has the expected value"
         // m = 3
@@ -117,7 +117,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
 
         and: "pi has the expected value"
         // for values of t_1 to t_3 see above
-        // s_1 = omega_1 + c * x mod q_circ = 3 + 4 * 15 mod 5 = 3
+        // s_1 = omega_1 + c * x mod q_hat = 3 + 4 * 15 mod 5 = 3
         // s_2 = omega_2 * m ^ c mod p = 5 * 3 ^ 4 mod 11 = 9
         // s_3 = omega_3 + c * r mod q = 1 + 4 * 1 mod 5 = 0
         ballotQueryAndRand.alpha.pi == new NonInteractiveZKP(
@@ -163,20 +163,20 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         randomGenerator.randomInGq(encryptionGroup) >> FIVE // omega_2
 
         and: "some arbitrary values for the proof challenge"
-        // t_1 = g_circ ^ omega_1 mod p_circ = 3 ^ 3 mod 11 = 5
+        // t_1 = g_hat ^ omega_1 mod p_hat = 3 ^ 3 mod 11 = 5
         // t_2 = omega_2 * pk ^ omega_3 mod p = 5 * 3 ^ 1 mod 11 = 4
         // t_3 = g ^ omega_3 mod p = 3 ^ 1 mod 11 = 3
         generalAlgorithms.getNIZKPChallenge(
-                [ONE, NINE, THREE] as BigInteger[], // x_circ, a, b
+                [ONE, NINE, THREE] as BigInteger[], // x_hat, a, b
                 [FIVE, FOUR, THREE] as BigInteger[],  // t_1, t_2, t_3
-                FIVE // min(q, q_circ)
+                FIVE // min(q, q_hat)
         ) >> FOUR // c
         and: "the expected preconditions verifications"
-        generalAlgorithms.isMember_G_q_circ(ONE) >> true
+        generalAlgorithms.isMember_G_q_hat(ONE) >> true
         generalAlgorithms.isMember(THREE) >> true
         generalAlgorithms.isMember(NINE) >> true
         generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
-        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
+        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         when: "generating a ballot ZKP"
         def pi = voteCastingClient.genBallotProof(ZERO, THREE, ONE, ONE, NINE, THREE,
@@ -184,7 +184,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
 
         then:
         // for values of t_1 to t_3 see above
-        // s_1 = omega_1 + c * x mod q_circ = 3 + 4 * 5 mod 5 = 3
+        // s_1 = omega_1 + c * x mod q_hat = 3 + 4 * 5 mod 5 = 3
         // s_2 = omega_2 * m ^ c mod p = 5 * 3 ^ 4 mod p = 9
         // s_3 = omega_3 + c * r mod q = 1 + 4 * 1 mod 3 = 0
         pi == new NonInteractiveZKP(

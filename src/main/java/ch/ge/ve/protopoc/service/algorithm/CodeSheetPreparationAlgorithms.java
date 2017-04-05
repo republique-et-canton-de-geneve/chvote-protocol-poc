@@ -93,8 +93,8 @@ public class CodeSheetPreparationAlgorithms {
         BigInteger sum_x_ij = IntStream.range(0, s).mapToObj(secretVoterDataList::get)
                 .map(SecretVoterData::getX)
                 .reduce(BigInteger::add).orElse(BigInteger.ZERO);
-        Preconditions.checkArgument(sum_x_ij.compareTo(publicParameters.getQ_circ_x()) < 0,
-                "the sum of the x_ij's must be lesser than q_circ_x");
+        Preconditions.checkArgument(sum_x_ij.compareTo(publicParameters.getQ_hat_x()) < 0,
+                "the sum of the x_ij's must be lesser than q_hat_x");
         return conversion.toString(sum_x_ij, publicParameters.getL_x(), publicParameters.getUpper_a_x());
     }
 
@@ -108,8 +108,8 @@ public class CodeSheetPreparationAlgorithms {
         BigInteger sum_y_ij = IntStream.range(0, s).mapToObj(secretVoterDataList::get)
                 .map(SecretVoterData::getY)
                 .reduce(BigInteger::add).orElse(BigInteger.ZERO);
-        Preconditions.checkArgument(sum_y_ij.compareTo(publicParameters.getQ_circ_y()) < 0,
-                "the sum of the y_ij's must be lesser than q_circ_y");
+        Preconditions.checkArgument(sum_y_ij.compareTo(publicParameters.getQ_hat_y()) < 0,
+                "the sum of the y_ij's must be lesser than q_hat_y");
         //noinspection SuspiciousNameCombination
         return conversion.toString(sum_y_ij, publicParameters.getL_y(), publicParameters.getUpper_a_y());
     }

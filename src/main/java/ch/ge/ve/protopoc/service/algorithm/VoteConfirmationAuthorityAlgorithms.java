@@ -55,21 +55,21 @@ public class VoteConfirmationAuthorityAlgorithms {
     /**
      * Algorithm 7.34: CheckConfirmation
      *
-     * @param i           the voter index
-     * @param gamma       the voter's confirmation, including public confirmation credential and proof of knowledge of
-     *                    the private confirmation credential
-     * @param bold_y_circ the list of public confirmation credentials, as generated during the preparation phase
-     * @param upper_b     the current list of ballots
-     * @param upper_c     the current list of confirmations
+     * @param i          the voter index
+     * @param gamma      the voter's confirmation, including public confirmation credential and proof of knowledge of
+     *                   the private confirmation credential
+     * @param bold_y_hat the list of public confirmation credentials, as generated during the preparation phase
+     * @param upper_b    the current list of ballots
+     * @param upper_c    the current list of confirmations
      * @return true if the confirmation is allowed (ballot present, confirmation not present, credentials match) and the
      * proof is valid
      */
-    public boolean checkConfirmation(Integer i, Confirmation gamma, List<BigInteger> bold_y_circ,
+    public boolean checkConfirmation(Integer i, Confirmation gamma, List<BigInteger> bold_y_hat,
                                      Collection<BallotEntry> upper_b, Collection<ConfirmationEntry> upper_c) {
         return voteCastingAuthorityAlgorithms.hasBallot(i, upper_b) &&
                 !hasConfirmation(i, upper_c) &&
-                bold_y_circ.get(i).compareTo(gamma.getY_circ()) == 0 &&
-                checkConfirmationProof(gamma.getPi(), gamma.getY_circ());
+                bold_y_hat.get(i).compareTo(gamma.getY_hat()) == 0 &&
+                checkConfirmationProof(gamma.getPi(), gamma.getY_hat());
     }
 
     /**
@@ -86,35 +86,35 @@ public class VoteConfirmationAuthorityAlgorithms {
     /**
      * Algorithm 7.36: CheckConfirmationProof
      *
-     * @param pi     the proof of knowledge of private confirmation credential y, provided by the voting client
-     * @param y_circ the public confirmation credential corresponding to the private credential y
+     * @param pi    the proof of knowledge of private confirmation credential y, provided by the voting client
+     * @param y_hat the public confirmation credential corresponding to the private credential y
      * @return true if the proof of knowledge is valid, false otherwise
      */
-    public boolean checkConfirmationProof(NonInteractiveZKP pi, BigInteger y_circ) {
+    public boolean checkConfirmationProof(NonInteractiveZKP pi, BigInteger y_hat) {
         Preconditions.checkNotNull(pi);
         Preconditions.checkNotNull(pi.getT());
         Preconditions.checkNotNull(pi.getS());
-        Preconditions.checkNotNull(y_circ);
+        Preconditions.checkNotNull(y_hat);
         Preconditions.checkArgument(pi.getT().size() == 1);
         Preconditions.checkArgument(pi.getS().size() == 1);
 
-        BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
-        BigInteger q_circ = publicParameters.getIdentificationGroup().getQ_circ();
-        BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
+        BigInteger p_hat = publicParameters.getIdentificationGroup().getP_hat();
+        BigInteger q_hat = publicParameters.getIdentificationGroup().getQ_hat();
+        BigInteger g_hat = publicParameters.getIdentificationGroup().getG_hat();
 
         BigInteger t = pi.getT().get(0);
         BigInteger s = pi.getS().get(0);
 
-        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(t),
-                "t must be in G_q_circ");
-        Preconditions.checkArgument(generalAlgorithms.isInZ_q_circ(s),
-                "s must be in Z_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_hat(t),
+                "t must be in G_q_hat");
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q_hat(s),
+                "s must be in Z_q_hat");
         //noinspection SuspiciousNameCombination
-        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(y_circ),
-                "y_circ must be in G_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_hat(y_hat),
+                "y_hat must be in G_q_hat");
 
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(new BigInteger[]{y_circ}, new BigInteger[]{t}, q_circ);
-        BigInteger t_prime = modExp(g_circ, s, p_circ).multiply(modExp(y_circ, c.negate(), p_circ)).mod(p_circ);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(new BigInteger[]{y_hat}, new BigInteger[]{t}, q_hat);
+        BigInteger t_prime = modExp(g_hat, s, p_hat).multiply(modExp(y_hat, c.negate(), p_hat)).mod(p_hat);
 
         return t.compareTo(t_prime) == 0;
     }

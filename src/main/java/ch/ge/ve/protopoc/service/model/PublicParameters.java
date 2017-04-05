@@ -41,7 +41,7 @@ public class PublicParameters {
     /**
      * Upper bound of secret voting credential x
      */
-    private final BigInteger q_circ_x;
+    private final BigInteger q_hat_x;
     /**
      * Alphabet used for voting code
      */
@@ -53,7 +53,7 @@ public class PublicParameters {
     /**
      * Upper bound of secret confirmation credential y
      */
-    private final BigInteger q_circ_y;
+    private final BigInteger q_hat_y;
     /**
      * Alphabet used for confirmation code
      */
@@ -104,9 +104,9 @@ public class PublicParameters {
                             EncryptionGroup encryptionGroup,
                             IdentificationGroup identificationGroup,
                             PrimeField primeField,
-                            BigInteger q_circ_x,
+                            BigInteger q_hat_x,
                             List<Character> upper_a_x,
-                            BigInteger q_circ_y,
+                            BigInteger q_hat_y,
                             List<Character> upper_a_y,
                             List<Character> upper_a_r,
                             int upper_l_r,
@@ -118,17 +118,17 @@ public class PublicParameters {
         // Preconditions tested here are those that impact a combination of the properties of the lower level elements
         Preconditions.checkArgument(encryptionGroup.getH().compareTo(BigIntegers.TWO) >= 0,
                 "");
-        Preconditions.checkArgument(2 * securityParameters.getTau() <= identificationGroup.getQ_circ().bitLength());
+        Preconditions.checkArgument(2 * securityParameters.getTau() <= identificationGroup.getQ_hat().bitLength());
         Preconditions.checkArgument(s >= 1, "There must be at least one authority");
-        Preconditions.checkArgument(q_circ_x.bitLength() >= 2 * securityParameters.getTau(),
-                "q_circ_x must be >= 2 * tau");
-        Preconditions.checkArgument(q_circ_x.compareTo(identificationGroup.getQ_circ()) <= 0,
-                "q_circ_x must be <= q_circ");
+        Preconditions.checkArgument(q_hat_x.bitLength() >= 2 * securityParameters.getTau(),
+                "q_hat_x must be >= 2 * tau");
+        Preconditions.checkArgument(q_hat_x.compareTo(identificationGroup.getQ_hat()) <= 0,
+                "q_hat_x must be <= q_circ");
         Preconditions.checkArgument(upper_a_x.size() >= 2, "|upper_a_x| >= 2");
-        Preconditions.checkArgument(q_circ_y.bitLength() >= 2 * securityParameters.getTau(),
-                "q_circ_y must be >= 2 * tau");
-        Preconditions.checkArgument(q_circ_y.compareTo(identificationGroup.getQ_circ()) <= 0,
-                "q_circ_y must be <= q_circ");
+        Preconditions.checkArgument(q_hat_y.bitLength() >= 2 * securityParameters.getTau(),
+                "q_hat_y must be >= 2 * tau");
+        Preconditions.checkArgument(q_hat_y.compareTo(identificationGroup.getQ_hat()) <= 0,
+                "q_hat_y must be <= q_circ");
         Preconditions.checkArgument(upper_a_y.size() >= 2, "|upper_a_y| >= 2");
         Preconditions.checkArgument(n_max >= 2, "n_max >= 2");
         Preconditions.checkArgument(8 * upper_l_r >= Math.log((n_max - 1) / (1.0 - securityParameters.getEpsilon())),
@@ -140,12 +140,12 @@ public class PublicParameters {
         this.encryptionGroup = encryptionGroup;
         this.identificationGroup = identificationGroup;
         this.primeField = primeField;
-        this.q_circ_x = q_circ_x;
+        this.q_hat_x = q_hat_x;
         this.upper_a_x = upper_a_x;
-        this.l_x = (int) Math.ceil(q_circ_x.bitLength() / log2(upper_a_x.size()));
-        this.q_circ_y = q_circ_y;
+        this.l_x = (int) Math.ceil(q_hat_x.bitLength() / log2(upper_a_x.size()));
+        this.q_hat_y = q_hat_y;
         this.upper_a_y = upper_a_y;
-        this.l_y = (int) Math.ceil(q_circ_y.bitLength() / log2(upper_a_y.size()));
+        this.l_y = (int) Math.ceil(q_hat_y.bitLength() / log2(upper_a_y.size()));
         this.upper_a_r = upper_a_r;
         this.upper_l_r = upper_l_r;
         this.l_r = (int) Math.ceil((8.0 * upper_l_r) / log2(upper_a_r.size()));
@@ -173,8 +173,8 @@ public class PublicParameters {
         return primeField;
     }
 
-    public BigInteger getQ_circ_x() {
-        return q_circ_x;
+    public BigInteger getQ_hat_x() {
+        return q_hat_x;
     }
 
     public List<Character> getUpper_a_x() {
@@ -185,8 +185,8 @@ public class PublicParameters {
         return l_x;
     }
 
-    public BigInteger getQ_circ_y() {
-        return q_circ_y;
+    public BigInteger getQ_hat_y() {
+        return q_hat_y;
     }
 
     public List<Character> getUpper_a_y() {

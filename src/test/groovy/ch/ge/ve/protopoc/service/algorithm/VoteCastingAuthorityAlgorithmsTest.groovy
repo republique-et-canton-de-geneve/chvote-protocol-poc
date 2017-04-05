@@ -55,9 +55,9 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         encryptionGroup.q >> FIVE
         encryptionGroup.g >> THREE
         publicParameters.identificationGroup >> identificationGroup
-        identificationGroup.p_circ >> ELEVEN
-        identificationGroup.q_circ >> FIVE
-        identificationGroup.g_circ >> THREE
+        identificationGroup.p_hat >> ELEVEN
+        identificationGroup.q_hat >> FIVE
+        identificationGroup.g_hat >> THREE
         publicParameters.primeField >> primeField
         primeField.p_prime >> ELEVEN
         publicParameters.upper_l_m >> 2
@@ -89,9 +89,9 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         generalAlgorithms.isMember(FOUR) >> true
         generalAlgorithms.isMember(FIVE) >> true
         generalAlgorithms.isMember(NINE) >> true
-        generalAlgorithms.isMember_G_q_circ(FOUR) >> true
+        generalAlgorithms.isMember_G_q_hat(FOUR) >> true
         generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
-        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
+        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect:
         result == voteCastingAuthority.checkBallot(
@@ -145,10 +145,10 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         generalAlgorithms.isMember(THREE) >> true
         generalAlgorithms.isMember(FOUR) >> true
         generalAlgorithms.isMember(NINE) >> true
-        generalAlgorithms.isMember_G_q_circ(FIVE) >> true
-        generalAlgorithms.isMember_G_q_circ(NINE) >> true
+        generalAlgorithms.isMember_G_q_hat(FIVE) >> true
+        generalAlgorithms.isMember_G_q_hat(NINE) >> true
         generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
-        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
+        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect: "the verification of the Proof to have the expected result"
         result == voteCastingAuthority.checkBallotProof(new NonInteractiveZKP(t, s), x_circ, a, b, encryptionKey)
