@@ -171,7 +171,7 @@ public class CodeSheetPreparationAlgorithms {
      * @param upper_x     the element to be used for identification
      * @param upper_y     the element to be used for confirmation
      * @param upper_fc    the element to be used as finalization code
-     * @param bold_rc     the vector of the elements to be used for return codes
+     * @param bold_rc     the vector of the elements to be used for the verification codes
      * @return the elements needed for the voter's code sheet
      */
     private CodeSheet getSheet(Integer i, ElectionSet electionSet, List<Integer> bold_k, String upper_x, String upper_y, String upper_fc,

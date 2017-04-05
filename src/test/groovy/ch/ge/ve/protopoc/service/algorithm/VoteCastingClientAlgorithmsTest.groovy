@@ -244,7 +244,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         points == [new Point(FOUR, ONE)]
     }
 
-    def "getReturnCodes should combine the given point matrix into the return codes for the voter"() {
+    def "getReturnCodes should combine the given point matrix into the verification codes for the voter"() {
         given:
         def point11 = new Point(ONE, FOUR)
         def point21 = new Point(FIVE, THREE)

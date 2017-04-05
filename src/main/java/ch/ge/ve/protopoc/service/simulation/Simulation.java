@@ -613,8 +613,8 @@ public class Simulation {
                     DefaultAuthority::getBallotVerificationStats);
             LongSummaryStatistics queryResponseStats = combineStatistics(defaultAuthorities,
                     DefaultAuthority::getQueryResponseStats);
-            LongSummaryStatistics returnCodesComputationStats = computeStats(votingClients,
-                    DefaultVotingClient.Stats::getReturnCodesComputationTime);
+            LongSummaryStatistics verificationCodesComputationStats = computeStats(votingClients,
+                    DefaultVotingClient.Stats::getVerificationCodesComputationTime);
             LongSummaryStatistics confirmationEncodingStats = computeStats(votingClients,
                     DefaultVotingClient.Stats::getConfirmationEncodingTime);
             LongSummaryStatistics confirmationVerificationStats = combineStatistics(defaultAuthorities,
@@ -630,7 +630,7 @@ public class Simulation {
             logStats("vote encoding", "client", voteEncodingStats);
             logStats("ballot verification", "server", ballotVerificationStats);
             logStats("query response", "server", queryResponseStats);
-            logStats("return codes computation", "client", returnCodesComputationStats);
+            logStats("verification codes computation", "client", verificationCodesComputationStats);
             logStats("confirmation encoding", "client", confirmationEncodingStats);
             logStats("confirmation verification", "server", confirmationVerificationStats);
             logStats("finalization code parts", "server", finalizationComputationStats);

@@ -63,15 +63,15 @@ public class PublicParameters {
      */
     private final int l_y;
     /**
-     * Alphabet used for return codes
+     * Alphabet used for verification codes
      */
     private final List<Character> upper_a_r;
     /**
-     * Length of return codes
+     * Length of verification codes
      */
     private final int upper_l_r;
     /**
-     * Length of return codes RC_{ij} (characters)
+     * Length of verification codes RC_{ij} (characters)
      */
     private final int l_r;
     /**

@@ -33,7 +33,7 @@ class VoteConfirmationVoterAlgorithmsTest extends Specification {
         voteConfirmationVoter = new VoteConfirmationVoterAlgorithms()
     }
 
-    def "checkReturnCodes should verify return codes"() {
+    def "checkReturnCodes should verify verification codes"() {
         expect:
         result == voteConfirmationVoter.checkReturnCodes(bold_rc, bold_rc_prime, bold_s)
 

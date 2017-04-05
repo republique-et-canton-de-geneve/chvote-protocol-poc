@@ -374,7 +374,7 @@ public class VoteCastingClientAlgorithms {
      *
      * @param bold_s the list of selections
      * @param bold_P the point matrix containing the responses for each of the authorities
-     * @return the return codes corresponding to the point matrix
+     * @return the verification codes corresponding to the point matrix
      */
     public List<String> getReturnCodes(List<Integer> bold_s, List<List<Point>> bold_P) {
         int length = bold_P.get(0).size();
