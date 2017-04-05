@@ -1,0 +1,16 @@
+@startuml
+actor "Election Officer / \nSimulation" as eo
+actor "Authority 1" as auth1
+actor "Authority [2-s]" as auth2
+actor "Bulletin Board" as bb
+
+eo -> auth1 : startMixing
+auth1 -> bb : publishShuffleAndProof
+auth1 --> eo : done
+
+eo -> auth2 : mixAgain
+auth2 -> bb : getPreviousShuffle
+auth2 -> bb : publishShuffleAndProof
+auth2 --> eo : done
+
+@enduml

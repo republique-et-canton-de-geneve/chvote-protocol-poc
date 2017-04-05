@@ -62,24 +62,24 @@ real context usage.
 
 ### Initialization
 
-![Initialization sequence diagram](sequence/Initialization%20-%20sequence%20diagram.png)
+![Initialization sequence diagram](sequence/Initialization.png)
 
 ### Code sheet printing
 
-![Code sheet printing sequence diagram](sequence/Print%20Code%20Sheets%20-%20sequence%20diagram.png)
+![Code sheet printing sequence diagram](sequence/CodeSheets.png)
 
 ### Vote casting phase
 
-![Vote casting sequence diagram](sequence/Voting%20Phase%20-%20sequence%20diagram.png)
+![Vote casting sequence diagram](sequence/Voting.png)
 
 ### Mixing
 
-![Mixing sequence diagram](sequence/Mixing%20-%20sequence%20diagram.png)
+![Mixing sequence diagram](sequence/Mixing.png)
 
 ### Decryption
 
-![Decryption sequence diagram](sequence/Decryption%20-%20sequence%20diagram.png)
+![Decryption sequence diagram](sequence/Decryption.png)
 
 ### Tallying
 
-![Tallying sequence diagram](sequence/Tallying%20-%20sequence%20diagram.png)
+![Tallying sequence diagram](sequence/Tallying.png)

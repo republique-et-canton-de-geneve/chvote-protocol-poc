@@ -1,0 +1,8 @@
+@startuml
+actor "Election Officer / \nSimulation" as eo
+actor "Bulletin Board" as bb
+
+eo -> bb : getTallyData
+eo -> bb : publishTally
+
+@enduml

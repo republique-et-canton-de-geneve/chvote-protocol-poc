@@ -1,0 +1,26 @@
+@startuml
+actor "Election Officer / \nSimulation" as eo
+actor "Authority [1-s]" as auth
+actor "Bulletin Board" as bb
+
+eo -> bb : publishPublicParameters
+
+eo -> auth : generateKeys
+auth -> bb : getPublicParameters
+auth -> bb : publishPublicKeyPart
+auth --> eo : done
+
+eo -> auth : buildPublicKey
+auth -> bb : getPublicKeyParts
+auth --> eo : done
+
+eo -> bb : publishElectionSet
+eo -> auth : generateElectorateData
+auth -> bb : getElectionSet
+auth -> bb : publishPublicCredentials
+auth --> eo : done
+
+eo -> auth : buildPublicCredentials
+auth -> bb : getPublicCredentialsParts
+auth --> eo : done
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+actor "Election Officer / \nSimulation" as eo
+actor "Authority [1-s]" as auth
+actor "Bulletin Board" as bb
+actor "Voting Client" as client
+actor "Voter Simulator" as voter
+
+eo -> voter : vote
+
+voter -> client : startVoteSession
+client -> bb : getPublicParameters
+client -> bb : getElectionSet
+client --> voter : votingPage
+
+voter -> client : submitVote
+client -> bb : getPublicKeyParts
+client -> bb : publishBallot
+bb -> auth : handleBallot
+auth --> bb : response
+bb --> client : response
+client --> voter : verification codes
+
+voter -> client : confirmVote
+client -> bb : publishConfirmation
+bb -> auth : handleConfirmation
+auth --> bb : finalization
+bb --> client : finalization
+client --> voter : finalization code
+
+voter --> eo : done
+
+@enduml

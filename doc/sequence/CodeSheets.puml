@@ -1,0 +1,14 @@
+@startuml
+actor "Election Officer / \nSimulation" as eo
+actor "Authority [1-s]" as auth
+actor "Bulletin Board" as bb
+actor "Printing authority" as print
+actor "Voter" as voter
+
+eo -> print : print
+print -> bb : getPublicParameters
+print -> bb : getElectionSet
+print -> auth : getPrivateCredentials
+print -> voter : sendCodeSheet
+print --> eo : done
+@enduml
