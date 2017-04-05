@@ -37,7 +37,6 @@ import java.util.stream.IntStream;
 
 import static ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic.modExp;
 import static java.math.BigInteger.ONE;
-import static java.math.BigInteger.ZERO;
 
 /**
  * Algorithms performed during the tallying of the results
@@ -171,13 +170,14 @@ public class TallyingAuthoritiesAlgorithm {
     }
 
     /**
-     * Algorithm 7.54: GetTally
+     * Algorithm 7.54: GetVotes
      *
      * @param bold_m the products of encoded selections
      * @param n      the number of candidates
-     * @return the final tally <tt>t = (t_0, ..., t_n)</tt>, where t_i is the number of votes candidate i received
+     * @return the election result matrix upper_bold_v, where each resulting vector v_i represents somebody’s vote,
+     * and each value v_{ij} = 1 represents somebody’s vote for a specific candidate j &isin; {1, ..., n}
      */
-    public List<Long> getTally(List<BigInteger> bold_m, int n) {
+    public List<List<Boolean>> getVotes(List<BigInteger> bold_m, int n) {
         Preconditions.checkArgument(bold_m.parallelStream().allMatch(generalAlgorithms::isMember),
                 "all m_i's must be in G_q");
         Preconditions.checkArgument(n >= 2, "There must be at least two candidates");
@@ -189,8 +189,9 @@ public class TallyingAuthoritiesAlgorithm {
             throw new TallyingRuntimeException(e);
         }
 
-        return bold_p.stream()
-                .map(p_j -> bold_m.stream().filter(m_i -> m_i.mod(p_j).compareTo(ZERO) == 0).count())
+        return bold_m.stream()
+                .map(m_i -> bold_p.stream()
+                        .map(p_j -> m_i.mod(p_j).compareTo(BigInteger.ZERO) == 0).collect(Collectors.toList()))
                 .collect(Collectors.toList());
     }
 }

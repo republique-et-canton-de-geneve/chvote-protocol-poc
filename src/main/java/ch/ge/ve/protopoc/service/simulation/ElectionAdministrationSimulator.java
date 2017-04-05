@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * This class simulates the actions of the election administration
@@ -68,6 +70,10 @@ public class ElectionAdministrationSimulator {
                 decryptionProofCheckWatch.elapsed(TimeUnit.MILLISECONDS)));
 
         List<BigInteger> decryptions = tallyingAuthoritiesAlgorithm.getDecryptions(finalShuffle, partialDecryptions);
-        return tallyingAuthoritiesAlgorithm.getTally(decryptions, totalCandidateCount);
+        List<List<Boolean>> votes = tallyingAuthoritiesAlgorithm.getVotes(decryptions, totalCandidateCount);
+        // Additional verifications on the votes validity may be performed here.
+        return IntStream.range(0, totalCandidateCount)
+                .mapToLong(i -> votes.stream().filter(vote -> vote.get(i)).count())
+                .boxed().collect(Collectors.toList());
     }
 }

@@ -167,7 +167,13 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
         generalAlgorithms.isMember(BigInteger.valueOf(7 * 11)) >> true
 
         expect:
-        tallyingAuthoritiesAlgorithm.getTally(m, 6) == [3, 1, 1, 2, 2, 1] as List<Long>
+        tallyingAuthoritiesAlgorithm.getVotes(m, 6) == [
+                [true, false, false, true, false, false],
+                [true, false, false, false, true, false],
+                [true, false, false, false, false, true],
+                [false, true, false, false, true, false],
+                [false, false, true, true, false, false]
+        ] as List<List<Boolean>>
     }
 
     def "getTally should fail if the group is too small for the requested number of primes"() {
@@ -181,7 +187,7 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
         generalAlgorithms.isMember(ONE) >> true
 
         when:
-        tallyingAuthoritiesAlgorithm.getTally(m, 200)
+        tallyingAuthoritiesAlgorithm.getVotes(m, 200)
 
         then:
         thrown(TallyingRuntimeException)
