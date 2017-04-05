@@ -1,6 +1,5 @@
 @startuml
-title Initialization
-
+!include style.puml
 participant "Election Officer / \nSimulation" as eo
 participant "Authority [1-s]" as auth
 participant "Bulletin Board" as bb

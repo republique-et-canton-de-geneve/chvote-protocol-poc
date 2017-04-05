@@ -1,4 +1,6 @@
 @startuml
+!include style.puml
+hide footbox
 participant "Election Officer / \nSimulation" as eo
 participant "Authority [1-s]" as auth
 participant "Bulletin Board" as bb
