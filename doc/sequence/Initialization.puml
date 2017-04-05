@@ -1,26 +1,57 @@
 @startuml
-actor "Election Officer / \nSimulation" as eo
-actor "Authority [1-s]" as auth
-actor "Bulletin Board" as bb
+title Initialization
 
+participant "Election Officer / \nSimulation" as eo
+participant "Authority [1-s]" as auth
+participant "Bulletin Board" as bb
+
+activate eo
 eo -> bb : publishPublicParameters
 
-eo -> auth : generateKeys
-auth -> bb : getPublicParameters
-auth -> bb : publishPublicKeyPart
-auth --> eo : done
+== Key generation ==
+loop for each authority
+    eo -> auth : generateKeys
+    activate auth
+    auth -> bb : getPublicParameters
+    bb --> auth : public parameters
+    auth -> bb : publishPublicKeyPart
+    auth --> eo : done
+    deactivate auth
+end
 
-eo -> auth : buildPublicKey
-auth -> bb : getPublicKeyParts
-auth --> eo : done
+loop for each authority
+    eo -> auth : buildPublicKey
+    activate auth
+    auth -> bb : getPublicKeyParts
+    bb --> auth : public key parts
+    auth -> auth : buildPublicKey
+    auth --> eo : done
+    deactivate auth
+end
+
+== Election configuration ==
 
 eo -> bb : publishElectionSet
-eo -> auth : generateElectorateData
-auth -> bb : getElectionSet
-auth -> bb : publishPublicCredentials
-auth --> eo : done
 
-eo -> auth : buildPublicCredentials
-auth -> bb : getPublicCredentialsParts
-auth --> eo : done
+== Credentials generation ==
+loop for each authority
+    eo -> auth : generateElectorateData
+    activate auth
+    auth -> bb : getElectionSet
+    bb --> auth : election set
+    auth -> bb : publishPublicCredentials
+    auth --> eo : done
+    deactivate auth
+end
+
+loop for each authority
+    eo -> auth : buildPublicCredentials
+    activate auth
+    auth -> bb : getPublicCredentialsParts
+    bb --> auth : public credential parts
+    auth -> auth : combine public credentials
+    auth --> eo : done
+    deactivate auth
+    deactivate eo
+end
 @enduml

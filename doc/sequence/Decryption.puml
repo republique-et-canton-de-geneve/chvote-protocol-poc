@@ -1,11 +1,19 @@
 @startuml
-actor "Election Officer / \nSimulation" as eo
-actor "Authority [1-s]" as auth
-actor "Bulletin Board" as bb
+participant "Election Officer / \nSimulation" as eo
+participant "Authority [1-s]" as auth
+participant "Bulletin Board" as bb
 
+activate eo
+loop for each authority
 eo -> auth : startPartialDecryption
-auth -> bb : getShuffleAndProofs
-auth -> bb : publishPartialDecryptionsAndProofs
-auth --> eo : done
+    activate auth
+    auth -> bb : getShufflesAndProofs
+    bb --> auth : shufflesAndProofs
+    auth -> auth : check shuffle proofs
+    auth -> bb : publishPartialDecryptionsAndProofs
+    auth --> eo : done
+    deactivate auth
+end
+deactivate eo
 
 @enduml

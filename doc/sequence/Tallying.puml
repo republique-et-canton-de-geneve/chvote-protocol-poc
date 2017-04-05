@@ -1,8 +1,16 @@
 @startuml
-actor "Election Officer / \nSimulation" as eo
-actor "Bulletin Board" as bb
+participant "Election Officer / \nSimulation" as eo
+participant "Bulletin Board" as bb
 
+activate eo
 eo -> bb : getTallyData
+activate bb
+bb --> eo : partial decryptions and proofs
+deactivate bb
+
+eo -> eo : check decryption proofs
+
 eo -> bb : publishTally
+deactivate eo
 
 @enduml
