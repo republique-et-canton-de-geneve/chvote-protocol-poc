@@ -66,7 +66,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
 
     def "checkConfirmation should verify if a given confirmation is valid"() {
         given: "a list of public credentials"
-        def bold_y_circ = [THREE, ONE, NINE, FOUR]
+        def bold_y_hat = [THREE, ONE, NINE, FOUR]
         and: "a mocked ballot list"
         List<BallotEntry> ballotList = Mock()
         and: "a confirmation list"
@@ -79,26 +79,26 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         voteCastingAuthority.hasBallot(2, ballotList) >> true
         voteCastingAuthority.hasBallot(3, ballotList) >> true
         and: "the following proof challenges"
-        generalAlgorithms.getNIZKPChallenge([y_circ] as BigInteger[], t as BigInteger[], FIVE) >> THREE
+        generalAlgorithms.getNIZKPChallenge([y_hat] as BigInteger[], t as BigInteger[], FIVE) >> THREE
 
         and: "the following constructed parameters"
         def pi = new NonInteractiveZKP(t, s)
-        def gamma = new Confirmation(y_circ, pi)
+        def gamma = new Confirmation(y_hat, pi)
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_hat(t[0]) >> true
-        generalAlgorithms.isMember_G_q_hat(y_circ) >> true
+        generalAlgorithms.isMember_G_q_hat(y_hat) >> true
         generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect:
-        voteConfirmationAuthority.checkConfirmation(i, gamma, bold_y_circ, ballotList, confirmationList) == result
+        voteConfirmationAuthority.checkConfirmation(i, gamma, bold_y_hat, ballotList, confirmationList) == result
 
         where:
-        i | y_circ | t       | s       || result
-        0 | THREE  | [THREE] | [TWO]   || false // hasBallot(0, B) is false
-        1 | ONE    | [FIVE]  | [THREE] || true // everything should be ok
-        2 | NINE   | [THREE] | [FIVE]  || false // hasConfirmation(2, C) is true -->
-        3 | FOUR   | [FIVE]  | [THREE] || false // the proof is not valid
+        i | y_hat | t       | s       || result
+        0 | THREE | [THREE] | [TWO]   || false // hasBallot(0, B) is false
+        1 | ONE   | [FIVE]  | [THREE] || true // everything should be ok
+        2 | NINE  | [THREE] | [FIVE]  || false // hasConfirmation(2, C) is true -->
+        3 | FOUR  | [FIVE]  | [THREE] || false // the proof is not valid
     }
 
     def "hasConfirmation should find matching confirmations from the list"() {
@@ -126,22 +126,22 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
 
     def "checkConfirmationProof should correctly validate the confirmation proof"() {
         given:
-        generalAlgorithms.getNIZKPChallenge([y_circ] as BigInteger[], t as BigInteger[], FIVE) >> THREE
+        generalAlgorithms.getNIZKPChallenge([y_hat] as BigInteger[], t as BigInteger[], FIVE) >> THREE
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_hat(t[0]) >> true
-        generalAlgorithms.isMember_G_q_hat(y_circ) >> true
+        generalAlgorithms.isMember_G_q_hat(y_hat) >> true
         generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect:
-        voteConfirmationAuthority.checkConfirmationProof(new NonInteractiveZKP(t, s), y_circ) == result
+        voteConfirmationAuthority.checkConfirmationProof(new NonInteractiveZKP(t, s), y_hat) == result
 
         where:
-        t      | s       | y_circ || result
-        [FIVE] | [THREE] | ONE    || true
-        [FOUR] | [THREE] | ONE    || false
-        [FIVE] | [TWO]   | ONE    || false
-        [FIVE] | [THREE] | THREE  || false
+        t      | s       | y_hat || result
+        [FIVE] | [THREE] | ONE   || true
+        [FOUR] | [THREE] | ONE   || false
+        [FIVE] | [TWO]   | ONE   || false
+        [FIVE] | [THREE] | THREE || false
     }
 
     def "getFinalization should hash the correct points and return the adequate values"() {

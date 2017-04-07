@@ -83,8 +83,8 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         def t = new ShuffleProof.T(THREE, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
         def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
         def bold_c = [NINE, THREE, THREE]
-        def bold_c_circ = [ONE, ONE, THREE]
-        def pi = new ShuffleProof(t, s, bold_c, bold_c_circ)
+        def bold_c_hat = [ONE, ONE, THREE]
+        def pi = new ShuffleProof(t, s, bold_c, bold_c_hat)
 
         def bold_pi = [pi, null]
 
@@ -135,8 +135,8 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         def t = new ShuffleProof.T(FOUR /* invalid data */, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
         def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
         def bold_c = [NINE, THREE, THREE]
-        def bold_c_circ = [ONE, ONE, THREE]
-        def pi = new ShuffleProof(t, s, bold_c, bold_c_circ)
+        def bold_c_hat = [ONE, ONE, THREE]
+        def pi = new ShuffleProof(t, s, bold_c, bold_c_hat)
 
         def bold_pi = [pi, null]
 
@@ -177,8 +177,8 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         def t = new ShuffleProof.T(THREE, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
         def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
         def bold_c = [NINE, THREE, THREE]
-        def bold_c_circ = [ONE, ONE, THREE]
-        def pi = new ShuffleProof(t, s, bold_c, bold_c_circ)
+        def bold_c_hat = [ONE, ONE, THREE]
+        def pi = new ShuffleProof(t, s, bold_c, bold_c_hat)
 
         and: "some mocked collaborators"
         generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]

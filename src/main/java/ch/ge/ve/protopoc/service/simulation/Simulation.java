@@ -321,8 +321,8 @@ public class Simulation {
 
         EncryptionGroup encryptionGroup = new EncryptionGroup(SimulationConstants.p_RC0e, SimulationConstants.q_RC0e,
                 SimulationConstants.g_RC0e, SimulationConstants.h_RC0e);
-        IdentificationGroup identificationGroup = new IdentificationGroup(SimulationConstants.p_circ_RC0s,
-                SimulationConstants.q_circ_RC0s, SimulationConstants.g_circ_RC0s);
+        IdentificationGroup identificationGroup = new IdentificationGroup(SimulationConstants.p_hat_RC0s,
+                SimulationConstants.q_hat_RC0s, SimulationConstants.g_hat_RC0s);
         PrimeField primeField = createPrimeField(securityParameters);
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
@@ -337,8 +337,8 @@ public class Simulation {
         SecurityParameters securityParameters = new SecurityParameters(80, 80, 160, 0.999);
 
         EncryptionGroup encryptionGroup = createEncryptionGroup(SimulationConstants.p_RC1e);
-        IdentificationGroup identificationGroup = new IdentificationGroup(SimulationConstants.p_circ_RC1s,
-                SimulationConstants.q_circ_RC1s, SimulationConstants.g_circ_RC1s);
+        IdentificationGroup identificationGroup = new IdentificationGroup(SimulationConstants.p_hat_RC1s,
+                SimulationConstants.q_hat_RC1s, SimulationConstants.g_hat_RC1s);
         PrimeField primeField = createPrimeField(securityParameters);
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
@@ -353,7 +353,7 @@ public class Simulation {
         SecurityParameters securityParameters = new SecurityParameters(112, 112, 256, 0.999);
 
         EncryptionGroup encryptionGroup = createEncryptionGroup(SimulationConstants.p2048);
-        IdentificationGroup identificationGroup = createIdentificationGroup(SimulationConstants.p_circ_2048, securityParameters);
+        IdentificationGroup identificationGroup = createIdentificationGroup(SimulationConstants.p_hat_2048, securityParameters);
         PrimeField primeField = createPrimeField(securityParameters);
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
@@ -375,34 +375,34 @@ public class Simulation {
         return primeField;
     }
 
-    private IdentificationGroup createIdentificationGroup(BigInteger p_circ, SecurityParameters securityParameters) {
+    private IdentificationGroup createIdentificationGroup(BigInteger p_hat, SecurityParameters securityParameters) {
         log.info("creating identification group");
         IdentificationGroup identificationGroup = null;
         while (identificationGroup == null) {
-            BigInteger p_circMinusOne = p_circ.subtract(ONE);
+            BigInteger p_hatMinusOne = p_hat.subtract(ONE);
 
             BigInteger k = TWO;
-            while (p_circMinusOne.mod(k).compareTo(ZERO) != 0) {
+            while (p_hatMinusOne.mod(k).compareTo(ZERO) != 0) {
                 k = k.add(ONE);
             }
-            BigInteger q_circ = p_circMinusOne.divide(k);
-            if (!q_circ.isProbablePrime(100)) {
-                log.info("q_circ is not prime");
+            BigInteger q_hat = p_hatMinusOne.divide(k);
+            if (!q_hat.isProbablePrime(100)) {
+                log.info("q_hat is not prime");
                 continue;
             }
-            if (q_circ.bitLength() < 2 * securityParameters.getTau()) {
-                log.info("|q_circ| < 2*mu");
+            if (q_hat.bitLength() < 2 * securityParameters.getTau()) {
+                log.info("|q_hat| < 2*mu");
                 continue;
             }
 
-            BigInteger i = randomGenerator.randomInZq(p_circ);
-            while (modExp(i, k, p_circ).compareTo(ONE) == 0) {
-                i = randomGenerator.randomInZq(p_circ);
+            BigInteger i = randomGenerator.randomInZq(p_hat);
+            while (modExp(i, k, p_hat).compareTo(ONE) == 0) {
+                i = randomGenerator.randomInZq(p_hat);
             }
-            BigInteger g_circ = modExp(i, k, p_circ);
+            BigInteger g_hat = modExp(i, k, p_hat);
 
             try {
-                identificationGroup = new IdentificationGroup(p_circ, q_circ, g_circ);
+                identificationGroup = new IdentificationGroup(p_hat, q_hat, g_hat);
             } catch (IllegalArgumentException e) {
                 log.warn("failed to create identification group", e);
                 identificationGroup = null;

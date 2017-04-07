@@ -117,7 +117,7 @@ public class DefaultAuthority implements AuthorityService {
         electionSet = bulletinBoardService.getElectionSet();
         electorateData = electionPreparationAlgorithms.genElectorateData(electionSet);
 
-        bulletinBoardService.publishPublicCredentials(j, electorateData.getD_circ());
+        bulletinBoardService.publishPublicCredentials(j, electorateData.getD_hat());
     }
 
     @Override

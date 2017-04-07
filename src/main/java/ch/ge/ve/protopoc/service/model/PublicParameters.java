@@ -123,12 +123,12 @@ public class PublicParameters {
         Preconditions.checkArgument(q_hat_x.bitLength() >= 2 * securityParameters.getTau(),
                 "q_hat_x must be >= 2 * tau");
         Preconditions.checkArgument(q_hat_x.compareTo(identificationGroup.getQ_hat()) <= 0,
-                "q_hat_x must be <= q_circ");
+                "q_hat_x must be <= q_hat");
         Preconditions.checkArgument(upper_a_x.size() >= 2, "|upper_a_x| >= 2");
         Preconditions.checkArgument(q_hat_y.bitLength() >= 2 * securityParameters.getTau(),
                 "q_hat_y must be >= 2 * tau");
         Preconditions.checkArgument(q_hat_y.compareTo(identificationGroup.getQ_hat()) <= 0,
-                "q_hat_y must be <= q_circ");
+                "q_hat_y must be <= q_hat");
         Preconditions.checkArgument(upper_a_y.size() >= 2, "|upper_a_y| >= 2");
         Preconditions.checkArgument(n_max >= 2, "n_max >= 2");
         Preconditions.checkArgument(8 * upper_l_r >= Math.log((n_max - 1) / (1.0 - securityParameters.getEpsilon())),

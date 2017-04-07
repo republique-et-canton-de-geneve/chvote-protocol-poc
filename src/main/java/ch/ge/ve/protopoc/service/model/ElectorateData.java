@@ -30,13 +30,13 @@ import java.util.List;
  */
 public class ElectorateData {
     private final List<SecretVoterData> d;
-    private final List<Point> d_circ;
+    private final List<Point> d_hat;
     private final List<List<Point>> P;
     private final List<List<Integer>> K;
 
     public ElectorateData(List<SecretVoterData> secretVoterDataList, List<Point> publicVoterDataList, List<List<Point>> randomPoints, List<List<Integer>> allowedSelections) {
         this.d = secretVoterDataList;
-        this.d_circ = publicVoterDataList;
+        this.d_hat = publicVoterDataList;
         this.P = randomPoints;
         this.K = allowedSelections;
     }
@@ -45,8 +45,8 @@ public class ElectorateData {
         return d;
     }
 
-    public List<Point> getD_circ() {
-        return d_circ;
+    public List<Point> getD_hat() {
+        return d_hat;
     }
 
     public List<List<Point>> getP() {
