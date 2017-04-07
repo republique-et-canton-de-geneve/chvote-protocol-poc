@@ -28,16 +28,16 @@ import java.util.Objects;
  * Model class containing the necessary information for confirmation of the vote
  */
 public class Confirmation {
-    private final BigInteger y_circ;
+    private final BigInteger y_hat;
     private final NonInteractiveZKP pi;
 
-    public Confirmation(BigInteger y_circ, NonInteractiveZKP pi) {
-        this.y_circ = y_circ;
+    public Confirmation(BigInteger y_hat, NonInteractiveZKP pi) {
+        this.y_hat = y_hat;
         this.pi = pi;
     }
 
-    public BigInteger getY_circ() {
-        return y_circ;
+    public BigInteger getY_hat() {
+        return y_hat;
     }
 
     public NonInteractiveZKP getPi() {
@@ -49,17 +49,17 @@ public class Confirmation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Confirmation that = (Confirmation) o;
-        return Objects.equals(y_circ, that.y_circ) &&
+        return Objects.equals(y_hat, that.y_hat) &&
                 Objects.equals(pi, that.pi);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(y_circ, pi);
+        return Objects.hash(y_hat, pi);
     }
 
     @Override
     public String toString() {
-        return String.format("Confirmation{y_circ=%s, pi=%s}", y_circ, pi);
+        return String.format("Confirmation{y_hat=%s, pi=%s}", y_hat, pi);
     }
 }

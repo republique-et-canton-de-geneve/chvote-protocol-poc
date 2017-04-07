@@ -29,29 +29,29 @@ import java.math.BigInteger;
  * The model class representing the identification group
  */
 public class IdentificationGroup {
-    private final BigInteger p_circ;
-    private final BigInteger q_circ;
-    private final BigInteger g_circ;
+    private final BigInteger p_hat;
+    private final BigInteger q_hat;
+    private final BigInteger g_hat;
 
-    public IdentificationGroup(BigInteger p_circ, BigInteger q_circ, BigInteger g_circ) {
-        Preconditions.checkArgument(q_circ.bitLength() <= p_circ.bitLength());
-        Preconditions.checkArgument(g_circ.compareTo(BigInteger.ONE) != 0);
-        Preconditions.checkArgument(p_circ.subtract(BigInteger.ONE).mod(q_circ)
+    public IdentificationGroup(BigInteger p_hat, BigInteger q_hat, BigInteger g_hat) {
+        Preconditions.checkArgument(q_hat.bitLength() <= p_hat.bitLength());
+        Preconditions.checkArgument(g_hat.compareTo(BigInteger.ONE) != 0);
+        Preconditions.checkArgument(p_hat.subtract(BigInteger.ONE).mod(q_hat)
                 .compareTo(BigInteger.ZERO) == 0);
-        this.p_circ = p_circ;
-        this.q_circ = q_circ;
-        this.g_circ = g_circ;
+        this.p_hat = p_hat;
+        this.q_hat = q_hat;
+        this.g_hat = g_hat;
     }
 
-    public BigInteger getP_circ() {
-        return p_circ;
+    public BigInteger getP_hat() {
+        return p_hat;
     }
 
-    public BigInteger getQ_circ() {
-        return q_circ;
+    public BigInteger getQ_hat() {
+        return q_hat;
     }
 
-    public BigInteger getG_circ() {
-        return g_circ;
+    public BigInteger getG_hat() {
+        return g_hat;
     }
 }

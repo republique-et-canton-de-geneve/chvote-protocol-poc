@@ -101,7 +101,7 @@ We use the shuffle, the permutation commitment and the commitment chain from the
 2. `(bold_c, bold_r) = ((9, 3, 3), (1, 2, 3))` _(from the genPermutationCommitment test above)_
 3. `bold_u = (2, 4, 3)` _(simulated call)_
 4. `bold_u' = (u_j_0, u_j_1, u_j_2) = (u_1, u_0, u_2) = (4, 2, 3)`
-5. `(bold_c_circ, bold_r_circ) = ((1, 1, 3), (4, 0, 1))` _(from the genCommitmentChain test above)_
+5. `(bold_c_hat, bold_r_circ) = ((1, 1, 3), (4, 0, 1))` _(from the genCommitmentChain test above)_
 6. generate omega
     1. `omega_1 = 1` _(simulated randomness)_ 
     2. `omega_2 = 2` _(simulated randomness)_
@@ -136,7 +136,7 @@ We use the shuffle, the permutation commitment and the commitment chain from the
 16. `s_3 = omega_3 + c * r_tilde mod q = 3 + 4 * 4 mod 5 = 4`
 17. `r' = SIGMA{i=0, N-1}(r'_i*u_i) mod q = 1 * 2 + 4 * 4 + 2 * 3 mod 5 = 4`
 17. `s_4 = omega_4 + c * r' mod q = 4 + 4 * 4 mod 5 = 0`
-18. compute `s_circ` and `s'`
+18. compute `s_hat` and `s'`
     1. `s_circ_0 = omega_circ_0 + c * r_circ_0 mod q = 2 + 4 * 4 mod 5 = 3`
     1. `s'_0 = omega'_0 + c * u'_0 mod q = 3 + 4 * 4 mod 5 = 4`
     2. `s_circ_1 = omega_circ_1 + c * r_circ_1 mod q = 4 + 4 * 0 mod 5 = 4`
@@ -150,7 +150,7 @@ We use the input and the proof given in the test above
 
 #### Input
 
-- `pi = (t, s, bold_c, bold_c_circ)`
+- `pi = (t, s, bold_c, bold_c_hat)`
     - `t = (t_1, t_2, t_3, (t_{4,1}, t_{4,2}), (t_circ_0, ..., t_circ_2))`
         - `t_1 = 3`
         - `t_2 = 9`
@@ -165,7 +165,7 @@ We use the input and the proof given in the test above
         - `(s_circ_0, ..., s_circ_2}) = (3, 4, 0)`
         - `(s'_0, ..., s'_2) = (4, 3, 3)`
     - `bold_c = (9, 3, 3)`
-    - `bold_c_circ = (1, 1, 3)`
+    - `bold_c_hat = (1, 1, 3)`
 - `bold_e = ([5, 1], [3, 4], [5, 9])`
 - `bold_e' = ([1, 5], [4, 4], [1, 3])`
 - `pk = 3`
@@ -190,10 +190,10 @@ We use the input and the proof given in the test above
     `t'_{4,1} = 4 ^(-4) * 3 ^ (-0) * 1 ^ 4 * 4 ^ 3 * 1 ^ 3 mod 11 = 3`
 12. `t'_{4,2} = e'_2 ^ (-c) * g ^ (-s_4) * PI{i=0, N-1}(b'_i ^ s'_i) mod p` <br>
     `t'_{4,2} = 9 ^(-4) * 3 ^ (-0) * 5 ^ 4 * 4 ^ 3 * 3 ^ 3 mod 11 = 4`
-13. compute `t_circ'`
-    1. `t_circ'_0 = c_circ_0 ^ (-c) * g ^ s_circ_0 * c_circ_{-1} ^ s'_0 mod p` <br>
-       `t_circ'_0 = 1 ^ (-4) * 3 ^ 3 * 4 ^ 4 mod 11 = 4` 
-    2. `t_circ'_1 = c_circ_1 ^ (-c) * g ^ s_circ_1 * c_circ_0 ^ s'_1 mod p` <br>
-       `t_circ'_1 = 1 ^ (-4) * 3 ^ 4 * 1 ^ 3 mod 11 = 4` 
-    3. `t_circ'_2 = c_circ_2 ^ (-c) * g ^ s_circ_2 * c_circ_1 ^ s'_2 mod p` <br>
-       `t_circ'_2 = 3 ^ (-4) * 3 ^ 0 * 1 ^ 3 mod 11 = 3` 
+13. compute `t_hat'`
+    1. `t_hat'_0 = c_circ_0 ^ (-c) * g ^ s_circ_0 * c_circ_{-1} ^ s'_0 mod p` <br>
+       `t_hat'_0 = 1 ^ (-4) * 3 ^ 3 * 4 ^ 4 mod 11 = 4` 
+    2. `t_hat'_1 = c_circ_1 ^ (-c) * g ^ s_circ_1 * c_circ_0 ^ s'_1 mod p` <br>
+       `t_hat'_1 = 1 ^ (-4) * 3 ^ 4 * 1 ^ 3 mod 11 = 4` 
+    3. `t_hat'_2 = c_circ_2 ^ (-c) * g ^ s_circ_2 * c_circ_1 ^ s'_2 mod p` <br>
+       `t_hat'_2 = 3 ^ (-4) * 3 ^ 0 * 1 ^ 3 mod 11 = 3` 

@@ -29,20 +29,20 @@ import java.util.List;
  */
 public class BallotAndQuery {
 
-    private final BigInteger x_circ;
+    private final BigInteger x_hat;
     private final List<BigInteger> bold_a;
     private final BigInteger b;
     private final NonInteractiveZKP pi;
 
-    public BallotAndQuery(BigInteger x_circ, List<BigInteger> bold_a, BigInteger b, NonInteractiveZKP pi) {
-        this.x_circ = x_circ;
+    public BallotAndQuery(BigInteger x_hat, List<BigInteger> bold_a, BigInteger b, NonInteractiveZKP pi) {
+        this.x_hat = x_hat;
         this.bold_a = bold_a;
         this.b = b;
         this.pi = pi;
     }
 
-    public BigInteger getX_circ() {
-        return x_circ;
+    public BigInteger getX_hat() {
+        return x_hat;
     }
 
     public List<BigInteger> getBold_a() {

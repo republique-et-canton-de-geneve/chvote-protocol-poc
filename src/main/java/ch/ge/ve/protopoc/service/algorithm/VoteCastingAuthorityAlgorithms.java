@@ -67,15 +67,15 @@ public class VoteCastingAuthorityAlgorithms {
     /**
      * Algorithm 7.22: CheckBallot
      *
-     * @param i           the voter index
-     * @param alpha       the submitted ballot, including the oblivious transfer query
-     * @param pk          the encryption public key
-     * @param bold_x_circ the vector of public voter credentials
-     * @param upper_b     the current ballot list
+     * @param i          the voter index
+     * @param alpha      the submitted ballot, including the oblivious transfer query
+     * @param pk         the encryption public key
+     * @param bold_x_hat the vector of public voter credentials
+     * @param upper_b    the current ballot list
      * @return true if the ballot was valid
      */
     public boolean checkBallot(Integer i, BallotAndQuery alpha, EncryptionPublicKey pk,
-                               List<BigInteger> bold_x_circ, Collection<BallotEntry> upper_b) {
+                               List<BigInteger> bold_x_hat, Collection<BallotEntry> upper_b) {
         Preconditions.checkNotNull(i);
         Preconditions.checkNotNull(alpha);
         List<BigInteger> bold_a = alpha.getBold_a();
@@ -93,17 +93,17 @@ public class VoteCastingAuthorityAlgorithms {
         Preconditions.checkArgument(numberOfSelections == k_i,
                 "A voter may not submit more than his allowed number of selections");
         Preconditions.checkNotNull(pk);
-        Preconditions.checkNotNull(bold_x_circ);
-        Preconditions.checkElementIndex(i, bold_x_circ.size());
+        Preconditions.checkNotNull(bold_x_hat);
+        Preconditions.checkElementIndex(i, bold_x_hat.size());
         Preconditions.checkNotNull(upper_b);
 
         BigInteger p = publicParameters.getEncryptionGroup().getP();
-        BigInteger x_circ_i = bold_x_circ.get(i);
-        if (!hasBallot(i, upper_b) && alpha.getX_circ().compareTo(x_circ_i) == 0) {
+        BigInteger x_hat_i = bold_x_hat.get(i);
+        if (!hasBallot(i, upper_b) && alpha.getX_hat().compareTo(x_hat_i) == 0) {
             BigInteger a = bold_a.stream().reduce(BigInteger::multiply)
                     .orElse(ONE)
                     .mod(p);
-            return checkBallotProof(alpha.getPi(), alpha.getX_circ(), a, alpha.getB(), pk);
+            return checkBallotProof(alpha.getPi(), alpha.getX_hat(), a, alpha.getB(), pk);
         }
         return false;
     }
@@ -125,28 +125,28 @@ public class VoteCastingAuthorityAlgorithms {
     /**
      * Algorithm 7.24: CheckBallotProof
      *
-     * @param pi     the proof
-     * @param x_circ public voting credential
-     * @param a      first part of ElGamal encryption
-     * @param b      second part of ElGamal encryption
-     * @param pk     the encryption public key
+     * @param pi    the proof
+     * @param x_hat public voting credential
+     * @param a     first part of ElGamal encryption
+     * @param b     second part of ElGamal encryption
+     * @param pk    the encryption public key
      * @return true if the proof is valid, false otherwise
      */
-    public boolean checkBallotProof(NonInteractiveZKP pi, BigInteger x_circ, BigInteger a, BigInteger b,
+    public boolean checkBallotProof(NonInteractiveZKP pi, BigInteger x_hat, BigInteger a, BigInteger b,
                                     EncryptionPublicKey pk) {
         Preconditions.checkNotNull(pi);
         List<BigInteger> t = pi.getT();
         Preconditions.checkNotNull(t);
         List<BigInteger> s = pi.getS();
         Preconditions.checkNotNull(s);
-        Preconditions.checkNotNull(x_circ);
+        Preconditions.checkNotNull(x_hat);
         Preconditions.checkNotNull(a);
         Preconditions.checkNotNull(b);
         Preconditions.checkNotNull(pk);
         Preconditions.checkNotNull(pk.getPublicKey());
         Preconditions.checkArgument(t.size() == 3, "t contains three elements");
-        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(t.get(0)),
-                "t_1 must be in G_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_hat(t.get(0)),
+                "t_1 must be in G_q_hat");
         Preconditions.checkArgument(generalAlgorithms.isMember(t.get(1)),
                 "t_2 must be in G_q");
         Preconditions.checkArgument(generalAlgorithms.isMember(t.get(2)),
@@ -156,7 +156,7 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger s_1 = s.get(0);
         BigInteger s_2 = s.get(1);
         BigInteger s_3 = s.get(2);
-        Preconditions.checkArgument(generalAlgorithms.isInZ_q_circ(s_1), "s_1 must be in Z_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q_hat(s_1), "s_1 must be in Z_q_hat");
         Preconditions.checkArgument(generalAlgorithms.isMember(s_2), "s_2 must be in G_q");
         Preconditions.checkArgument(generalAlgorithms.isInZ_q(s_3), "s_3 must be in Z_q");
 
@@ -167,17 +167,17 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
-        BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
-        BigInteger q_circ = publicParameters.getIdentificationGroup().getQ_circ();
-        BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
+        BigInteger p_hat = publicParameters.getIdentificationGroup().getP_hat();
+        BigInteger q_hat = publicParameters.getIdentificationGroup().getQ_hat();
+        BigInteger g_hat = publicParameters.getIdentificationGroup().getG_hat();
 
-        BigInteger[] y = new BigInteger[]{x_circ, a, b};
+        BigInteger[] y = new BigInteger[]{x_hat, a, b};
         BigInteger[] t_array = new BigInteger[3];
         t.toArray(t_array);
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t_array, q.min(q_circ));
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t_array, q.min(q_hat));
         log.debug(String.format("checkBallotProof: c = %s", c));
 
-        BigInteger t_prime_1 = modExp(x_circ, c.negate(), p_circ).multiply(modExp(g_circ, s_1, p_circ)).mod(p_circ);
+        BigInteger t_prime_1 = modExp(x_hat, c.negate(), p_hat).multiply(modExp(g_hat, s_1, p_hat)).mod(p_hat);
         BigInteger t_prime_2 = modExp(a, c.negate(), p).multiply(s_2).multiply(modExp(pk.getPublicKey(), s_3, p)).mod(p);
         BigInteger t_prime_3 = modExp(b, c.negate(), p).multiply(modExp(g, s_3, p)).mod(p);
 
@@ -187,7 +187,7 @@ public class VoteCastingAuthorityAlgorithms {
     }
 
     /**
-     * Algorithm 7.28: GenResponse
+     * Algorithm 7.25: GenResponse
      *
      * @param i            the voter index
      * @param bold_a       the vector of the queries

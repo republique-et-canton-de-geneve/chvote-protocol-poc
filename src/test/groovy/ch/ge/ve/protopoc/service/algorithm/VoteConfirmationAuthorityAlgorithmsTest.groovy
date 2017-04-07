@@ -52,9 +52,9 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         encryptionGroup.q >> FIVE
         encryptionGroup.g >> THREE
         publicParameters.identificationGroup >> identificationGroup
-        identificationGroup.p_circ >> ELEVEN
-        identificationGroup.q_circ >> FIVE
-        identificationGroup.g_circ >> THREE
+        identificationGroup.p_hat >> ELEVEN
+        identificationGroup.q_hat >> FIVE
+        identificationGroup.g_hat >> THREE
         publicParameters.primeField >> primeField
         primeField.p_prime >> SEVEN
         publicParameters.s >> 4
@@ -86,9 +86,9 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         def gamma = new Confirmation(y_circ, pi)
 
         and: "the expected preconditions checks"
-        generalAlgorithms.isMember_G_q_circ(t[0]) >> true
-        generalAlgorithms.isMember_G_q_circ(y_circ) >> true
-        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
+        generalAlgorithms.isMember_G_q_hat(t[0]) >> true
+        generalAlgorithms.isMember_G_q_hat(y_circ) >> true
+        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect:
         voteConfirmationAuthority.checkConfirmation(i, gamma, bold_y_circ, ballotList, confirmationList) == result
@@ -129,9 +129,9 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         generalAlgorithms.getNIZKPChallenge([y_circ] as BigInteger[], t as BigInteger[], FIVE) >> THREE
 
         and: "the expected preconditions checks"
-        generalAlgorithms.isMember_G_q_circ(t[0]) >> true
-        generalAlgorithms.isMember_G_q_circ(y_circ) >> true
-        generalAlgorithms.isInZ_q_circ(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_circ }
+        generalAlgorithms.isMember_G_q_hat(t[0]) >> true
+        generalAlgorithms.isMember_G_q_hat(y_circ) >> true
+        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect:
         voteConfirmationAuthority.checkConfirmationProof(new NonInteractiveZKP(t, s), y_circ) == result

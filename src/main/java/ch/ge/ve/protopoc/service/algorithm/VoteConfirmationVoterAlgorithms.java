@@ -32,10 +32,10 @@ public class VoteConfirmationVoterAlgorithms {
     /**
      * Algorithm 7.29: CheckReturnCodes
      *
-     * @param bold_rc       the printed return codes, received before the vote casting phase
-     * @param bold_rc_prime the displayed return codes, shown during the vote casting session
+     * @param bold_rc       the printed verification codes, received before the vote casting phase
+     * @param bold_rc_prime the displayed verification codes, shown during the vote casting session
      * @param bold_s        the voter's selections
-     * @return true if every displayed return code matches the corresponding printed return code
+     * @return true if every displayed verification code matches the corresponding printed verification code
      */
     public boolean checkReturnCodes(List<String> bold_rc, List<String> bold_rc_prime, List<Integer> bold_s) {
         for (int i = 0; i < bold_s.size(); i++) {

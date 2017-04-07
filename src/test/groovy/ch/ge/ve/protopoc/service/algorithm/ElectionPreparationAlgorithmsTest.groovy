@@ -46,9 +46,9 @@ class ElectionPreparationAlgorithmsTest extends Specification {
 
     void setup() {
         publicParameters.getS() >> 4
-        publicParameters.q_circ_x >> THREE
+        publicParameters.q_hat_x >> THREE
         publicParameters.l_x >> 2
-        publicParameters.q_circ_y >> THREE
+        publicParameters.q_hat_y >> THREE
         publicParameters.l_y >> 2
         publicParameters.upper_l_f >> 1
         publicParameters.upper_l_r >> 1
@@ -56,9 +56,9 @@ class ElectionPreparationAlgorithmsTest extends Specification {
         publicParameters.identificationGroup >> identificationGroup
         publicParameters.primeField >> primeField
 
-        identificationGroup.getG_circ() >> THREE
-        identificationGroup.getQ_circ() >> THREE
-        identificationGroup.getP_circ() >> SEVEN
+        identificationGroup.getG_hat() >> THREE
+        identificationGroup.getQ_hat() >> THREE
+        identificationGroup.getP_hat() >> SEVEN
 
         primeField.p_prime >> SEVEN
 
@@ -138,8 +138,8 @@ class ElectionPreparationAlgorithmsTest extends Specification {
 
         and: "one set of public voter data per voter"
         electorateData.d_circ == [
-                new Point(SIX, TWO), // voter 1 -- x = 3^3 % 7 = 6; y = (2 + 0x0C) % 3 = 2; y_circ = 3^2 % 7 = 2
-                new Point(THREE, THREE) // voter 2 -- x = 3^1 % 7 = 3; y = (1 + 0x0C) % 3 = 1; y_circ = 3^1 % 7 = 3
+                new Point(SIX, TWO), // voter 1 -- x = 3^3 % 7 = 6; y = (2 + 0x0C) % 3 = 2; y_hat = 3^2 % 7 = 2
+                new Point(THREE, THREE) // voter 2 -- x = 3^1 % 7 = 3; y = (1 + 0x0C) % 3 = 1; y_hat = 3^1 % 7 = 3
         ]
 
         and: "one set of points per voter"
@@ -196,8 +196,8 @@ class ElectionPreparationAlgorithmsTest extends Specification {
 
         where:
         x     | y   | yList        | hashed                 || point
-        THREE | TWO | [FIVE, FOUR] | [0x13] as byte[]       || new Point(SIX, ONE) // x_circ = 3^3 % 7 = 6; y = (2 + 19) % 3 = 0 --> y_circ = 3^0 mod 7 = 1
-        SIX   | ONE | [TWO, THREE] | [0x10, 0x30] as byte[] || new Point(ONE, TWO) // x_circ = 3^6 % 7 = 1; y = 1 + 0x1030 % 3 = 2 --> y_circ = 2^2 mod 7 = 2
+        THREE | TWO | [FIVE, FOUR] | [0x13] as byte[]       || new Point(SIX, ONE) // x_hat = 3^3 % 7 = 6; y = (2 + 19) % 3 = 0 --> y_hat = 3^0 mod 7 = 1
+        SIX   | ONE | [TWO, THREE] | [0x10, 0x30] as byte[] || new Point(ONE, TWO) // x_hat = 3^6 % 7 = 1; y = 1 + 0x1030 % 3 = 2 --> y_hat = 2^2 mod 7 = 2
     }
 
     def "getPublicCredentials should combine the public data from the different authorities"() {

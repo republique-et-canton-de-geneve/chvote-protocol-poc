@@ -85,14 +85,14 @@ public class VoteCastingClientAlgorithms {
         Preconditions.checkArgument(BigInteger.ONE.compareTo(pk.getPublicKey()) != 0,
                 "The key must not be 1");
 
-        BigInteger p_circ = publicParameters.getIdentificationGroup().getP_circ();
-        BigInteger g_circ = publicParameters.getIdentificationGroup().getG_circ();
+        BigInteger p_hat = publicParameters.getIdentificationGroup().getP_hat();
+        BigInteger g_hat = publicParameters.getIdentificationGroup().getG_hat();
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
 
         BigInteger x = conversion.toInteger(upper_x, publicParameters.getUpper_a_x());
-        BigInteger x_circ = modExp(g_circ, x, p_circ);
+        BigInteger x_hat = modExp(g_hat, x, p_hat);
 
         List<BigInteger> bold_q = computeBoldQ(bold_s);
         BigInteger m = computeM(bold_q, p);
@@ -100,8 +100,8 @@ public class VoteCastingClientAlgorithms {
         BigInteger a = computeA(query, p);
         BigInteger r = computeR(query, q);
         BigInteger b = modExp(g, r, p);
-        NonInteractiveZKP pi = genBallotProof(x, m, r, x_circ, a, b, pk);
-        BallotAndQuery alpha = new BallotAndQuery(x_circ, query.getBold_a(), b, pi);
+        NonInteractiveZKP pi = genBallotProof(x, m, r, x_hat, a, b, pk);
+        BallotAndQuery alpha = new BallotAndQuery(x_hat, query.getBold_a(), b, pi);
 
         return new BallotQueryAndRand(alpha, query.getBold_r());
     }
@@ -194,27 +194,27 @@ public class VoteCastingClientAlgorithms {
     /**
      * Algorithm 7.21: GenBallotProof
      *
-     * @param x      first half of voting credentials
-     * @param m      encoded selections, m \isin G_q
-     * @param r      randomization
-     * @param x_circ second half of voting credentials
-     * @param a      first half of ElGamal encryption
-     * @param b      second half of ElGamal encryption
-     * @param pk     encryption key
+     * @param x     first half of voting credentials
+     * @param m     encoded selections, m \isin G_q
+     * @param r     randomization
+     * @param x_hat second half of voting credentials
+     * @param a     first half of ElGamal encryption
+     * @param b     second half of ElGamal encryption
+     * @param pk    encryption key
      * @return a non interactive proof of knowledge for the ballot
      */
     public NonInteractiveZKP genBallotProof(
             BigInteger x,
             BigInteger m,
             BigInteger r,
-            BigInteger x_circ,
+            BigInteger x_hat,
             BigInteger a,
             BigInteger b,
             EncryptionPublicKey pk) {
-        Preconditions.checkArgument(generalAlgorithms.isInZ_q_circ(x),
-                "The private credential must be in Z_q_circ");
-        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_circ(x_circ),
-                "x_circ must be in G_q_circ");
+        Preconditions.checkArgument(generalAlgorithms.isInZ_q_hat(x),
+                "The private credential must be in Z_q_hat");
+        Preconditions.checkArgument(generalAlgorithms.isMember_G_q_hat(x_hat),
+                "x_hat must be in G_q_hat");
         Preconditions.checkArgument(generalAlgorithms.isMember(m), "m must be in G_q");
         Preconditions.checkArgument(generalAlgorithms.isInZ_q(r), "r must be in Z_q");
         Preconditions.checkArgument(generalAlgorithms.isMember(a), "a must be in G_q");
@@ -222,9 +222,9 @@ public class VoteCastingClientAlgorithms {
         Preconditions.checkArgument(generalAlgorithms.isMember(pk.getPublicKey()),
                 "The key must be a member of G_q");
         IdentificationGroup identificationGroup = publicParameters.getIdentificationGroup();
-        BigInteger p_circ = identificationGroup.getP_circ();
-        BigInteger q_circ = identificationGroup.getQ_circ();
-        BigInteger g_circ = identificationGroup.getG_circ();
+        BigInteger p_hat = identificationGroup.getP_hat();
+        BigInteger q_hat = identificationGroup.getQ_hat();
+        BigInteger g_hat = identificationGroup.getG_hat();
 
         EncryptionGroup encryptionGroup = publicParameters.getEncryptionGroup();
         BigInteger p = encryptionGroup.getP();
@@ -233,20 +233,20 @@ public class VoteCastingClientAlgorithms {
 
         log.debug(String.format("genBallotProof: a = %s", a));
 
-        BigInteger omega_1 = randomGenerator.randomInZq(q_circ);
+        BigInteger omega_1 = randomGenerator.randomInZq(q_hat);
         BigInteger omega_2 = randomGenerator.randomInGq(encryptionGroup);
         BigInteger omega_3 = randomGenerator.randomInZq(q);
 
-        BigInteger t_1 = modExp(g_circ, omega_1, p_circ);
+        BigInteger t_1 = modExp(g_hat, omega_1, p_hat);
         BigInteger t_2 = omega_2.multiply(modExp(pk.getPublicKey(), omega_3, p)).mod(p);
         BigInteger t_3 = modExp(g, omega_3, p);
 
-        BigInteger[] y = new BigInteger[]{x_circ, a, b};
+        BigInteger[] y = new BigInteger[]{x_hat, a, b};
         BigInteger[] t = new BigInteger[]{t_1, t_2, t_3};
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t, q.min(q_circ));
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t, q.min(q_hat));
         log.debug(String.format("genBallotProof: c = %s", c));
 
-        BigInteger s_1 = omega_1.add(c.multiply(x)).mod(q_circ);
+        BigInteger s_1 = omega_1.add(c.multiply(x)).mod(q_hat);
         BigInteger s_2 = omega_2.multiply(modExp(m, c, p)).mod(p);
         BigInteger s_3 = omega_3.add(c.multiply(r)).mod(q);
         List<BigInteger> s = Arrays.asList(s_1, s_2, s_3);
@@ -374,7 +374,7 @@ public class VoteCastingClientAlgorithms {
      *
      * @param bold_s the list of selections
      * @param bold_P the point matrix containing the responses for each of the authorities
-     * @return the return codes corresponding to the point matrix
+     * @return the verification codes corresponding to the point matrix
      */
     public List<String> getReturnCodes(List<Integer> bold_s, List<List<Point>> bold_P) {
         int length = bold_P.get(0).size();

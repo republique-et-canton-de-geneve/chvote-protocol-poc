@@ -326,8 +326,8 @@ public class Simulation {
         PrimeField primeField = createPrimeField(securityParameters);
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                identificationGroup.getQ_circ(), defaultAlphabet,
-                identificationGroup.getQ_circ(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
                 defaultAlphabet, 1,
                 defaultAlphabet, 1,
                 4, SimulationConstants.default_n_max);
@@ -342,8 +342,8 @@ public class Simulation {
         PrimeField primeField = createPrimeField(securityParameters);
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                identificationGroup.getQ_circ(), defaultAlphabet,
-                identificationGroup.getQ_circ(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
                 defaultAlphabet, 2,
                 defaultAlphabet, 2,
                 4, SimulationConstants.default_n_max);
@@ -357,8 +357,8 @@ public class Simulation {
         PrimeField primeField = createPrimeField(securityParameters);
 
         publicParameters = new PublicParameters(securityParameters, encryptionGroup, identificationGroup, primeField,
-                identificationGroup.getQ_circ(), defaultAlphabet,
-                identificationGroup.getQ_circ(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
+                identificationGroup.getQ_hat(), defaultAlphabet,
                 defaultAlphabet, 2,
                 defaultAlphabet, 2,
                 4, SimulationConstants.default_n_max);
@@ -615,8 +615,8 @@ public class Simulation {
                     DefaultAuthority::getBallotVerificationStats);
             LongSummaryStatistics queryResponseStats = combineStatistics(defaultAuthorities,
                     DefaultAuthority::getQueryResponseStats);
-            LongSummaryStatistics returnCodesComputationStats = computeStats(votingClients,
-                    DefaultVotingClient.Stats::getReturnCodesComputationTime);
+            LongSummaryStatistics verificationCodesComputationStats = computeStats(votingClients,
+                    DefaultVotingClient.Stats::getVerificationCodesComputationTime);
             LongSummaryStatistics confirmationEncodingStats = computeStats(votingClients,
                     DefaultVotingClient.Stats::getConfirmationEncodingTime);
             LongSummaryStatistics confirmationVerificationStats = combineStatistics(defaultAuthorities,
@@ -632,7 +632,7 @@ public class Simulation {
             logStats("vote encoding", "client", voteEncodingStats);
             logStats("ballot verification", "server", ballotVerificationStats);
             logStats("query response", "server", queryResponseStats);
-            logStats("return codes computation", "client", returnCodesComputationStats);
+            logStats("verification codes computation", "client", verificationCodesComputationStats);
             logStats("confirmation encoding", "client", confirmationEncodingStats);
             logStats("confirmation verification", "server", confirmationVerificationStats);
             logStats("finalization code parts", "server", finalizationComputationStats);
