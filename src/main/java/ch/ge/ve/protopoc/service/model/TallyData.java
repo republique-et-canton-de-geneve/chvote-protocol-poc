@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------------------------
  - #%L                                                                                            -
- - protocol-poc-back                                                                              -
+ - chvote-protocol-poc                                                                            -
  - %%                                                                                             -
  - Copyright (C) 2016 - 2017 République et Canton de Genève                                       -
  - %%                                                                                             -

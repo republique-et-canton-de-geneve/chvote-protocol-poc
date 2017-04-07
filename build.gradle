@@ -66,14 +66,14 @@ ext['spock.version'] = '1.1-groovy-2.4-rc-2'
 mainClassName = 'ch.ge.ve.protopoc.ProtocolPocApplication'
 
 jar {
-    baseName = 'protocolpoc'
+    baseName = 'chvote-protocol-poc'
     version = project.version
 }
 
 task createSimulationScripts(type: CreateStartScripts) {
     outputDir = file('build/simulation')
     mainClassName = 'ch.ge.ve.protopoc.service.simulation.Simulation'
-    applicationName = 'protocol-simulation'
+    applicationName = 'chvote-protocol-simulation'
     classpath = files(jar.archiveName)
     classpath += project.configurations.runtime
 }
@@ -92,11 +92,11 @@ task simulation(type:JavaExec, dependsOn: classes, group: 'simulation') {
 
 distributions {
     main {
-        baseName = 'protocol-poc-back'
+        baseName = 'chvote-protocol-poc'
     }
 
     simulation {
-        baseName = 'protocol-simulation'
+        baseName = 'chvote-protocol-simulation'
         contents {
             into('lib') {
                 from jar
