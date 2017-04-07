@@ -1,6 +1,25 @@
-# Prototype of an e-Voting protocol
+# Prototype of an e-Voting protocol [![CircleCI](https://circleci.com/gh/dgsi-ve-test-organization/protocol-poc-back.svg?style=svg&circle-token=d326afa989c268fe5958e3388729d15149130d3c)](https://circleci.com/gh/dgsi-ve-test-organization/protocol-poc-back)
 
-[![CircleCI](https://circleci.com/gh/dgsi-ve-test-organization/protocol-poc-back.svg?style=svg&circle-token=d326afa989c268fe5958e3388729d15149130d3c)](https://circleci.com/gh/dgsi-ve-test-organization/protocol-poc-back)
+# Table of contents
+
+- [Overview](#Overview)
+    - [Context](#Context)
+    - [Components](#Components)
+    - [Concept](#Concept)
+- [Project status](#project-status)
+    - [Implementation status](#implementation-status)
+    - [Performance measurements](#performance-measurements)
+- [Compiling and running the simulation](#compiling-and-running-the-simulation)
+    - [Prerequisites](#Prerequisites)
+    - [Compiling](#Compiling)
+    - [Running](#Running)
+- [Contributing](#Contributing)
+    - [Pull request policies](#pull-request-policies)
+	- [Security](#security)
+- [License](#license)
+- [Future](#future)
+
+# Overview
 
 ## Project context
 
@@ -9,9 +28,7 @@ of the BFH (Berner Fachhochschule) is working on, in partnership with Canton Gen
 
 The detailed specifications of the prototype will be made public along with this code.
 
-## Overview
-
-### Components
+## Components
 
 This prototype consists of:
 
@@ -27,88 +44,100 @@ This prototype consists of:
     - electronic voting interface (used by the voters)
     - vote casting finalization, including decryption and tallying
 
-### Project progress
+## Concept
 
-#### Performance
+See [Concept](doc/Concept.md).
 
-Some performance measurements can be found on [Performance measurements](Performance%20measurements.md).
+# Project status
 
-#### Implementation status
+## Implementation status
 
-The table below contains information on the progress of the project for the _backend_.
+See [Implementation](doc/Implementation.md)
 
-| Step                                    | Status               |
-| --------------------------------------- | -------------------- |
-| **_Implementation of the protocol_**    | **_done_**        |
-| - Initialization                        | done                 |
-| - Key generation                        | done                 |
-| - Electoral data                        | done                 |
-| - Code sheet printing                   | done                 |
-| - Vote casting                          | done                 |
-| - Mixing                                | done                 |
-| - Decryption                            | done                 |
-| - Tallying                              | done                 |
-| **_Simulation program_**                | **_done_**           |
-| - Initialization                        | done                 |
-| - Key generation                        | done                 |
-| - Electoral data                        | done                 |
-| - Code sheet printing                   | done                 |
-| - Vote casting                          | done                 |
-| - Mixing                                | done                 |
-| - Decryption                            | done                 |
-| - Tallying                              | done                 |
-| - performance measurements              | done                 |
-| **_Rest services_**                     | **_todo_**           |
-| - Scaffolding                           | done                 |
-| - Initialization                        | todo                 |
-| - Election administration               | todo                 |
-| - Code sheet display                    | todo                 |
-| - Vote casting                          | todo                 |
-| - Decryption                            | todo                 |
-| - Tallying                              | todo                 |
+## Performance measurements
 
-### Sequence diagrams
+Some performance measurements can be found on [Performance measurements](doc/Performance%20measurements.md).
 
-This section introduces the sequence diagrams of the simulation process and will need to be adjusted for
-real context usage.
+# Compiling and running
 
-#### Initialization
+## Preconditions
+The following software needs to be installed to build and run the application:
+- Java (JDK 8 or more recent)
+- Gradle (optional, a wrapper is provided)
 
-![Initialization sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Initialization%20-%20sequence%20diagram.png)
+## Compiling
 
-#### Code sheet printing
+- With gradle installed:
+    - `gradle build`
 
-![Code sheet printing sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Print%20Code%20Sheets%20-%20sequence%20diagram.png)
+- Without gradle (Linux)
+    - `./gradlew build`
 
-#### Vote casting phase
+- Without gradle (Windows)
+    - `.\gradlew build`
 
-![Vote casting sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Voting%20Phase%20-%20sequence%20diagram.png)
+## Running
 
-#### Mixing
+The following instructions are to run the Simulation program, rather than the backend server, since the backend 
+currently offers no interface for the core functionality.
 
-![Mixing sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Mixing%20-%20sequence%20diagram.png)
+The simulation program instantiates an election configuration, initializes the components and runs the whole protocol,
+from generation of secrets to the tallying of the results, using simulated voters.
 
-#### Decryption
+- With gradle installed:
+    - `gradle simulation`
 
-![Decryption sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Decryption%20-%20sequence%20diagram.png)
+- Without gradle (Linux)
+    - `./gradlew simulation`
 
-#### Tallying
+- Without gradle (Windows)
+    - `.\gradlew simulation`
 
-![Tallying sequence diagram](src/main/java/ch/ge/ve/protopoc/service/simulation/Tallying%20-%20sequence%20diagram.png)
+The simulation takes its parameters from environment variables. The possible parameters are:
+- `secLevel`
+    - Allowed values: 0, 1 or 2. Those match the security levels described in chapter 8 of the specification
+    - default: 1
+- `electionType`
+    - `SINGLE_VOTE`: simple 1-out-of-3 election corresponding to a referendum (Yes-No-Blank)
+    - `SIMPLE_SAMPLE`: two simple 1-out-of-3 elections, one 2-out-of-10 election, the latter one being available to 10%
+     of the voters
+    - `GC_CE`: one 7-out-of-36 election and one 100-out-of-576 (**WARNING**: _not compatible with secLevel 1_)
+    - default: SIMPLE_SAMPLE
+- `votersCount`
+    - The number of voters.
+    - default: 100
+    
+For instance, to run a simulation on GC_CE with 100'000 voters (_not recommended unless you have quite some time to 
+kill_), run the following command (or adapt it as explained above if you do not have gradle installed):
 
-### Code structure
+    gradle simulation -DelectionType=GC_CE -DvotersCount=100000
 
-#### Protocol
+# Contributing
+CHVote is opensourced with the main purpose of transparency to build confidence in the system.
+ 
+Contributions are also welcomed, either using pull requests or by submitting issues in github. The CHVote community
+manager will take care of those inputs, lead exchanges around them, and actions could take place according to their 
+relevance, their criticality, and the CHVote development roadmap.
 
-All the elements required by the protocol can be found in the [service](src/main/java/ch/ge/ve/protopoc/service) 
-package.
-- The [algorithm](src/main/java/ch/ge/ve/protopoc/service/algorithm) package covers the algorithms defined in section 5 
-of the specification
-- The [support](src/main/java/ch/ge/ve/protopoc/service/support) package covers the prerequisites discussed in section 2
-- The [service/model](src/main/java/ch/ge/ve/protopoc/service/model) package holds the model classes used to represent 
-the tuples and values returned by the algorithms
+For this specific repository, since the code released will not be used _as-is_ in production, we particularly welcome
+disscussion of the security of the protocol, so that the currently undergoing project can benefit from input at the
+earliest possible stage.
 
-#### Simulation
+## Pull request policies
+We welcome pull requests on any branch of this project.
 
-The simulation can be run by executing the 
-[Simulation](src/main/java/ch/ge/ve/protopoc/service/simulation/Simulation.java) class.
+## Security
+The code presented is not used in production, merely a Proof of Concept developed before the start of the main project.
+Therefore, security issues related to the code itself are welcome on pull requests or issues.
+
+However, should you find issue with an impact on the protocol, we would rather take your comments on 
+security-chvote@etat.ge.ch, so that we can analyze impact before taking the discussion to the public.
+We would appreciate getting two weeks notice to discuss the issue in-house and with our partners before taking the issue
+to the public.
+
+# Licence
+CHVote components are released under [AGPL 3.0](https://www.gnu.org/licenses/agpl.txt).
+
+# Future
+The second generation of CHVote is under active development. It aims to provide end-to-end encryption with individual
+and universal verifiabilities. Its source code will be published under AGPL 3.0 as well.

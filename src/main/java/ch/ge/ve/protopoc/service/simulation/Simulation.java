@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------------------------
  - #%L                                                                                            -
- - protocol-poc-back                                                                              -
+ - chvote-protocol-poc                                                                            -
  - %%                                                                                             -
  - Copyright (C) 2016 - 2017 République et Canton de Genève                                       -
  - %%                                                                                             -
@@ -310,6 +310,8 @@ public class Simulation {
             case 2:
                 createSecurityLevel2Parameters();
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown security level");
         }
         log.info("public parameters created");
     }

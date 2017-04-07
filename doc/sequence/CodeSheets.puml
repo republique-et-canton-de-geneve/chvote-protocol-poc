@@ -1,0 +1,36 @@
+@startuml
+!include style.puml
+participant "Election Officer / \nSimulation" as eo
+participant "Authority [1-s]" as auth
+participant "Bulletin Board" as bb
+participant "Printing authority" as print
+participant "Voter" as voter
+activate eo
+eo -> print : print
+activate print
+== Configuration ==
+print -> bb : getPublicParameters
+activate bb
+bb --> print : public parameters
+deactivate bb
+print -> bb : getElectionSet
+activate bb
+bb --> print : election set
+
+== Retrieve credentials ==
+loop for each authority
+    deactivate bb
+    print -> auth : getPrivateCredentials
+    activate auth
+    auth --> print : private voter credentials
+    deactivate auth
+end
+
+print -> print : combine credential parts
+
+== Send code sheets ==
+print -> voter : sendCodeSheet
+print --> eo : done
+deactivate print
+deactivate eo
+@enduml

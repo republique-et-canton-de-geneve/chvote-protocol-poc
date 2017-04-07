@@ -1,0 +1,30 @@
+@startuml
+!include style.puml
+hide footbox
+participant "Election Officer / \nSimulation" as eo
+participant "Authority 1" as auth1
+participant "Authority [2-s]" as auth2
+participant "Bulletin Board" as bb
+
+activate eo
+eo -> auth1 : startMixing
+activate auth1
+auth1 -> auth1 : shuffle
+auth1 -> bb : publishShuffleAndProof
+auth1 --> eo : done
+deactivate auth1
+
+loop for j in 2, ..., s
+    eo -> auth2 : mixAgain
+    activate auth2
+    auth2 -> bb : getPreviousShuffle
+    activate bb
+    bb --> auth2 : result of previous shuffle
+    deactivate bb
+    auth2 -> auth2 : shuffle
+    auth2 -> bb : publishShuffleAndProof
+    auth2 --> eo : done
+    deactivate auth2
+end
+deactivate eo
+@enduml

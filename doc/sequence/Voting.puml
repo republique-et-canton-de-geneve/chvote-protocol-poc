@@ -1,0 +1,60 @@
+@startuml
+!include style.puml
+participant "Election Officer / \nSimulation" as eo
+participant "Authority [1-s]" as auth
+participant "Bulletin Board" as bb
+participant "Voting Client" as client
+participant "Voter Simulator" as voter
+
+activate eo
+eo -> voter : vote
+activate voter
+
+== Build voting page ==
+voter -> client : startVoteSession
+client -> bb : getPublicParameters
+client -> bb : getElectionSet
+client --> voter : votingPage
+
+== Submit vote and OT query ==
+voter -> client : submitVote
+activate client
+client -> bb : getPublicKeyParts
+activate bb
+bb --> client : public key parts
+deactivate bb
+client -> client : build public key
+client -> bb : publishBallotAndQuery
+activate bb
+loop for each authority
+    bb -> auth : handleBallot
+    activate auth
+    auth --> bb : response
+    deactivate auth
+end
+bb --> client : responses
+deactivate bb
+client --> voter : verification codes
+deactivate client
+
+== Confirm vote ==
+voter -> client : confirmVote
+activate client
+client -> bb : publishConfirmation
+activate bb
+loop for each authority
+    bb -> auth : handleConfirmation
+    activate auth
+    auth --> bb : finalization
+    deactivate auth
+end
+bb --> client : finalization
+deactivate bb
+client --> voter : finalization code
+deactivate client
+
+voter --> eo : done
+deactivate voter
+deactivate eo
+
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+skinparam roundcorner 20
+
+skinparam sequence {
+	ArrowColor #193A72
+	ArrowFontColor #3F6AB2
+	LifeLineBorderColor #26529C
+	LifeLineBackgroundColor #89ABE6
+
+	ParticipantBorderColor #26529C
+	ParticipantBackgroundColor #89ABE6
+	ParticipantFontName Trebuchet
+	ParticipantFontSize 15
+	ParticipantFontStyle bold
+	ParticipantFontColor #193A72
+
+	GroupingFontColor #3F6AB2
+	GroupingHeaderFontColor #3F6AB2
+	DividerFontColor #3F6AB2
+}
+@enduml

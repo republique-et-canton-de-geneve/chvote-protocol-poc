@@ -1,0 +1,21 @@
+@startuml
+!include style.puml
+hide footbox
+participant "Election Officer / \nSimulation" as eo
+participant "Authority [1-s]" as auth
+participant "Bulletin Board" as bb
+
+activate eo
+loop for each authority
+eo -> auth : startPartialDecryption
+    activate auth
+    auth -> bb : getShufflesAndProofs
+    bb --> auth : shufflesAndProofs
+    auth -> auth : check shuffle proofs
+    auth -> bb : publishPartialDecryptionsAndProofs
+    auth --> eo : done
+    deactivate auth
+end
+deactivate eo
+
+@enduml
