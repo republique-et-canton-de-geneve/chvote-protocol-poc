@@ -22,10 +22,11 @@
 package ch.ge.ve.protopoc.service.exception;
 
 /**
- * Exception thrown by an authority if it detects an invalid shuffle proof
+ * This is the exception thrown when an unexpected (and non recoverable) exception is encountered upon
+ * initialising the required digests
  */
-public class InvalidShuffleProofException extends RuntimeException {
-    public InvalidShuffleProofException(String message) {
-        super(message);
+public class DigestInitialisationRuntimeException extends RuntimeException {
+    public DigestInitialisationRuntimeException(Throwable cause) {
+        super(cause);
     }
 }

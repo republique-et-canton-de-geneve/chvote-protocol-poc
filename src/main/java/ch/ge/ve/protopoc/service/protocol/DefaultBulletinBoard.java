@@ -21,7 +21,7 @@
 
 package ch.ge.ve.protopoc.service.protocol;
 
-import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationException;
+import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationRuntimeException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import com.google.common.base.Preconditions;
@@ -140,7 +140,7 @@ public class DefaultBulletinBoard implements BulletinBoardService {
 
     @Override
     public List<FinalizationCodePart> publishConfirmation(Integer voterIndex, Confirmation confirmation)
-            throws IncorrectConfirmationException {
+            throws IncorrectConfirmationRuntimeException {
         Preconditions.checkState(publicParameters != null,
                 "The public parameters need to have been defined first");
         Preconditions.checkState(authorities.size() == publicParameters.getS(),

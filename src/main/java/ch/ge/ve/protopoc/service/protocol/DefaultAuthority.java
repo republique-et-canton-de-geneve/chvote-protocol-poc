@@ -22,9 +22,9 @@
 package ch.ge.ve.protopoc.service.protocol;
 
 import ch.ge.ve.protopoc.service.algorithm.*;
-import ch.ge.ve.protopoc.service.exception.IncorrectBallotException;
-import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationException;
-import ch.ge.ve.protopoc.service.exception.InvalidShuffleProofException;
+import ch.ge.ve.protopoc.service.exception.IncorrectBallotRuntimeException;
+import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationRuntimeException;
+import ch.ge.ve.protopoc.service.exception.InvalidShuffleProofRuntimeException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import com.google.common.base.Preconditions;
@@ -145,7 +145,7 @@ public class DefaultAuthority implements AuthorityService {
                 publicCredentials.stream().map(p -> p.x).collect(Collectors.toList());
         if (!voteCastingAuthorityAlgorithms.checkBallot(voterIndex, ballotAndQuery, systemPublicKey,
                 publicIdentificationCredentials, ballotEntries)) {
-            throw new IncorrectBallotException(String.format("Ballot for voter %d was deemed invalid", voterIndex));
+            throw new IncorrectBallotRuntimeException(String.format("Ballot for voter %d was deemed invalid", voterIndex));
         }
         stopwatch.stop();
         ballotVerificationTimes.add(stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -164,7 +164,7 @@ public class DefaultAuthority implements AuthorityService {
 
     @Override
     public FinalizationCodePart handleConfirmation(Integer voterIndex, Confirmation confirmation)
-            throws IncorrectConfirmationException {
+            throws IncorrectConfirmationRuntimeException {
         Preconditions.checkState(publicCredentials != null,
                 "The public credentials need to have been retrieved first");
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -173,7 +173,7 @@ public class DefaultAuthority implements AuthorityService {
 
         if (!voteConfirmationAuthorityAlgorithms.checkConfirmation(voterIndex, confirmation,
                 publicConfirmationCredentials, ballotEntries, confirmationEntries)) {
-            throw new IncorrectConfirmationException("Confirmation for voter " + voterIndex + " was deemed invalid");
+            throw new IncorrectConfirmationRuntimeException("Confirmation for voter " + voterIndex + " was deemed invalid");
         }
         stopwatch.stop();
         confirmationVerificationTimes.add(stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -227,7 +227,7 @@ public class DefaultAuthority implements AuthorityService {
         List<List<Encryption>> shuffles = shufflesAndProofs.getShuffles();
         Stopwatch checkShuffleWatch = Stopwatch.createStarted();
         if (!decryptionAuthorityAlgorithms.checkShuffleProofs(shuffleProofs, encryptions, shuffles, systemPublicKey, j)) {
-            throw new InvalidShuffleProofException("At least one shuffle proof was invalid");
+            throw new InvalidShuffleProofRuntimeException("At least one shuffle proof was invalid");
         }
         checkShuffleWatch.stop();
         perfLog.info(String.format("Authority %d : checked shuffle proof in %dms", j,

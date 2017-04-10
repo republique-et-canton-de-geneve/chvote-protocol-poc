@@ -22,10 +22,10 @@
 package ch.ge.ve.protopoc.service.exception;
 
 /**
- * Exception thrown when an authority deems that a ballot was invalid.
+ * Exception thrown by an authority if it detects an invalid shuffle proof
  */
-public class IncorrectBallotException extends RuntimeException {
-    public IncorrectBallotException(String message) {
+public class InvalidShuffleProofRuntimeException extends RuntimeException {
+    public InvalidShuffleProofRuntimeException(String message) {
         super(message);
     }
 }
