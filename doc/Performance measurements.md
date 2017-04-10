@@ -2,9 +2,8 @@
 
 ### Introduction
 
-This page will contain performance measurements, including all relevant context
-information.
-Newest measurements will always appear at the top of the page.
+This page contains performance measurements, including all relevant context information.
+Newest measurements appear at the top of the page.
 
 All measurements should include the current date and the hash of the HEAD commit
 at the moment they were taken.
@@ -53,6 +52,8 @@ Unless otherwise specified, measurements were taken on an HP EliteBook, with an
 | finalization code parts        | server               |           2 675 |               3 |            6,69 |              39 |
 | finalization code computation  | client               |               1 |               0 |            0,01 |               1 |
 
+---
+
 #### Larger data sets
 
 The reason for the improvement tested below, was related to tests with a larger
@@ -88,6 +89,7 @@ Intel Xeon @3.5GHz and 16GB of RAM, on Windows
 | tallying                       |         802'362 |         787'555 |
 | total simulation time          |     153'422'326 |       7'472'461 |
 
+---
 
 #### Reuse hashes
 
@@ -128,6 +130,8 @@ in the number of votes.
 | tallying                       |           5 344 |
 | total simulation time          |         134 784 |
 
+---
+
 #### More complex elections
 
 - Date: December 21st, 2016
@@ -156,6 +160,8 @@ in the number of votes.
 | decryption                     |           4 999 |
 | tallying                       |             743 |
 | total simulation time          |         205 314 |
+
+---
 
 #### Arithmetic improvements
 
@@ -215,6 +221,8 @@ the native modexp library), identified through profiling.
 | decryption                     |          47 359 |
 | tallying                       |           6 114 |
 | total simulation time          |         161 918 |
+
+---
 
 #### With more parallelism
 
@@ -284,6 +292,8 @@ distributed anyway, and will have to be implemented in javascript.
 - Most of the time spent in the decryption phase serves to verify the proofs of
 the shuffles.
 
+---
+
 #### Using parallel streams
 
 - Date December 19, 2016
@@ -337,6 +347,8 @@ the shuffles.
 |                       tallying |           6 146 |
 |          total simulation time |         237 544 |
 
+---
+
 #### LibGMP integration
 
 - Date: December 16, 2016
@@ -389,6 +401,8 @@ the shuffles.
 |                     decryption |         216 645 |
 |                       tallying |           8 831 |
 |          total simulation time |         487 119 |
+
+---
 
 #### Initial measurements
 
