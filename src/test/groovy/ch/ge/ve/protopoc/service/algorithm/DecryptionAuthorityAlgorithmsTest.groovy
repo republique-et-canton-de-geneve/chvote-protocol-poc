@@ -40,6 +40,7 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
 
     // Secondary Mocks
     EncryptionGroup encryptionGroup = Mock()
+    SecurityParameters securityParameters = Mock()
 
     // Class under test
     DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms
@@ -52,6 +53,9 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         encryptionGroup.q >> FIVE // G_q = (1, 3, 4, 5, 9)
         encryptionGroup.g >> THREE
         encryptionGroup.h >> FOUR
+
+        publicParameters.securityParameters >> securityParameters
+        securityParameters.tau >> 2
 
         decryptionAuthorityAlgorithms = new DecryptionAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator)
 
@@ -80,19 +84,19 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         def pk = new EncryptionPublicKey(THREE, encryptionGroup)
 
         and: "a valid shuffle proof"
-        def t = new ShuffleProof.T(THREE, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
-        def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
+        def t = new ShuffleProof.T(THREE, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, FOUR])
+        def s = new ShuffleProof.S(ONE, TWO, THREE, FOUR, [TWO, FOUR, ONE], [THREE, ZERO, ONE])
         def bold_c = [NINE, THREE, THREE]
-        def bold_c_hat = [ONE, ONE, THREE]
+        def bold_c_hat = [FOUR, FIVE, ONE]
         def pi = new ShuffleProof(t, s, bold_c, bold_c_hat)
 
         def bold_pi = [pi, null]
 
         and: "some mocked collaborators"
         generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
-        generalAlgorithms.getChallenges(3, [e_0, e_1, [NINE, THREE, THREE]] as List[], FIVE) >>
-                [TWO, FOUR, THREE]
-        generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
+        generalAlgorithms.getChallenges(3, [e_0, e_1, [NINE, THREE, THREE]] as List[], 2) >>
+                [TWO, ZERO, THREE]
+        generalAlgorithms.getNIZKPChallenge(_, _, 2) >> ZERO
 
         and: "the expected preconditions"
         generalAlgorithms.isMember(ONE) >> true
@@ -133,19 +137,19 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         def pk = new EncryptionPublicKey(THREE, encryptionGroup)
 
         and: "an invalid shuffle proof"
-        def t = new ShuffleProof.T(FOUR /* invalid data */, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
-        def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
+        def t = new ShuffleProof.T(FOUR /* invalid data */, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, FOUR])
+        def s = new ShuffleProof.S(ONE, TWO, THREE, FOUR, [TWO, FOUR, ONE], [THREE, ZERO, ONE])
         def bold_c = [NINE, THREE, THREE]
-        def bold_c_hat = [ONE, ONE, THREE]
+        def bold_c_hat = [FOUR, FIVE, ONE]
         def pi = new ShuffleProof(t, s, bold_c, bold_c_hat)
 
         def bold_pi = [pi, null]
 
         and: "some mocked collaborators"
         generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
-        generalAlgorithms.getChallenges(3, [e_0, e_1, [NINE, THREE, THREE]] as List[], FIVE) >>
-                [TWO, FOUR, THREE]
-        generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
+        generalAlgorithms.getChallenges(3, [e_0, e_1, [NINE, THREE, THREE]] as List[], 2) >>
+                [TWO, ZERO, THREE]
+        generalAlgorithms.getNIZKPChallenge(_, _, 2) >> ZERO
 
         and: "the expected preconditions"
         generalAlgorithms.isMember(ONE) >> true
@@ -175,17 +179,17 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
                 new Encryption(ONE, FOUR)
         ]
         def pk = new EncryptionPublicKey(THREE, encryptionGroup)
-        def t = new ShuffleProof.T(THREE, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
-        def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
+        def t = new ShuffleProof.T(THREE, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, FOUR])
+        def s = new ShuffleProof.S(ONE, TWO, THREE, FOUR, [TWO, FOUR, ONE], [THREE, ZERO, ONE])
         def bold_c = [NINE, THREE, THREE]
-        def bold_c_hat = [ONE, ONE, THREE]
+        def bold_c_hat = [FOUR, FIVE, ONE]
         def pi = new ShuffleProof(t, s, bold_c, bold_c_hat)
 
         and: "some mocked collaborators"
         generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
-        generalAlgorithms.getChallenges(3, [bold_e, bold_e_prime, [NINE, THREE, THREE]] as List[], FIVE) >>
-                [TWO, FOUR, THREE]
-        generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
+        generalAlgorithms.getChallenges(3, [bold_e, bold_e_prime, [NINE, THREE, THREE]] as List[], 2) >>
+                [TWO, ZERO, THREE]
+        generalAlgorithms.getNIZKPChallenge(_, _, 2) >> ZERO
 
         and: "the expected preconditions"
         generalAlgorithms.isMember(ONE) >> true

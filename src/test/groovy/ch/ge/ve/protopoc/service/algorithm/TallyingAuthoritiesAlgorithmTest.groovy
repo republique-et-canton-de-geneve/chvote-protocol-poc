@@ -23,10 +23,7 @@ package ch.ge.ve.protopoc.service.algorithm
 
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException
 import ch.ge.ve.protopoc.service.exception.TallyingRuntimeException
-import ch.ge.ve.protopoc.service.model.DecryptionProof
-import ch.ge.ve.protopoc.service.model.Encryption
-import ch.ge.ve.protopoc.service.model.EncryptionGroup
-import ch.ge.ve.protopoc.service.model.PublicParameters
+import ch.ge.ve.protopoc.service.model.*
 import spock.lang.Specification
 
 import static ch.ge.ve.protopoc.service.support.BigIntegers.*
@@ -43,6 +40,7 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
 
     // Secondary Mocks
     EncryptionGroup encryptionGroup = Mock()
+    SecurityParameters securityParameters = Mock()
 
     // Class under test
     TallyingAuthoritiesAlgorithm tallyingAuthoritiesAlgorithm
@@ -50,6 +48,9 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
     void setup() {
         publicParameters.encryptionGroup >> encryptionGroup
         publicParameters.s >> 2
+
+        publicParameters.securityParameters >> securityParameters
+        securityParameters.tau >> 2
 
         tallyingAuthoritiesAlgorithm = new TallyingAuthoritiesAlgorithm(publicParameters, generalAlgorithms)
     }

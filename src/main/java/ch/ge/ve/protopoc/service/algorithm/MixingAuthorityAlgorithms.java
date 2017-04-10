@@ -178,6 +178,7 @@ public class MixingAuthorityAlgorithms {
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
         BigInteger h = publicParameters.getEncryptionGroup().getH();
+        int tau = publicParameters.getSecurityParameters().getTau();
 
         Preconditions.checkArgument(bold_e.parallelStream().allMatch(e ->
                         generalAlgorithms.isMember(e.getA()) && generalAlgorithms.isMember(e.getB())),
@@ -205,7 +206,9 @@ public class MixingAuthorityAlgorithms {
         PermutationCommitment permutationCommitment = genPermutationCommitment(psy, bold_h);
         List<BigInteger> bold_c = permutationCommitment.getBold_c();
         List<BigInteger> bold_r = permutationCommitment.getBold_r();
-        List<BigInteger> bold_u = generalAlgorithms.getChallenges(upper_n, new List[]{bold_e, bold_e_prime, bold_c}, q);
+        List<BigInteger> bold_u = generalAlgorithms.getChallenges(upper_n,
+                new List[]{bold_e, bold_e_prime, bold_c},
+                tau);
 
         List<BigInteger> bold_u_prime = psy.stream()
                 .map(bold_u::get).collect(Collectors.toList());
@@ -227,7 +230,7 @@ public class MixingAuthorityAlgorithms {
         Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_hat, pk};
         ShuffleProof.T t = computeT(bold_e_prime, upper_n, p, g, h, pk, bold_h, bold_c_hat,
                 omega_1, omega_2, omega_3, omega_4, bold_omega_hat, bold_omega_prime);
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t.elementsToHash(), q);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t.elementsToHash(), tau);
 
         ShuffleProof.S s = computeS(bold_r_prime, upper_n, q, bold_r, bold_u, bold_u_prime, bold_r_hat,
                 omega_1, omega_2, omega_3, omega_4, bold_omega_hat, bold_omega_prime, c);

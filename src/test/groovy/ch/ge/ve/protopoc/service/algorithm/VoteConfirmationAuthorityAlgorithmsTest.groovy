@@ -38,6 +38,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
     PublicParameters publicParameters = Mock()
     EncryptionGroup encryptionGroup = Mock()
     IdentificationGroup identificationGroup = Mock()
+    SecurityParameters securityParameters = Mock()
     GeneralAlgorithms generalAlgorithms = Mock()
     VoteCastingAuthorityAlgorithms voteCastingAuthority = Mock()
     Hash hash = Mock()
@@ -60,6 +61,9 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         publicParameters.s >> 4
         publicParameters.upper_l_f >> 2
 
+        publicParameters.securityParameters >> securityParameters
+        securityParameters.tau >> 2
+
         voteConfirmationAuthority =
                 new VoteConfirmationAuthorityAlgorithms(publicParameters, generalAlgorithms, voteCastingAuthority, hash)
     }
@@ -79,7 +83,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         voteCastingAuthority.hasBallot(2, ballotList) >> true
         voteCastingAuthority.hasBallot(3, ballotList) >> true
         and: "the following proof challenges"
-        generalAlgorithms.getNIZKPChallenge([y_hat] as BigInteger[], t as BigInteger[], FIVE) >> THREE
+        generalAlgorithms.getNIZKPChallenge([y_hat] as BigInteger[], t as BigInteger[], 2) >> THREE
 
         and: "the following constructed parameters"
         def pi = new NonInteractiveZKP(t, s)
@@ -126,7 +130,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
 
     def "checkConfirmationProof should correctly validate the confirmation proof"() {
         given:
-        generalAlgorithms.getNIZKPChallenge([y_hat] as BigInteger[], t as BigInteger[], FIVE) >> THREE
+        generalAlgorithms.getNIZKPChallenge([y_hat] as BigInteger[], t as BigInteger[], 2) >> THREE
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_hat(t[0]) >> true

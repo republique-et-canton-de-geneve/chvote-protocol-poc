@@ -61,6 +61,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         primeField.p_prime >> FIVE
         publicParameters.securityParameters >> securityParameters
         securityParameters.l >> 32
+        securityParameters.tau >> 2
         publicParameters.upper_l_m >> 4
         publicParameters.upper_l_r >> 2
         publicParameters.s >> 2
@@ -88,7 +89,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         generalAlgorithms.getNIZKPChallenge(
                 [ONE, NINE, THREE] as BigInteger[], // x_hat, a, b
                 [FIVE, FOUR, THREE] as BigInteger[],  // t_1, t_2, t_3
-                FIVE // min(q, q_hat)
+                2 // tau
         ) >> FOUR // c
 
         and: "the expected preconditions check"
@@ -169,7 +170,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         generalAlgorithms.getNIZKPChallenge(
                 [ONE, NINE, THREE] as BigInteger[], // x_hat, a, b
                 [FIVE, FOUR, THREE] as BigInteger[],  // t_1, t_2, t_3
-                FIVE // min(q, q_hat)
+                2 // tau
         ) >> FOUR // c
         and: "the expected preconditions verifications"
         generalAlgorithms.isMember_G_q_hat(ONE) >> true

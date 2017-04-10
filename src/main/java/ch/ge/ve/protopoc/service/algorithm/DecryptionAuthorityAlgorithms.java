@@ -110,6 +110,7 @@ public class DecryptionAuthorityAlgorithms {
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
         BigInteger h = publicParameters.getEncryptionGroup().getH();
+        int tau = publicParameters.getSecurityParameters().getTau();
 
         int N = bold_e.size();
         List<BigInteger> bold_c = pi.getBold_c();
@@ -171,9 +172,9 @@ public class DecryptionAuthorityAlgorithms {
         Preconditions.checkArgument(generalAlgorithms.isMember(pk), "pk must be in G_q");
 
         List<BigInteger> bold_h = generalAlgorithms.getGenerators(N);
-        List<BigInteger> bold_u = generalAlgorithms.getChallenges(N, new List[]{bold_e, bold_e_prime, bold_c}, q);
+        List<BigInteger> bold_u = generalAlgorithms.getChallenges(N, new List[]{bold_e, bold_e_prime, bold_c}, tau);
         Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_hat, pk};
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, pi.getT().elementsToHash(), q);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, pi.getT().elementsToHash(), tau);
 
         BigInteger c_prod = bold_c.stream().reduce(multiplyMod(p)).orElse(ONE);
         BigInteger h_prod = bold_h.stream().reduce(multiplyMod(p)).orElse(ONE);
@@ -276,13 +277,14 @@ public class DecryptionAuthorityAlgorithms {
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
         BigInteger omega = randomGenerator.randomInZq(q);
+        int tau = publicParameters.getSecurityParameters().getTau();
 
         BigInteger t_0 = modExp(g, omega, p);
         List<BigInteger> t = bold_e.stream().map(e_i -> modExp(e_i.getB(), omega, p)).collect(Collectors.toList());
         t.add(0, t_0);
         List<BigInteger> bold_b = bold_e.stream().map(Encryption::getB).collect(Collectors.toList());
         Object[] y = {pk_j, bold_b, bold_b_prime};
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t.toArray(new BigInteger[0]), q);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t.toArray(new BigInteger[0]), tau);
         BigInteger s = omega.add(c.multiply(sk_j)).mod(q);
 
         return new DecryptionProof(t, s);

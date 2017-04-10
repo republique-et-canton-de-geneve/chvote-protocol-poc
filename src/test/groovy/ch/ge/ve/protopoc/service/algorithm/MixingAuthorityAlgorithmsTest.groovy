@@ -40,6 +40,8 @@ class MixingAuthorityAlgorithmsTest extends Specification {
     RandomGenerator randomGenerator = Mock()
 
     EncryptionGroup encryptionGroup = Mock()
+    IdentificationGroup identificationGroup = Mock()
+    SecurityParameters securityParameters = Mock()
 
     MixingAuthorityAlgorithms mixingAuthorityAlgorithms
     DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms
@@ -50,6 +52,12 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         encryptionGroup.q >> FIVE // G_q = (1, 3, 4, 5, 9)
         encryptionGroup.g >> THREE
         encryptionGroup.h >> FOUR
+
+        publicParameters.identificationGroup >> identificationGroup
+        identificationGroup.q_hat >> FIVE
+
+        publicParameters.securityParameters >> securityParameters
+        securityParameters.tau >> 2
 
         mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, generalAlgorithms, voteConfirmationAuthorityAlgorithms, randomGenerator)
         decryptionAuthorityAlgorithms = new DecryptionAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator)
@@ -195,9 +203,9 @@ class MixingAuthorityAlgorithmsTest extends Specification {
                 ONE, // omega_hat/prime_?
                 ONE, // omega_hat/prime_?
         ]
-        generalAlgorithms.getChallenges(3, _ as Object[], FIVE) >>
-                [TWO, FOUR, THREE]
-        generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
+        generalAlgorithms.getChallenges(3, _ as Object[], 2) >>
+                [TWO, ZERO, THREE]
+        generalAlgorithms.getNIZKPChallenge(_, _, 2) >> ZERO
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(ONE) >> true
@@ -211,7 +219,8 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         def proof = mixingAuthorityAlgorithms.genShuffleProof(bold_e, bold_e_prime, bold_r_prime, psy, pk)
 
         then: "the proof should be valid"
-        decryptionAuthorityAlgorithms.checkShuffleProof(proof, bold_e, bold_e_prime, pk)
+        //noinspection GroovyPointlessBoolean
+        decryptionAuthorityAlgorithms.checkShuffleProof(proof, bold_e, bold_e_prime, pk) == true
     }
 
     def "genPermutationCommitment should generate a valid permutation commitment"() {
@@ -247,13 +256,13 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(FOUR) >> true
         generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
-        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.getQ_hat }
+        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect:
         mixingAuthorityAlgorithms.genCommitmentChain(FOUR, bold_u) == new CommitmentChain(bold_c, bold_r)
 
         where:
         bold_u             | bold_r            || bold_c
-        [FOUR, TWO, THREE] | [FOUR, ZERO, ONE] || [ONE, ONE, THREE]
+        [ZERO, TWO, THREE] | [FOUR, ZERO, ONE] || [FOUR, FIVE, ONE]
     }
 }

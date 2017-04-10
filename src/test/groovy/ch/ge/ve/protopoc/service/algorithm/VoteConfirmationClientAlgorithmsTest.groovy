@@ -38,6 +38,7 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
     PublicParameters publicParameters = Mock()
     EncryptionGroup encryptionGroup = Mock()
     IdentificationGroup identificationGroup = Mock()
+    SecurityParameters securityParameters = Mock()
     RandomGenerator randomGenerator = Mock()
     GeneralAlgorithms generalAlgorithms = Mock()
     Hash hash = Mock()
@@ -60,8 +61,10 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
         primeField.p_prime >> SEVEN
         publicParameters.s >> 4
 
+        publicParameters.securityParameters >> securityParameters
+        securityParameters.tau >> 2
+
         publicParameters.upper_a_y >> (defaultAlphabet as List<Character>)
-        publicParameters.k_y >> 2
         publicParameters.upper_a_f >> (defaultAlphabet as List<Character>)
 
         voteConfirmationClient = new VoteConfirmationClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
@@ -87,7 +90,7 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
                 [0x78] as byte[]  // j = 4 --> y_4 = 120 mod 5 = 0
         ]
         randomGenerator.randomInZq(FIVE) >> THREE // called by GenConfirmationProof - omega
-        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], _ as BigInteger[], _ as BigInteger) >> THREE // c
+        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], _ as BigInteger[], 2) >> THREE // c
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_hat(ONE) >> true
@@ -131,7 +134,7 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
 
         and: "a known challenge value"
         // t = g_hat ^ omega mod p_hat = 3 ^ 4 mod 11 = 4
-        generalAlgorithms.getNIZKPChallenge([NINE] as BigInteger[], [FOUR] as BigInteger[], FIVE) >> THREE
+        generalAlgorithms.getNIZKPChallenge([NINE] as BigInteger[], [FOUR] as BigInteger[], 2) >> THREE
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_hat(NINE) >> true

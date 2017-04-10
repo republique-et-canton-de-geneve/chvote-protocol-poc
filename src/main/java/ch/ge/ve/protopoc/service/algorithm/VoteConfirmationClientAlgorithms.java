@@ -182,6 +182,7 @@ public class VoteConfirmationClientAlgorithms {
         BigInteger p_hat = publicParameters.getIdentificationGroup().getP_hat();
         BigInteger q_hat = publicParameters.getIdentificationGroup().getQ_hat();
         BigInteger g_hat = publicParameters.getIdentificationGroup().getG_hat();
+        int tau = publicParameters.getSecurityParameters().getTau();
 
         //noinspection SuspiciousNameCombination
         Preconditions.checkArgument(generalAlgorithms.isInZ_q_hat(y), "y must be in Z_q_hat");
@@ -194,7 +195,7 @@ public class VoteConfirmationClientAlgorithms {
         BigInteger t = modExp(g_hat, omega, p_hat);
         BigInteger[] bold_v = new BigInteger[]{y_hat};
         BigInteger[] bold_t = new BigInteger[]{t};
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(bold_v, bold_t, q_hat);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(bold_v, bold_t, tau);
 
         BigInteger s = omega.add(c.multiply(y)).mod(q_hat);
         return new NonInteractiveZKP(singletonList(t), singletonList(s));
