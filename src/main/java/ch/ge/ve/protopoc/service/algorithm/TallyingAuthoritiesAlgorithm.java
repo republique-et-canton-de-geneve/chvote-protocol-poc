@@ -42,7 +42,7 @@ import static java.math.BigInteger.ONE;
  * Algorithms performed during the tallying of the results
  */
 public class TallyingAuthoritiesAlgorithm {
-    private final static Logger log = LoggerFactory.getLogger(TallyingAuthoritiesAlgorithm.class);
+    private static final Logger log = LoggerFactory.getLogger(TallyingAuthoritiesAlgorithm.class);
 
     private final PublicParameters publicParameters;
     private final GeneralAlgorithms generalAlgorithms;

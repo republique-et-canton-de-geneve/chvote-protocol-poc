@@ -32,7 +32,7 @@ import java.security.PublicKey;
 public class EncryptionPublicKey implements PublicKey {
     private final BigInteger publicKey;
     private final EncryptionGroup encryptionGroup;
-    private transient final Conversion conversion = new Conversion();
+    private final transient Conversion conversion = new Conversion();
 
     public EncryptionPublicKey(BigInteger publicKey, EncryptionGroup encryptionGroup) {
         this.publicKey = publicKey;
