@@ -119,11 +119,118 @@ public class Simulation {
     }
 
     private void run() throws InvalidDecryptionProofException {
+        runInitialisation();
+
+        runCodeSheets();
+
+        List<Long> expectedTally = runVoting();
+
+        runMixing();
+
+        runDecryption();
+
+        List<Long> tally = runTally();
+
+        if (tally.equals(expectedTally)) {
+            log.info("Vote simulation successful");
+        } else {
+            log.error("Vote simulation failed");
+        }
+
+        performanceStats.stop(performanceStats.totalSimulation);
+
+        performanceStats.logStatSummary();
+    }
+
+    private List<Long> runTally() throws InvalidDecryptionProofException {
+        log.info("tallying votes");
+        performanceStats.start(performanceStats.tallying);
+        List<Long> tally = electionAdministrationSimulator.getTally();
+        performanceStats.stop(performanceStats.tallying);
+
+        log.info("Tally is: " + tally);
+        return tally;
+    }
+
+    private void runDecryption() {
+        log.info("starting decryption");
+        performanceStats.start(performanceStats.decryption);
+        boolean decryptionSuccess = authorities.parallelStream().allMatch(aS -> {
+            aS.startPartialDecryption();
+            return true;
+        });
+        performanceStats.stop(performanceStats.decryption);
+        log.info("decryptionSuccess: " + decryptionSuccess);
+    }
+
+    private void runMixing() {
+        log.info("starting the mixing");
+        performanceStats.start(performanceStats.mixing);
+        authorities.get(0).startMixing();
+        for (int i = 1; i < publicParameters.getS(); i++) {
+            authorities.get(i).mixAgain();
+        }
+        performanceStats.stop(performanceStats.mixing);
+    }
+
+    private List<Long> runVoting() {
+        log.info("stating the voting phase");
+        performanceStats.start(performanceStats.votingPhase);
+        List<List<Integer>> votes = voterSimulators.parallelStream()
+                .map(VoterSimulator::vote).collect(Collectors.toList());
+        performanceStats.stop(performanceStats.votingPhase);
+        Map<Integer, Long> expectedVoteCounts = new HashMap<>();
+        votes.forEach(l -> l.forEach(i -> expectedVoteCounts.compute(i - 1, (k, v) -> (v == null) ? 1 : v + 1)));
+        List<Long> expectedTally = IntStream.range(0, electionSet.getCandidates().size())
+                .mapToObj(i -> expectedVoteCounts.computeIfAbsent(i, k -> 0L)).collect(Collectors.toList());
+        log.info("Expected results are: " + expectedTally);
+        return expectedTally;
+    }
+
+    private void runCodeSheets() {
+        log.info("printing code sheets");
+        performanceStats.start(performanceStats.printingCodeSheets);
+        printingAuthoritySimulator.print();
+        performanceStats.stop(performanceStats.printingCodeSheets);
+    }
+
+    private void runInitialisation() {
         log.info("publishing public parameters");
         performanceStats.start(performanceStats.publishingParameters);
         bulletinBoardService.publishPublicParameters(publicParameters);
         performanceStats.stop(performanceStats.publishingParameters);
 
+        runKeyGeneration();
+
+        log.info("publishing election set");
+        performanceStats.start(performanceStats.publishElectionSet);
+        bulletinBoardService.publishElectionSet(electionSet);
+        performanceStats.stop(performanceStats.publishElectionSet);
+
+        runCredentialsGeneration();
+    }
+
+    private void runCredentialsGeneration() {
+        log.info("generating electorate data");
+        performanceStats.start(performanceStats.generatingElectoralData);
+        boolean electorateDataGenerationSuccess = authorities.parallelStream().allMatch(aS -> {
+            aS.generateElectorateData();
+            return true;
+        });
+        performanceStats.stop(performanceStats.generatingElectoralData);
+        log.info("electorateDataGenerationSuccess: " + electorateDataGenerationSuccess);
+
+        log.info("building public credentials");
+        performanceStats.start(performanceStats.buildPublicCredentials);
+        boolean publicCredentialsBuildSuccess = authorities.parallelStream().allMatch(aS -> {
+            aS.buildPublicCredentials();
+            return true;
+        });
+        performanceStats.stop(performanceStats.buildPublicCredentials);
+        log.info("publicCredentialsBuildSuccess: " + publicCredentialsBuildSuccess);
+    }
+
+    private void runKeyGeneration() {
         log.info("generating authorities keys");
         performanceStats.start(performanceStats.keyGeneration);
         // parallelStream.forEach returns early, this is a workaround so that the call returns once all items have been
@@ -143,79 +250,6 @@ public class Simulation {
         });
         performanceStats.stop(performanceStats.publicKeyBuilding);
         log.info("publicKeyBuildingSuccess: " + publicKeyBuildingSuccess);
-
-        log.info("publishing election set");
-        performanceStats.start(performanceStats.publishElectionSet);
-        bulletinBoardService.publishElectionSet(electionSet);
-        performanceStats.stop(performanceStats.publishElectionSet);
-
-        log.info("generating electorate data");
-        performanceStats.start(performanceStats.generatingElectoralData);
-        boolean electorateDataGenerationSuccess = authorities.parallelStream().allMatch(aS -> {
-            aS.generateElectorateData();
-            return true;
-        });
-        performanceStats.stop(performanceStats.generatingElectoralData);
-        log.info("electorateDataGenerationSuccess: " + electorateDataGenerationSuccess);
-
-        log.info("building public credentials");
-        performanceStats.start(performanceStats.buildPublicCredentials);
-        boolean publicCredentialsBuildSuccess = authorities.parallelStream().allMatch(aS -> {
-            aS.buildPublicCredentials();
-            return true;
-        });
-        performanceStats.stop(performanceStats.buildPublicCredentials);
-        log.info("publicCredentialsBuildSuccess: " + publicCredentialsBuildSuccess);
-
-        log.info("printing code sheets");
-        performanceStats.start(performanceStats.printingCodeSheets);
-        printingAuthoritySimulator.print();
-        performanceStats.stop(performanceStats.printingCodeSheets);
-
-        log.info("stating the voting phase");
-        performanceStats.start(performanceStats.votingPhase);
-        List<List<Integer>> votes = voterSimulators.parallelStream()
-                .map(VoterSimulator::vote).collect(Collectors.toList());
-        performanceStats.stop(performanceStats.votingPhase);
-        Map<Integer, Long> expectedVoteCounts = new HashMap<>();
-        votes.forEach(l -> l.forEach(i -> expectedVoteCounts.compute(i - 1, (k, v) -> (v == null) ? 1 : v + 1)));
-        List<Long> expectedTally = IntStream.range(0, electionSet.getCandidates().size())
-                .mapToObj(i -> expectedVoteCounts.computeIfAbsent(i, k -> 0L)).collect(Collectors.toList());
-        log.info("Expected results are: " + expectedTally);
-
-        log.info("starting the mixing");
-        performanceStats.start(performanceStats.mixing);
-        authorities.get(0).startMixing();
-        for (int i = 1; i < publicParameters.getS(); i++) {
-            authorities.get(i).mixAgain();
-        }
-        performanceStats.stop(performanceStats.mixing);
-
-        log.info("starting decryption");
-        performanceStats.start(performanceStats.decryption);
-        boolean decryptionSuccess = authorities.parallelStream().allMatch(aS -> {
-            aS.startPartialDecryption();
-            return true;
-        });
-        performanceStats.stop(performanceStats.decryption);
-        log.info("decryptionSuccess: " + decryptionSuccess);
-
-        log.info("tallying votes");
-        performanceStats.start(performanceStats.tallying);
-        List<Long> tally = electionAdministrationSimulator.getTally();
-        performanceStats.stop(performanceStats.tallying);
-
-        log.info("Tally is: " + tally);
-
-        if (tally.equals(expectedTally)) {
-            log.info("Vote simulation successful");
-        } else {
-            log.error("Vote simulation failed");
-        }
-
-        performanceStats.stop(performanceStats.totalSimulation);
-
-        performanceStats.logStatSummary();
     }
 
     private void createComponents() throws NotEnoughPrimesInGroupException {
