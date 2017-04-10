@@ -46,7 +46,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 public class AuthenticationController implements AuthenticationInterface {
-    private final static Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @Value("${jwt.header}")
     private String tokenHeader;

@@ -60,7 +60,7 @@ import static java.math.BigInteger.ZERO;
  * Simulation class...
  */
 public class Simulation {
-    private final static Logger log = LoggerFactory.getLogger(Simulation.class);
+    private static final Logger log = LoggerFactory.getLogger(Simulation.class);
     private static ElectionSetEnum electionSetConfig;
     private static int votersCount;
     private final SecureRandom secureRandom;

@@ -32,7 +32,7 @@ import java.math.BigInteger;
  * This class provides simplified access to LibGMP if it is loaded, with fallback to vanilla Java BigInteger methods
  */
 public class BigIntegerArithmetic {
-    private final static Logger log = LoggerFactory.getLogger(BigIntegerArithmetic.class);
+    private static final Logger log = LoggerFactory.getLogger(BigIntegerArithmetic.class);
     private static final JacobiSymbol jacobiSymbol = new JacobiSymbol();
     private static boolean gmpLoaded = false;
 
