@@ -218,12 +218,12 @@ public class DefaultBulletinBoard implements BulletinBoardService {
         List<List<BigInteger>> partialDecryptionsList = new ArrayList<>();
         List<DecryptionProof> decryptionProofList = new ArrayList<>();
 
-        IntStream.range(0, publicParameters.getS())
-                .forEach(i -> {
-                    publicKeyShares.add(publicKeyParts.get(i).getPublicKey());
-                    partialDecryptionsList.add(partialDecryptions.get(i));
-                    decryptionProofList.add(decryptionProofs.get(i));
-                });
+        int bound = publicParameters.getS();
+        for (int i = 0; i < bound; i++) {
+            publicKeyShares.add(publicKeyParts.get(i).getPublicKey());
+            partialDecryptionsList.add(partialDecryptions.get(i));
+            decryptionProofList.add(decryptionProofs.get(i));
+        }
 
         return new TallyData(publicKeyShares, finalShuffle, partialDecryptionsList, decryptionProofList);
     }
