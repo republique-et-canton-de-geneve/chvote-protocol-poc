@@ -21,11 +21,11 @@
 
 package ch.ge.ve.protopoc.service.simulation;
 
-import ch.ge.ve.protopoc.service.algorithm.CodeSheetPreparationAlgorithms;
-import ch.ge.ve.protopoc.service.model.CodeSheet;
+import ch.ge.ve.protopoc.service.algorithm.VotingCardPreparationAlgorithms;
 import ch.ge.ve.protopoc.service.model.ElectionSet;
 import ch.ge.ve.protopoc.service.model.PublicParameters;
 import ch.ge.ve.protopoc.service.model.SecretVoterData;
+import ch.ge.ve.protopoc.service.model.VotingCard;
 import ch.ge.ve.protopoc.service.protocol.AuthorityService;
 import ch.ge.ve.protopoc.service.protocol.BulletinBoardService;
 import com.google.common.base.Preconditions;
@@ -40,11 +40,11 @@ public class PrintingAuthoritySimulator {
     private final BulletinBoardService bulletinBoardService;
     private final List<AuthorityService> authorities = new ArrayList<>();
     private final List<VoterSimulator> voterSimulators = new ArrayList<>();
-    private final CodeSheetPreparationAlgorithms codeSheetPreparationAlgorithms;
+    private final VotingCardPreparationAlgorithms votingCardPreparationAlgorithms;
 
-    public PrintingAuthoritySimulator(BulletinBoardService bulletinBoardService, CodeSheetPreparationAlgorithms codeSheetPreparationAlgorithms) {
+    public PrintingAuthoritySimulator(BulletinBoardService bulletinBoardService, VotingCardPreparationAlgorithms votingCardPreparationAlgorithms) {
         this.bulletinBoardService = bulletinBoardService;
-        this.codeSheetPreparationAlgorithms = codeSheetPreparationAlgorithms;
+        this.votingCardPreparationAlgorithms = votingCardPreparationAlgorithms;
     }
 
     public void setAuthorities(List<AuthorityService> authorities) {
@@ -73,7 +73,7 @@ public class PrintingAuthoritySimulator {
             voterDataMatrix.add(authority.getPrivateCredentials());
         }
 
-        List<CodeSheet> sheets = codeSheetPreparationAlgorithms.getSheets(electionSet, voterDataMatrix);
+        List<VotingCard> sheets = votingCardPreparationAlgorithms.getVotingCard(electionSet, voterDataMatrix);
 
         for (int i = 0; i < sheets.size(); i++) {
             voterSimulators.get(i).sendCodeSheet(sheets.get(i));

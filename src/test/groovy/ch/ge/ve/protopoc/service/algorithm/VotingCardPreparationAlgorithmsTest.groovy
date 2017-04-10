@@ -31,11 +31,11 @@ import static java.math.BigInteger.ZERO
 /**
  * Tests for the algorithms related to the code sheets preparation
  */
-class CodeSheetPreparationAlgorithmsTest extends Specification {
+class VotingCardPreparationAlgorithmsTest extends Specification {
     PublicParameters publicParameters = Mock()
     IdentificationGroup identificationGroup = Mock()
 
-    CodeSheetPreparationAlgorithms codeSheetPreparation
+    VotingCardPreparationAlgorithms codeSheetPreparation
 
     void setup() {
         def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray()
@@ -55,11 +55,11 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         publicParameters.identificationGroup >> identificationGroup
         identificationGroup.q_hat >> FIVE
 
-        codeSheetPreparation = new CodeSheetPreparationAlgorithms(publicParameters)
+        codeSheetPreparation = new VotingCardPreparationAlgorithms(publicParameters)
 
     }
 
-    def "getCodeSheets should combine the secret voter data in the expected manner"() {
+    def "getVotingCards should combine the secret voter data in the expected manner"() {
         given:
         ElectionSet electionSet = Mock()
         Voter voter1 = Mock()
@@ -115,7 +115,7 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
         voter2Authority2.rc >> ([[0xC0, 0xD0], [0xE0, 0xF0], [0xC0, 0xD0], [0xE0, 0xF0]] as byte[][])
 
         when:
-        def sheets = codeSheetPreparation.getSheets(
+        def sheets = codeSheetPreparation.getVotingCard(
                 electionSet,
                 [
                         [voter1Authority1, voter2Authority1], // Authority 1; i.e. bold_d_1

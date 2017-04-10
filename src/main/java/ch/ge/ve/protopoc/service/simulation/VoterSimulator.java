@@ -24,7 +24,7 @@ package ch.ge.ve.protopoc.service.simulation;
 import ch.ge.ve.protopoc.service.algorithm.VoteConfirmationVoterAlgorithms;
 import ch.ge.ve.protopoc.service.exception.VoteCastingException;
 import ch.ge.ve.protopoc.service.exception.VoteConfirmationException;
-import ch.ge.ve.protopoc.service.model.CodeSheet;
+import ch.ge.ve.protopoc.service.model.VotingCard;
 import ch.ge.ve.protopoc.service.model.VotingPageData;
 import ch.ge.ve.protopoc.service.protocol.VotingClientService;
 import com.google.common.base.Preconditions;
@@ -46,7 +46,7 @@ public class VoterSimulator {
     private final VotingClientService votingClient;
     private final VoteConfirmationVoterAlgorithms voteConfirmationVoterAlgorithms;
     private final Random random = new Random(); // doesn't need to be secure, only used for simulation of user choices
-    private CodeSheet codeSheet;
+    private VotingCard votingCard;
 
     public VoterSimulator(Integer voterIndex, VotingClientService votingClient,
                           VoteConfirmationVoterAlgorithms voteConfirmationVoterAlgorithms) {
@@ -55,15 +55,15 @@ public class VoterSimulator {
         this.voteConfirmationVoterAlgorithms = voteConfirmationVoterAlgorithms;
     }
 
-    public void sendCodeSheet(CodeSheet codeSheet) {
-        Preconditions.checkState(this.codeSheet == null,
+    public void sendCodeSheet(VotingCard votingCard) {
+        Preconditions.checkState(this.votingCard == null,
                 String.format("The code sheet may not be updated once set (at voter %d)", voterIndex));
-        Preconditions.checkArgument(codeSheet.getI() == voterIndex, "Voter received the wrong code list.é");
-        this.codeSheet = codeSheet;
+        Preconditions.checkArgument(votingCard.getI() == voterIndex, "Voter received the wrong code list.é");
+        this.votingCard = votingCard;
     }
 
     public List<Integer> vote() {
-        Preconditions.checkState(codeSheet != null,
+        Preconditions.checkState(votingCard != null,
                 "The voter needs their code sheet to vote");
 
         log.info(String.format("Voter %d starting vote", voterIndex));
@@ -77,28 +77,28 @@ public class VoterSimulator {
         List<String> verificationCodes;
         try {
             log.info(String.format("Voter %d submitting vote", voterIndex));
-            verificationCodes = votingClient.sumbitVote(codeSheet.getUpper_x(), selections);
+            verificationCodes = votingClient.sumbitVote(votingCard.getUpper_x(), selections);
         } catch (VoteCastingException e) {
             log.error(String.format("Voter %d: error during vote casting", voterIndex), e);
             throw new VoteProcessException(e);
         }
 
         log.info(String.format("Voter %d checking verification codes", voterIndex));
-        if (!voteConfirmationVoterAlgorithms.checkReturnCodes(codeSheet.getBold_rc(), verificationCodes, selections)) {
+        if (!voteConfirmationVoterAlgorithms.checkReturnCodes(votingCard.getBold_rc(), verificationCodes, selections)) {
             throw new VoteProcessException(new VerificationCodesNotMatchingException("Verification codes do not match"));
         }
 
         String finalizationCode;
         try {
             log.info(String.format("Voter %d confirming vote", voterIndex));
-            finalizationCode = votingClient.confirmVote(codeSheet.getUpper_y());
+            finalizationCode = votingClient.confirmVote(votingCard.getUpper_y());
         } catch (VoteConfirmationException e) {
             log.error(String.format("Voter %d: error during vote confirmation", voterIndex), e);
             throw new VoteProcessException(e);
         }
 
         log.info(String.format("Voter %d checking finalization code", voterIndex));
-        if (!voteConfirmationVoterAlgorithms.checkFinalizationCode(codeSheet.getUpper_fc(), finalizationCode)) {
+        if (!voteConfirmationVoterAlgorithms.checkFinalizationCode(votingCard.getUpper_fc(), finalizationCode)) {
             throw new VoteProcessException(new FinalizationCodeNotMatchingException("Finalization code does not match"));
         }
 

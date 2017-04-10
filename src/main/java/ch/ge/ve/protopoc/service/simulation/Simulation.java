@@ -76,7 +76,7 @@ public class Simulation {
     private VoteCastingAuthorityAlgorithms voteCastingAuthorityAlgorithms;
     private GeneralAlgorithms generalAlgorithms;
     private VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms;
-    private CodeSheetPreparationAlgorithms codeSheetPreparationAlgorithms;
+    private VotingCardPreparationAlgorithms votingCardPreparationAlgorithms;
     private List<AuthorityService> authorities;
     private PrintingAuthoritySimulator printingAuthoritySimulator;
     private VoteCastingClientAlgorithms voteCastingClientAlgorithms;
@@ -267,7 +267,7 @@ public class Simulation {
 
     private void createSimulators() {
         log.info("creating simulators");
-        printingAuthoritySimulator = new PrintingAuthoritySimulator(bulletinBoardService, codeSheetPreparationAlgorithms);
+        printingAuthoritySimulator = new PrintingAuthoritySimulator(bulletinBoardService, votingCardPreparationAlgorithms);
         printingAuthoritySimulator.setAuthorities(authorities);
 
         voterSimulators = IntStream.range(0, electionSet.getVoters().size()).mapToObj(i ->
@@ -305,7 +305,7 @@ public class Simulation {
         electionPreparationAlgorithms = new ElectionPreparationAlgorithms(publicParameters, randomGenerator, hash);
         voteCastingAuthorityAlgorithms = new VoteCastingAuthorityAlgorithms(publicParameters, electionSet, generalAlgorithms, randomGenerator, hash);
         voteConfirmationAuthorityAlgorithms = new VoteConfirmationAuthorityAlgorithms(publicParameters, generalAlgorithms, voteCastingAuthorityAlgorithms, hash);
-        codeSheetPreparationAlgorithms = new CodeSheetPreparationAlgorithms(publicParameters);
+        votingCardPreparationAlgorithms = new VotingCardPreparationAlgorithms(publicParameters);
         voteCastingClientAlgorithms = new VoteCastingClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);
         voteConfirmationClientAlgorithms = new VoteConfirmationClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash);
         voteConfirmationVoterAlgorithms = new VoteConfirmationVoterAlgorithms();
