@@ -29,7 +29,7 @@
  * <li>Algorithms 7.7-7.9 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.PolynomialAlgorithms}</li>
  * <li>Algorithms 7.13 and 7.14 are implemented in class
- * {@link ch.ge.ve.protopoc.service.algorithm.CodeSheetPreparationAlgorithms}</li>
+ * {@link ch.ge.ve.protopoc.service.algorithm.VotingCardPreparationAlgorithms}</li>
  * <li>Algorithms 7.15 and 7.16 are implemented in class
  * {@link ch.ge.ve.protopoc.service.algorithm.KeyEstablishmentAlgorithms}</li>
  * <li>Algorithm 7.17 is not included, since it only handles display to the voter which makes no sense in a

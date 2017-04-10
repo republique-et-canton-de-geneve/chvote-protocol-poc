@@ -31,7 +31,7 @@ import static java.math.BigInteger.ZERO
 /**
  * Tests for the algorithms related to the code sheets preparation
  */
-class CodeSheetPreparationAlgorithmsTest extends Specification {
+class VotingCardPreparationAlgorithmsTest extends Specification {
     def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray() as List<Character>
     EncryptionGroup encryptionGroup = new EncryptionGroup(ELEVEN, FIVE, THREE, FOUR)
     IdentificationGroup identificationGroup = new IdentificationGroup(ELEVEN, FIVE, THREE)
@@ -43,13 +43,13 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
             defaultAlphabet, 2, defaultAlphabet, 2, 2, 3
     )
 
-    CodeSheetPreparationAlgorithms codeSheetPreparation
+    VotingCardPreparationAlgorithms codeSheetPreparation
 
     void setup() {
-        codeSheetPreparation = new CodeSheetPreparationAlgorithms(publicParameters)
+        codeSheetPreparation = new VotingCardPreparationAlgorithms(publicParameters)
     }
 
-    def "getCodeSheets should combine the secret voter data in the expected manner"() {
+    def "getVotingCards should combine the secret voter data in the expected manner"() {
         given:
         def domainOfInfluence1 = new DomainOfInfluence("test 1")
         def domainOfInfluence2 = new DomainOfInfluence("test 2")
@@ -89,7 +89,7 @@ class CodeSheetPreparationAlgorithmsTest extends Specification {
                 [[0xC0, 0xD0], [0xE0, 0xF0], [0xC0, 0xD0], [0xE0, 0xF0]] as byte[][])
 
         when:
-        def sheets = codeSheetPreparation.getSheets(
+        def sheets = codeSheetPreparation.getVotingCard(
                 electionSet,
                 [
                         [voter1Authority1, voter2Authority1], // Authority 1; i.e. bold_d_1
