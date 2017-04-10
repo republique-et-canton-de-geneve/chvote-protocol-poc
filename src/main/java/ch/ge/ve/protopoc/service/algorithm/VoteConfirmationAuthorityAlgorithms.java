@@ -99,8 +99,8 @@ public class VoteConfirmationAuthorityAlgorithms {
         Preconditions.checkArgument(pi.getS().size() == 1);
 
         BigInteger p_hat = publicParameters.getIdentificationGroup().getP_hat();
-        BigInteger q_hat = publicParameters.getIdentificationGroup().getQ_hat();
         BigInteger g_hat = publicParameters.getIdentificationGroup().getG_hat();
+        int tau = publicParameters.getSecurityParameters().getTau();
 
         BigInteger t = pi.getT().get(0);
         BigInteger s = pi.getS().get(0);
@@ -113,7 +113,7 @@ public class VoteConfirmationAuthorityAlgorithms {
         Preconditions.checkArgument(generalAlgorithms.isMember_G_q_hat(y_hat),
                 "y_hat must be in G_q_hat");
 
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(new BigInteger[]{y_hat}, new BigInteger[]{t}, q_hat);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(new BigInteger[]{y_hat}, new BigInteger[]{t}, tau);
         BigInteger t_prime = modExp(g_hat, s, p_hat).multiply(modExp(y_hat, c.negate(), p_hat)).mod(p_hat);
 
         return t.compareTo(t_prime) == 0;

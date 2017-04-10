@@ -115,11 +115,12 @@ public class TallyingAuthoritiesAlgorithm {
         BigInteger p = publicParameters.getEncryptionGroup().getP();
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
+        int tau = publicParameters.getSecurityParameters().getTau();
 
         List<BigInteger> bold_b = bold_e.stream().map(Encryption::getB).collect(Collectors.toList());
         Object[] y = {pk_j, bold_b, bold_b_prime};
         BigInteger[] t = pi_prime.getT().toArray(new BigInteger[0]);
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t, q);
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t, tau);
         BigInteger t_prime_0 = modExp(pk_j, c.negate(), p).multiply(modExp(g, pi_prime.getS(), p)).mod(p);
         List<BigInteger> t_prime = IntStream.range(0, bold_b.size())
                 .mapToObj(i ->

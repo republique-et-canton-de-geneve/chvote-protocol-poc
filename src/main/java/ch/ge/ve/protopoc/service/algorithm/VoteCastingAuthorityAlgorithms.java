@@ -170,11 +170,12 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger p_hat = publicParameters.getIdentificationGroup().getP_hat();
         BigInteger q_hat = publicParameters.getIdentificationGroup().getQ_hat();
         BigInteger g_hat = publicParameters.getIdentificationGroup().getG_hat();
+        int tau = publicParameters.getSecurityParameters().getTau();
 
         BigInteger[] y = new BigInteger[]{x_hat, a, b};
         BigInteger[] t_array = new BigInteger[3];
         t.toArray(t_array);
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t_array, q.min(q_hat));
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t_array, tau);
         log.debug(String.format("checkBallotProof: c = %s", c));
 
         BigInteger t_prime_1 = modExp(x_hat, c.negate(), p_hat).multiply(modExp(g_hat, s_1, p_hat)).mod(p_hat);

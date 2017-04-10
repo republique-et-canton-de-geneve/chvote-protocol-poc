@@ -201,9 +201,9 @@ class MixingAuthorityAlgorithmsTest extends Specification {
                 ONE, // omega_hat/prime_?
                 ONE, // omega_hat/prime_?
         ]
-        generalAlgorithms.getChallenges(3, _ as Object[], FIVE) >>
-                [TWO, FOUR, THREE]
-        generalAlgorithms.getNIZKPChallenge(_, _, _) >> FOUR
+        generalAlgorithms.getChallenges(3, _ as Object[], 1) >>
+                [TWO, ZERO, THREE]
+        generalAlgorithms.getNIZKPChallenge(_, _, 1) >> ZERO
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(ONE) >> true
@@ -217,7 +217,8 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         def proof = mixingAuthorityAlgorithms.genShuffleProof(bold_e, bold_e_prime, bold_r_prime, psy, pk)
 
         then: "the proof should be valid"
-        decryptionAuthorityAlgorithms.checkShuffleProof(proof, bold_e, bold_e_prime, pk)
+        //noinspection GroovyPointlessBoolean
+        decryptionAuthorityAlgorithms.checkShuffleProof(proof, bold_e, bold_e_prime, pk) == true
     }
 
     def "genPermutationCommitment should generate a valid permutation commitment"() {
@@ -253,13 +254,13 @@ class MixingAuthorityAlgorithmsTest extends Specification {
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(FOUR) >> true
         generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
-        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.getQ_hat }
+        generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect:
         mixingAuthorityAlgorithms.genCommitmentChain(FOUR, bold_u) == new CommitmentChain(bold_c, bold_r)
 
         where:
         bold_u             | bold_r            || bold_c
-        [FOUR, TWO, THREE] | [FOUR, ZERO, ONE] || [ONE, ONE, THREE]
+        [ZERO, TWO, THREE] | [FOUR, ZERO, ONE] || [FOUR, FIVE, ONE]
     }
 }

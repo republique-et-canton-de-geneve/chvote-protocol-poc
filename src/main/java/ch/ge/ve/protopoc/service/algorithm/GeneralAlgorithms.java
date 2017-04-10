@@ -25,6 +25,7 @@ import ch.ge.ve.protopoc.arithmetic.BigIntegerArithmetic;
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.EncryptionGroup;
 import ch.ge.ve.protopoc.service.model.IdentificationGroup;
+import ch.ge.ve.protopoc.service.support.BigIntegers;
 import ch.ge.ve.protopoc.service.support.ByteArrayUtils;
 import ch.ge.ve.protopoc.service.support.Conversion;
 import ch.ge.ve.protopoc.service.support.Hash;
@@ -187,29 +188,31 @@ public class GeneralAlgorithms {
     /**
      * Algorithm 7.4: GetNIZKPChallenge
      *
-     * @param y the public values vector (domain unspecified)
-     * @param t the commitments vector (domain unspecified)
-     * @param u the upper-bound of the challenge
+     * @param y     the public values vector (domain unspecified)
+     * @param t     the commitments vector (domain unspecified)
+     * @param kappa the soundness strength of the challenge
      * @return the computed challenge
      */
-    public BigInteger getNIZKPChallenge(Object[] y, Object[] t, BigInteger u) {
-        return conversion.toInteger(hash.recHash_L(y, t)).mod(u);
+    public BigInteger getNIZKPChallenge(Object[] y, Object[] t, int kappa) {
+        return conversion.toInteger(hash.recHash_L(y, t)).mod(BigIntegers.TWO.pow(kappa));
     }
 
     /**
      * Algorithm 7.5: GetChallenges
      *
-     * @param n the number of challenges requested
-     * @param y the public values vector (domain unspecified)
-     * @param u the upper-bound of the challenge
+     * @param n     the number of challenges requested
+     * @param y     the public values vector (domain unspecified)
+     * @param kappa the soundness strength of the challenge
      * @return a list challenges, of length n
      */
-    public List<BigInteger> getChallenges(int n, Object[] y, BigInteger u) {
+    public List<BigInteger> getChallenges(int n, Object[] y, int kappa) {
         byte[] upper_h = hash.recHash_L(y);
+        BigInteger two_to_kappa = BigIntegers.TWO.pow(kappa);
         Map<Integer, BigInteger> challengesMap = IntStream.rangeClosed(1, n).parallel().boxed()
                 .collect(toMap(identity(), i -> {
                     byte[] upper_i = hash.recHash_L(BigInteger.valueOf(i));
-                    return conversion.toInteger(hash.hash_L(ByteArrayUtils.concatenate(upper_h, upper_i))).mod(u);
+                    return conversion.toInteger(hash.hash_L(ByteArrayUtils.concatenate(upper_h, upper_i)))
+                            .mod(two_to_kappa);
                 }));
         return IntStream.rangeClosed(1, n).mapToObj(challengesMap::get).collect(Collectors.toList());
     }

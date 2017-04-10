@@ -80,7 +80,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
                 new BallotEntry(1, new BallotAndQuery(null, [], null, new NonInteractiveZKP([], [])), [])
         ]
         List<BigInteger> publicCredentials = [THREE, FOUR, ONE, NINE]
-        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], t as BigInteger[], FIVE) >> c
+        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], t as BigInteger[], 2) >> c
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(THREE) >> true
@@ -137,7 +137,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
     def "checkBallotProof should verify the validity of a provided proof"() {
         given: "a fixed encryption key and challenge"
         def encryptionKey = new EncryptionPublicKey(THREE, encryptionGroup)
-        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], t as BigInteger[], FIVE) >> c
+        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], t as BigInteger[], 2) >> c
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(THREE) >> true

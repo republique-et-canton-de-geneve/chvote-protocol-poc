@@ -11,6 +11,7 @@ depend on the quality of the randomness.
 - `q = 5`
 - `g = 3`
 - `h = 4`
+- `tau = 2`
 
 ### genShuffle
 
@@ -66,20 +67,20 @@ depend on the quality of the randomness.
 #### Input
 
 - `c_{-1} = 4` _(since list indices are 0-based, prepending an item makes its index `-1`)_
-- `bold_u' = (4, 2, 3)`
+- `bold_u' = (0, 2, 3)`
 
 #### Algorithm execution
 
 1.  `i = 0`
     1. `r_0 = 4` _(simulated randomness)_
-    2. `c_0 = g ^ r_0 * c_{-1} ^ u'_0 mod p = 3 ^ 4 * 4 ^ 4 mod 11 = 1`
+    2. `c_0 = g ^ r_0 * c_{-1} ^ u'_0 mod p = 3 ^ 4 * 4 ^ 0 mod 11 = 4`
 2.  `i = 1`
     1. `r_1 = 0` _(simulated randomness)_
-    2. `c_1 = g ^ r_1 * c_0 ^ u'_1 mod p = 3 ^ 0 * 1 ^ 2 mod 11 = 1`
+    2. `c_1 = g ^ r_1 * c_0 ^ u'_1 mod p = 3 ^ 0 * 4 ^ 2 mod 11 = 5`
 3.  `i = 2`
     1. `r_2 = 1` _(simulated randomness)_
-    2. `c_2 = g ^ r_2 * c_1 ^ u'_2 mod p = 3 ^ 1 * 1 ^ 3 mod 11 = 3`
-4. `bold_c = (1, 1, 3)`
+    2. `c_2 = g ^ r_2 * c_1 ^ u'_2 mod p = 3 ^ 1 * 5 ^ 3 mod 11 = 1`
+4. `bold_c = (4, 5, 1)`
 5. `bold_r = (4, 0, 1)`
     
 
@@ -99,9 +100,9 @@ We use the shuffle, the permutation commitment and the commitment chain from the
 
 1. `bold_h = (4, 3, 5)` _(simulated call)_
 2. `(bold_c, bold_r) = ((9, 3, 3), (1, 2, 3))` _(from the genPermutationCommitment test above)_
-3. `bold_u = (2, 4, 3)` _(simulated call)_
-4. `bold_u' = (u_j_0, u_j_1, u_j_2) = (u_1, u_0, u_2) = (4, 2, 3)`
-5. `(bold_c_hat, bold_r_hat) = ((1, 1, 3), (4, 0, 1))` _(from the genCommitmentChain test above)_
+3. `bold_u = (2, 0, 3)` _(simulated call)_
+4. `bold_u' = (u_j_0, u_j_1, u_j_2) = (u_1, u_0, u_2) = (0, 2, 3)`
+5. `(bold_c_hat, bold_r_hat) = ((4, 5, 1), (4, 0, 1))` _(from the genCommitmentChain test above)_
 6. generate omega
     1. `omega_1 = 1` _(simulated randomness)_ 
     2. `omega_2 = 2` _(simulated randomness)_
@@ -121,28 +122,28 @@ We use the shuffle, the permutation commitment and the commitment chain from the
    `t_{4,2} = 3 ^ -4 * 5 ^ 3 * 3 ^ 0 * 4 ^ 1 mod 11 = 4 ^ 4 * 125 * 1 * 4 mod 11 = 4`
 10. `c_hat_{-1} = h = 4`
 11. `i = 0`
-    1. `t_hat_0 = g ^ omega_hat_0 * c_hat_{-1} ^ omega'_0 mod p = 3 ^ 2 * 4 ^ 3 mod 11 = 4` 
-    2. `t_hat_1 = g ^ omega_hat_1 * c_hat_0 ^ omega'_1 mod p = 3 ^ 4 * 1 ^ 0 mod 11 = 4` 
-    3. `t_hat_2 = g ^ omega_hat_2 * c_hat_1 ^ omega'_2 mod p = 3 ^ 1 * 1 ^ 1 mod 11 = 3`
-12. `c = GetNIZKPChallenge(...) = 4` _(simulated call)_
+    1. `t_hat_0 = g ^ omega_circ_0 * c_hat_{-1} ^ omega'_0 mod p = 3 ^ 2 * 4 ^ 3 mod 11 = 4` 
+    2. `t_hat_1 = g ^ omega_hat_1 * c_hat_0 ^ omega'_1 mod p = 3 ^ 4 * 4 ^ 0 mod 11 = 4` 
+    3. `t_hat_2 = g ^ omega_hat_2 * c_hat_1 ^ omega'_2 mod p = 3 ^ 1 * 5 ^ 1 mod 11 = 4`
+12. `c = GetNIZKPChallenge(...) = 0` _(simulated call)_
 13. `r_bar = SIGMA{i=0, N-1}(r_i) mod q = 1 + 2 + 3 mod 5 = 1`
-13. `s_1 = omega_1 + c * r_bar mod q = 1 + 4 * 1 mod 5 = 0`
+13. `s_1 = omega_1 + c * r_bar mod q = 1 + 0 * 1 mod 5 = 1`
 14. `v_2 = 1`
     1. `i = 1; v_1 = u'_2 * v_2 mod q = 3 * 1 mod 5 = 3`
     1. `i = 0; v_0 = u'_1 * v_1 mod q = 2 * 3 mod 5 = 1`
 15. `r_hat = SIGMA{i=0, N-1}(r_hat_i*v_i) mod q = 4 * 1 + 0 * 3 + 1 * 1 mod 5 = 0`
-15. `s_2 = omega_2 + c * r_hat mod q = 2 + 4 * 0 mod 5 = 2`
+15. `s_2 = omega_2 + c * r_hat mod q = 2 + 0 * 0 mod 5 = 2`
 16. `r_tilde = SIGMA{i=0, N-1}(r_i*u_i) mod q = 1 * 2 + 2 * 4 + 3 * 3 mod 5 = 4`
-16. `s_3 = omega_3 + c * r_tilde mod q = 3 + 4 * 4 mod 5 = 4`
+16. `s_3 = omega_3 + c * r_tilde mod q = 3 + 0 * 4 mod 5 = 3`
 17. `r' = SIGMA{i=0, N-1}(r'_i*u_i) mod q = 1 * 2 + 4 * 4 + 2 * 3 mod 5 = 4`
-17. `s_4 = omega_4 + c * r' mod q = 4 + 4 * 4 mod 5 = 0`
+17. `s_4 = omega_4 + c * r' mod q = 4 + 0 * 4 mod 5 = 4`
 18. compute `s_hat` and `s'`
-    1. `s_hat_0 = omega_hat_0 + c * r_hat_0 mod q = 2 + 4 * 4 mod 5 = 3`
-    1. `s'_0 = omega'_0 + c * u'_0 mod q = 3 + 4 * 4 mod 5 = 4`
-    2. `s_hat_1 = omega_hat_1 + c * r_hat_1 mod q = 4 + 4 * 0 mod 5 = 4`
-    2. `s'_1 = omega'_1 + c * u'_1 mod q = 0 + 4 * 2 mod 5 = 3`
-    3. `s_hat_2 = omega_hat_2 + c * r_hat_2 mod q = 1 + 4 * 1 mod 5 = 0`
-    3. `s'_2 = omega'_2 + c * u'_2 mod q = 1 + 4 * 3 mod 5 = 3`
+    1. `s_hat_0 = omega_hat_0 + c * r_hat_0 mod q = 2 + 0 * 4 mod 5 = 2`
+    1. `s'_0 = omega'_0 + c * u'_0 mod q = 3 + 0 * 4 mod 5 = 3`
+    2. `s_hat_1 = omega_hat_1 + c * r_hat_1 mod q = 4 + 0 * 0 mod 5 = 4`
+    2. `s'_1 = omega'_1 + c * u'_1 mod q = 0 + 0 * 2 mod 5 = 0`
+    3. `s_hat_2 = omega_hat_2 + c * r_hat_2 mod q = 1 + 0 * 1 mod 5 = 1`
+    3. `s'_2 = omega'_2 + c * u'_2 mod q = 1 + 0 * 3 mod 5 = 1`
 
 ### checkShuffleProof
  
@@ -158,12 +159,12 @@ We use the input and the proof given in the test above
         - `(t_{4,1}, t_{4,2}) = (3, 4)`
         - `(t_hat_0, ..., t_hat_2) = (4, 4, 3)`
     - `s = (s_1, s_2, s_3, s_4, (s_hat_0, ..., s_hat_2), (s'_0, ..., s'_2))`
-        - `s_1 = 0`
+        - `s_1 = 1`
         - `s_2 = 2`
-        - `s_3 = 4`
-        - `s_4 = 0`
-        - `(s_hat_0, ..., s_hat_2}) = (3, 4, 0)`
-        - `(s'_0, ..., s'_2) = (4, 3, 3)`
+        - `s_3 = 3`
+        - `s_4 = 4`
+        - `(s_hat_0, ..., s_hat_2}) = (2, 4, 1)`
+        - `(s'_0, ..., s'_2) = (3, 0, 1)`
     - `bold_c = (9, 3, 3)`
     - `bold_c_hat = (1, 1, 3)`
 - `bold_e = ([5, 1], [3, 4], [5, 9])`

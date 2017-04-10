@@ -31,7 +31,6 @@ import spock.lang.Specification
 
 import static ch.ge.ve.protopoc.service.support.BigIntegers.*
 import static java.math.BigInteger.ONE
-import static java.math.BigInteger.TEN
 
 /**
  * This specification defines the expected behaviour of the general algorithms
@@ -104,22 +103,22 @@ class GeneralAlgorithmsTest extends Specification {
         generators.containsAll(FOUR, NINE)
     }
 
-    def "getProofChallenge"() {
+    def "getNIZKPChallenge"() {
         Object[] v, t
         v = new Object[0]
         t = new Object[0]
 
         when:
-        def challenge = generalAlgorithms.getNIZKPChallenge(v, t, ELEVEN)
+        def challenge = generalAlgorithms.getNIZKPChallenge(v, t, 2)
 
         then:
-        1 * hash.recHash_L(v, t) >> ([0x0E] as byte[])
+        1 * hash.recHash_L(v, t) >> ([0x0F] as byte[])
         challenge == THREE
     }
 
     def "getChallenges"() {
         when:
-        def challenges = generalAlgorithms.getChallenges(3, [] as Object[], ELEVEN)
+        def challenges = generalAlgorithms.getChallenges(3, [] as Object[], 2)
 
         then:
         1 * hash.recHash_L([]) >> ([0x00] as byte[])
@@ -130,6 +129,6 @@ class GeneralAlgorithmsTest extends Specification {
         1 * hash.hash_L([0x00, 0x02] as byte[]) >> ([0x03] as byte[])
         1 * hash.hash_L([0x00, 0x03] as byte[]) >> ([0x1F] as byte[])
 
-        challenges.containsAll(TEN, THREE, BigInteger.valueOf(9L))
+        challenges.containsAll(TWO, THREE, THREE)
     }
 }

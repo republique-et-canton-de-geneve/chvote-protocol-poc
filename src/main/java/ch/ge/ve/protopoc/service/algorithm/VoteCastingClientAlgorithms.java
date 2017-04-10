@@ -231,6 +231,8 @@ public class VoteCastingClientAlgorithms {
         BigInteger q = encryptionGroup.getQ();
         BigInteger g = encryptionGroup.getG();
 
+        int tau = publicParameters.getSecurityParameters().getTau();
+
         log.debug(String.format("genBallotProof: a = %s", a));
 
         BigInteger omega_1 = randomGenerator.randomInZq(q_hat);
@@ -243,7 +245,7 @@ public class VoteCastingClientAlgorithms {
 
         BigInteger[] y = new BigInteger[]{x_hat, a, b};
         BigInteger[] t = new BigInteger[]{t_1, t_2, t_3};
-        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t, q.min(q_hat));
+        BigInteger c = generalAlgorithms.getNIZKPChallenge(y, t, tau);
         log.debug(String.format("genBallotProof: c = %s", c));
 
         BigInteger s_1 = omega_1.add(c.multiply(x)).mod(q_hat);
