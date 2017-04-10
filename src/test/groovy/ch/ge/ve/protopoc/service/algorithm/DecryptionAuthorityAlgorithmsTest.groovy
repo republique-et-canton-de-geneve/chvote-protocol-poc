@@ -83,8 +83,8 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         def t = new ShuffleProof.T(THREE, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
         def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
         def bold_c = [NINE, THREE, THREE]
-        def bold_c_circ = [ONE, ONE, THREE]
-        def pi = new ShuffleProof(t, s, bold_c, bold_c_circ)
+        def bold_c_hat = [ONE, ONE, THREE]
+        def pi = new ShuffleProof(t, s, bold_c, bold_c_hat)
 
         def bold_pi = [pi, null]
 
@@ -106,7 +106,8 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         int j = 1
 
         expect:
-        decryptionAuthorityAlgorithms.checkShuffleProofs(bold_pi, e_0, bold_E, pk, j) // == true implied
+        //noinspection GroovyPointlessBoolean
+        decryptionAuthorityAlgorithms.checkShuffleProofs(bold_pi, e_0, bold_E, pk, j) == true
     }
 
     def "checkShuffleProofs should fail given an invalid proof"() {
@@ -135,8 +136,8 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         def t = new ShuffleProof.T(FOUR /* invalid data */, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
         def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
         def bold_c = [NINE, THREE, THREE]
-        def bold_c_circ = [ONE, ONE, THREE]
-        def pi = new ShuffleProof(t, s, bold_c, bold_c_circ)
+        def bold_c_hat = [ONE, ONE, THREE]
+        def pi = new ShuffleProof(t, s, bold_c, bold_c_hat)
 
         def bold_pi = [pi, null]
 
@@ -177,8 +178,8 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         def t = new ShuffleProof.T(THREE, NINE, FIVE, [THREE, FOUR], [FOUR, FOUR, THREE])
         def s = new ShuffleProof.S(ZERO, TWO, FOUR, ZERO, [THREE, FOUR, ZERO], [FOUR, THREE, THREE])
         def bold_c = [NINE, THREE, THREE]
-        def bold_c_circ = [ONE, ONE, THREE]
-        def pi = new ShuffleProof(t, s, bold_c, bold_c_circ)
+        def bold_c_hat = [ONE, ONE, THREE]
+        def pi = new ShuffleProof(t, s, bold_c, bold_c_hat)
 
         and: "some mocked collaborators"
         generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
@@ -195,7 +196,8 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger it -> 0 <= it && it < encryptionGroup.q }
 
         expect:
-        decryptionAuthorityAlgorithms.checkShuffleProof(pi, bold_e, bold_e_prime, pk) // == true implied
+        //noinspection GroovyPointlessBoolean
+        decryptionAuthorityAlgorithms.checkShuffleProof(pi, bold_e, bold_e_prime, pk) == true
     }
 
     def "getPartialDecryptions should perform partial decryptions on provided encryptions"() {

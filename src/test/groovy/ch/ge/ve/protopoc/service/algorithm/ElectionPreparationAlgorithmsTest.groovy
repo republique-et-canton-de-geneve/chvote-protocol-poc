@@ -137,7 +137,7 @@ class ElectionPreparationAlgorithmsTest extends Specification {
         ]
 
         and: "one set of public voter data per voter"
-        electorateData.d_circ == [
+        electorateData.d_hat == [
                 new Point(SIX, TWO), // voter 1 -- x = 3^3 % 7 = 6; y = (2 + 0x0C) % 3 = 2; y_hat = 3^2 % 7 = 2
                 new Point(THREE, THREE) // voter 2 -- x = 3^1 % 7 = 3; y = (1 + 0x0C) % 3 = 1; y_hat = 3^1 % 7 = 3
         ]
@@ -202,7 +202,7 @@ class ElectionPreparationAlgorithmsTest extends Specification {
 
     def "getPublicCredentials should combine the public data from the different authorities"() {
         given:
-        def D_circ = [
+        def upper_d_hat = [
                 [ // authority 1
                   new Point(THREE, FOUR),
                   new Point(ONE, TWO)
@@ -218,7 +218,7 @@ class ElectionPreparationAlgorithmsTest extends Specification {
                 ]]
 
         when:
-        def credentials = electionPreparation.getPublicCredentials(D_circ)
+        def credentials = electionPreparation.getPublicCredentials(upper_d_hat)
 
         then:
         credentials == [

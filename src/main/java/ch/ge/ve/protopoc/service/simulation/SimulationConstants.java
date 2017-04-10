@@ -26,7 +26,7 @@ import ch.ge.ve.protopoc.service.support.BigIntegers;
 import java.math.BigInteger;
 
 /**
- * Missing javadoc!
+ * This interface holds the constants used for the simulation of the protocol
  */
 public interface SimulationConstants {
     int default_n_max = 1678;
@@ -36,9 +36,9 @@ public interface SimulationConstants {
     BigInteger g_RC0e = BigIntegers.FOUR;
     BigInteger h_RC0e = BigIntegers.SEVEN;
 
-    BigInteger p_circ_RC0s = BigInteger.valueOf(149L);
-    BigInteger q_circ_RC0s = BigInteger.valueOf(37L);
-    BigInteger g_circ_RC0s = BigInteger.valueOf(16L);
+    BigInteger p_hat_RC0s = BigInteger.valueOf(149L);
+    BigInteger q_hat_RC0s = BigInteger.valueOf(37L);
+    BigInteger g_hat_RC0s = BigInteger.valueOf(16L);
 
     BigInteger p_RC1e = new BigInteger("89884656743115795386465259539451236680898848947115328636715040578" +
             "86633790275048156635423866120376801056005693993569667882939488440" +
@@ -52,13 +52,13 @@ public interface SimulationConstants {
             "146574559986811484619929076208839082406056870111");
     BigInteger g_RC1e = BigIntegers.FOUR;
 
-    BigInteger p_circ_RC1s = new BigInteger("89884656743115795386465259539451236680898848947115328636715040578" +
+    BigInteger p_hat_RC1s = new BigInteger("89884656743115795386465259539451236680898848947115328636715040578" +
             "86633790275048156635423866120376801056005693993569667882939488440" +
             "72083112464237153197370621888839467124327426381511098006230470597" +
             "26541476042502884419075341171231440736956555270413618581675255529" +
             "365358698328774708775703215219351545329613875969");
-    BigInteger q_circ_RC1s = new BigInteger("730750818665451459101842416358141509827966271787");
-    BigInteger g_circ_RC1s = new BigInteger("43753966268956158683794141044609048074944399463497118601009260015" +
+    BigInteger q_hat_RC1s = new BigInteger("730750818665451459101842416358141509827966271787");
+    BigInteger g_hat_RC1s = new BigInteger("43753966268956158683794141044609048074944399463497118601009260015" +
             "27890794479339688887265479743667915617170483526334209874722984198" +
             "29635508715574476834043594463776486457518569138292805779343848313" +
             "81295103182368037001170314531189658120206052644043469275562473160" +
@@ -85,7 +85,7 @@ public interface SimulationConstants {
                     "4e2b078603704909544b50c3979e57" +
                     "438b", 16);
 
-    BigInteger p_circ_2048 = new BigInteger("0086252d9bc72dad4c1dbeebbf2ed8" +
+    BigInteger p_hat_2048 = new BigInteger("0086252d9bc72dad4c1dbeebbf2ed8" +
             "dfab21c3baf17dcc57aba4aa1f7297" +
             "a570e92496928719c10795c0227a9e" +
             "dbd680515c4aea5fcfe688321e7125" +

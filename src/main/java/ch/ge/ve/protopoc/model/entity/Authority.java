@@ -25,7 +25,7 @@ import javax.persistence.*;
 import java.util.List;
 
 /**
- * Missing javadoc!
+ * Simple entity for holding authorities (currently only used for testing JWT)
  */
 @Entity
 public class Authority {

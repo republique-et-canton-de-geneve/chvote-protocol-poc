@@ -97,7 +97,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         result == voteCastingAuthority.checkBallot(
                 i,
                 new BallotAndQuery(
-                        x_circ,
+                        x_hat,
                         bold_a,
                         b,
                         new NonInteractiveZKP(t, s)
@@ -108,10 +108,10 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         )
 
         where:
-        i | x_circ | bold_a        | c    | b    | t                   | s                    || result
-        0 | THREE  | [THREE, FOUR] | FOUR | FIVE | [FOUR, FIVE, THREE] | [THREE, FIVE, THREE] || true
-        1 | THREE  | [THREE, FOUR] | FOUR | FIVE | [FOUR, FIVE, THREE] | [THREE, FIVE, THREE] || false
-        0 | THREE  | [THREE, FOUR] | FOUR | FIVE | [FOUR, FIVE, NINE]  | [THREE, FIVE, THREE] || false
+        i | x_hat | bold_a        | c    | b    | t                   | s                    || result
+        0 | THREE | [THREE, FOUR] | FOUR | FIVE | [FOUR, FIVE, THREE] | [THREE, FIVE, THREE] || true
+        1 | THREE | [THREE, FOUR] | FOUR | FIVE | [FOUR, FIVE, THREE] | [THREE, FIVE, THREE] || false
+        0 | THREE | [THREE, FOUR] | FOUR | FIVE | [FOUR, FIVE, NINE]  | [THREE, FIVE, THREE] || false
     }
 
     def "hasBallot should detect if a BallotEntry list contains a given voter index"() {
@@ -151,14 +151,14 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect: "the verification of the Proof to have the expected result"
-        result == voteCastingAuthority.checkBallotProof(new NonInteractiveZKP(t, s), x_circ, a, b, encryptionKey)
+        result == voteCastingAuthority.checkBallotProof(new NonInteractiveZKP(t, s), x_hat, a, b, encryptionKey)
 
         where: "the values are taken from the following table"
-        t                   | s                    | x_circ | a    | b     | c    || result
-        [FIVE, FOUR, THREE] | [THREE, NINE, ZERO]  | ONE    | NINE | THREE | FOUR || true // values from genBallotProof
+        t                   | s                    | x_hat | a    | b     | c    || result
+        [FIVE, FOUR, THREE] | [THREE, NINE, ZERO]  | ONE   | NINE | THREE | FOUR || true // values from genBallotProof
         // test
-        [NINE, FOUR, THREE] | [THREE, NINE, ZERO]  | ONE    | NINE | THREE | FOUR || false
-        [FIVE, FOUR, THREE] | [THREE, NINE, THREE] | ONE    | NINE | THREE | FOUR || false
+        [NINE, FOUR, THREE] | [THREE, NINE, ZERO]  | ONE   | NINE | THREE | FOUR || false
+        [FIVE, FOUR, THREE] | [THREE, NINE, THREE] | ONE   | NINE | THREE | FOUR || false
     }
 
     def "genResponse should generate a valid response to an OT query"() {

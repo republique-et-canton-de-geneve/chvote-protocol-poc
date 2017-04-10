@@ -22,7 +22,8 @@
 package ch.ge.ve.protopoc.service.exception;
 
 /**
- * Missing javadoc!
+ * Exception thrown when a confirmation is submitted for a voter for which the system has no trace of a ballot being
+ * submitted
  */
 public class BallotNotFoundException extends RuntimeException {
     public BallotNotFoundException(String format) {

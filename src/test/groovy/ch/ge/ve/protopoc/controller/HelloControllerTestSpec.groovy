@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 /**
- * Missing javadoc!
+ * This is a simple test sample for the HelloController
  */
 @SpringBootTest
 @AutoConfigureMockMvc
