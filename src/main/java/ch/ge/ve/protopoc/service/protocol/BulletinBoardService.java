@@ -21,7 +21,7 @@
 
 package ch.ge.ve.protopoc.service.protocol;
 
-import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationException;
+import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationRuntimeException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
 
@@ -50,7 +50,7 @@ public interface BulletinBoardService {
 
     List<ObliviousTransferResponse> publishBallot(Integer voterIndex, BallotAndQuery ballotAndQuery) throws IncorrectBallotOrQueryException;
 
-    List<FinalizationCodePart> publishConfirmation(Integer voterIndex, Confirmation confirmation) throws IncorrectConfirmationException;
+    List<FinalizationCodePart> publishConfirmation(Integer voterIndex, Confirmation confirmation) throws IncorrectConfirmationRuntimeException;
 
     void publishShuffleAndProof(int j, List<Encryption> shuffle, ShuffleProof proof);
 

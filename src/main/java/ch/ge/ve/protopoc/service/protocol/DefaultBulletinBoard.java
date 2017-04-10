@@ -21,7 +21,7 @@
 
 package ch.ge.ve.protopoc.service.protocol;
 
-import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationException;
+import ch.ge.ve.protopoc.service.exception.IncorrectConfirmationRuntimeException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import com.google.common.base.Preconditions;
@@ -140,7 +140,7 @@ public class DefaultBulletinBoard implements BulletinBoardService {
 
     @Override
     public List<FinalizationCodePart> publishConfirmation(Integer voterIndex, Confirmation confirmation)
-            throws IncorrectConfirmationException {
+            throws IncorrectConfirmationRuntimeException {
         Preconditions.checkState(publicParameters != null,
                 "The public parameters need to have been defined first");
         Preconditions.checkState(authorities.size() == publicParameters.getS(),
@@ -218,12 +218,12 @@ public class DefaultBulletinBoard implements BulletinBoardService {
         List<List<BigInteger>> partialDecryptionsList = new ArrayList<>();
         List<DecryptionProof> decryptionProofList = new ArrayList<>();
 
-        IntStream.range(0, publicParameters.getS())
-                .forEach(i -> {
-                    publicKeyShares.add(publicKeyParts.get(i).getPublicKey());
-                    partialDecryptionsList.add(partialDecryptions.get(i));
-                    decryptionProofList.add(decryptionProofs.get(i));
-                });
+        int bound = publicParameters.getS();
+        for (int i = 0; i < bound; i++) {
+            publicKeyShares.add(publicKeyParts.get(i).getPublicKey());
+            partialDecryptionsList.add(partialDecryptions.get(i));
+            decryptionProofList.add(decryptionProofs.get(i));
+        }
 
         return new TallyData(publicKeyShares, finalShuffle, partialDecryptionsList, decryptionProofList);
     }

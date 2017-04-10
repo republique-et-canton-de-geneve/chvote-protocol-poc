@@ -21,7 +21,7 @@
 
 package ch.ge.ve.protopoc.service.algorithm;
 
-import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException;
+import ch.ge.ve.protopoc.service.exception.IncompatibleParametersRuntimeException;
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
@@ -196,7 +196,7 @@ public class VoteCastingAuthorityAlgorithms {
      * @param bold_K       the matrix of number of selections per voter per election
      * @param upper_bold_p the matrix of points per voter per candidate
      * @return the OT response, along with the randomness used
-     * @throws IncompatibleParametersException if not enough primes exist in the encryption group for the number of candidates
+     * @throws IncompatibleParametersRuntimeException if not enough primes exist in the encryption group for the number of candidates
      */
     public ObliviousTransferResponseAndRand genResponse(Integer i, List<BigInteger> bold_a, EncryptionPublicKey pk,
                                                         List<Integer> bold_n,
@@ -240,7 +240,7 @@ public class VoteCastingAuthorityAlgorithms {
         try {
             bold_p = generalAlgorithms.getPrimes(n);
         } catch (NotEnoughPrimesInGroupException e) {
-            throw new IncompatibleParametersException(e);
+            throw new IncompatibleParametersRuntimeException(e);
         }
 
         int u = 0; // index 0 based, as opposed to the specification 1 based

@@ -21,7 +21,7 @@
 
 package ch.ge.ve.protopoc.service.algorithm
 
-import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException
+import ch.ge.ve.protopoc.service.exception.IncompatibleParametersRuntimeException
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException
 import ch.ge.ve.protopoc.service.model.*
 import ch.ge.ve.protopoc.service.model.polynomial.Point
@@ -237,6 +237,6 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         voteCastingAuthority.genResponse(1, [ONE], pk, candidatesNumberVector, selectionsMatrix, pointMatrix)
 
         then:
-        thrown(IncompatibleParametersException)
+        thrown(IncompatibleParametersRuntimeException)
     }
 }

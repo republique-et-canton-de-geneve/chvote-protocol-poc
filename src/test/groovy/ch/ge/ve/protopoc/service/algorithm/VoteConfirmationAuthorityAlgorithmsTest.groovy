@@ -21,7 +21,7 @@
 
 package ch.ge.ve.protopoc.service.algorithm
 
-import ch.ge.ve.protopoc.service.exception.BallotNotFoundException
+import ch.ge.ve.protopoc.service.exception.BallotNotFoundRuntimeException
 import ch.ge.ve.protopoc.service.model.*
 import ch.ge.ve.protopoc.service.model.polynomial.Point
 import ch.ge.ve.protopoc.service.support.Hash
@@ -202,6 +202,6 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         voteConfirmationAuthority.getFinalization(2, pointMatrix, ballotList)
 
         then: "an exception should be thrown"
-        thrown(BallotNotFoundException)
+        thrown(BallotNotFoundRuntimeException)
     }
 }

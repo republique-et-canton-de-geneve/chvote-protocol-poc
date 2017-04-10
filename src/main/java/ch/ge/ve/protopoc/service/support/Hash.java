@@ -21,7 +21,7 @@
 
 package ch.ge.ve.protopoc.service.support;
 
-import ch.ge.ve.protopoc.service.exception.DigestInitialisationException;
+import ch.ge.ve.protopoc.service.exception.DigestInitialisationRuntimeException;
 import ch.ge.ve.protopoc.service.model.SecurityParameters;
 
 import java.math.BigInteger;
@@ -59,7 +59,7 @@ public class Hash {
         try {
             return MessageDigest.getInstance(digestAlgorithm, digestProvider);
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            throw new DigestInitialisationException(e);
+            throw new DigestInitialisationRuntimeException(e);
         }
     }
 

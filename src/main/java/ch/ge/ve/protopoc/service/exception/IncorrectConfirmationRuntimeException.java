@@ -22,10 +22,10 @@
 package ch.ge.ve.protopoc.service.exception;
 
 /**
- * Exception thrown when a confirmation is submitted for a voter for which the system has no trace of a ballot being
- * submitted
+ * Exception thrown when an authority receives a confirmation that it deems incorrect
  */
-public class BallotNotFoundException extends RuntimeException {
-    public BallotNotFoundException(String format) {
+public class IncorrectConfirmationRuntimeException extends RuntimeException {
+    public IncorrectConfirmationRuntimeException(String message) {
+        super(message);
     }
 }

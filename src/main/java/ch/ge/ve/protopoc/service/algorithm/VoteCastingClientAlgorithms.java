@@ -21,7 +21,7 @@
 
 package ch.ge.ve.protopoc.service.algorithm;
 
-import ch.ge.ve.protopoc.service.exception.IncompatibleParametersException;
+import ch.ge.ve.protopoc.service.exception.IncompatibleParametersRuntimeException;
 import ch.ge.ve.protopoc.service.exception.InvalidObliviousTransferResponseException;
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException;
 import ch.ge.ve.protopoc.service.model.*;
@@ -69,7 +69,7 @@ public class VoteCastingClientAlgorithms {
      * @param bold_s  voters selection (indices)
      * @param pk      the public encryption key
      * @return the combined ballot, OT query and random elements used
-     * @throws IncompatibleParametersException when there is an issue with the public parameters
+     * @throws IncompatibleParametersRuntimeException when there is an issue with the public parameters
      */
     public BallotQueryAndRand genBallot(String upper_x, List<Integer> bold_s, EncryptionPublicKey pk) {
         Preconditions.checkArgument(bold_s.size() > 0,
@@ -111,7 +111,7 @@ public class VoteCastingClientAlgorithms {
         try {
             bold_q = getSelectedPrimes(bold_s);
         } catch (NotEnoughPrimesInGroupException e) {
-            throw new IncompatibleParametersException("Encryption Group too small for selection");
+            throw new IncompatibleParametersRuntimeException("Encryption Group too small for selection");
         }
         return bold_q;
     }
@@ -120,7 +120,7 @@ public class VoteCastingClientAlgorithms {
         BigInteger m = bold_q.stream().reduce(BigInteger::multiply)
                 .orElse(ONE);
         if (m.compareTo(p) >= 0) {
-            throw new IncompatibleParametersException("(k,n) is incompatible with p");
+            throw new IncompatibleParametersRuntimeException("(k,n) is incompatible with p");
         }
         return m;
     }

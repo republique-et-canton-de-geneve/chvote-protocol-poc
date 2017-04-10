@@ -21,7 +21,7 @@
 
 package ch.ge.ve.protopoc.service.algorithm;
 
-import ch.ge.ve.protopoc.service.exception.BallotNotFoundException;
+import ch.ge.ve.protopoc.service.exception.BallotNotFoundRuntimeException;
 import ch.ge.ve.protopoc.service.model.*;
 import ch.ge.ve.protopoc.service.model.polynomial.Point;
 import ch.ge.ve.protopoc.service.support.ByteArrayUtils;
@@ -141,7 +141,7 @@ public class VoteConfirmationAuthorityAlgorithms {
         byte[] upper_f_i = ByteArrayUtils.truncate(hash.recHash_L(bold_p_i), publicParameters.getUpper_l_f());
 
         BallotEntry ballotEntry = upper_b.stream().filter(b -> Objects.equals(b.getI(), i)).findFirst().orElseThrow(
-                () -> new BallotNotFoundException(String.format("Couldn't find any ballot for voter %d", i))
+                () -> new BallotNotFoundRuntimeException(String.format("Couldn't find any ballot for voter %d", i))
         );
 
         return new FinalizationCodePart(upper_f_i, ballotEntry.getBold_r());

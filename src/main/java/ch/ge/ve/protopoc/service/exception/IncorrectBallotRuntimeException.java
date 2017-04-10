@@ -22,11 +22,10 @@
 package ch.ge.ve.protopoc.service.exception;
 
 /**
- * This is the exception thrown when an unexpected (and non recoverable) exception is encountered upon
- * initialising the required digests
+ * Exception thrown when an authority deems that a ballot was invalid.
  */
-public class DigestInitialisationException extends RuntimeException {
-    public DigestInitialisationException(Throwable cause) {
-        super(cause);
+public class IncorrectBallotRuntimeException extends RuntimeException {
+    public IncorrectBallotRuntimeException(String message) {
+        super(message);
     }
 }

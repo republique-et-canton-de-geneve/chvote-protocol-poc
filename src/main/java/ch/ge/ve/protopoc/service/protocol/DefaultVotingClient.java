@@ -107,7 +107,7 @@ public class DefaultVotingClient implements VotingClientService {
         try {
             ballotQueryAndRand =
                     voteCastingClientAlgorithms.genBallot(identificationCredentials, selections, systemPublicKey);
-        } catch (IncompatibleParametersException e) {
+        } catch (IncompatibleParametersRuntimeException e) {
             throw new VoteCastingException(e);
         }
         return ballotQueryAndRand;
@@ -151,7 +151,7 @@ public class DefaultVotingClient implements VotingClientService {
         List<FinalizationCodePart> finalizationCodeParts;
         try {
             finalizationCodeParts = bulletinBoardService.publishConfirmation(voterIndex, confirmation);
-        } catch (IncorrectConfirmationException e) {
+        } catch (IncorrectConfirmationRuntimeException e) {
             throw new VoteConfirmationException(e);
         }
 
