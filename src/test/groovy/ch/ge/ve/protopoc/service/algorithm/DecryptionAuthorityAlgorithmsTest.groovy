@@ -106,7 +106,8 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         int j = 1
 
         expect:
-        decryptionAuthorityAlgorithms.checkShuffleProofs(bold_pi, e_0, bold_E, pk, j) // == true implied
+        //noinspection GroovyPointlessBoolean
+        decryptionAuthorityAlgorithms.checkShuffleProofs(bold_pi, e_0, bold_E, pk, j) == true
     }
 
     def "checkShuffleProofs should fail given an invalid proof"() {
@@ -195,7 +196,8 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
         generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger it -> 0 <= it && it < encryptionGroup.q }
 
         expect:
-        decryptionAuthorityAlgorithms.checkShuffleProof(pi, bold_e, bold_e_prime, pk) // == true implied
+        //noinspection GroovyPointlessBoolean
+        decryptionAuthorityAlgorithms.checkShuffleProof(pi, bold_e, bold_e_prime, pk) == true
     }
 
     def "getPartialDecryptions should perform partial decryptions on provided encryptions"() {
