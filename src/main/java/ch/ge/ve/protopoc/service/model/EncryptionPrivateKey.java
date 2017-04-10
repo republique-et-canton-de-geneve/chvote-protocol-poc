@@ -27,7 +27,7 @@ import java.math.BigInteger;
 import java.security.PrivateKey;
 
 /**
- * Missing javadoc!
+ * This model class holds the value of an encryption private key
  */
 public class EncryptionPrivateKey implements PrivateKey {
     private final BigInteger privateKey;

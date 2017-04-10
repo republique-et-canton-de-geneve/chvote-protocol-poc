@@ -28,7 +28,7 @@ import javax.xml.bind.DatatypeConverter
 import java.nio.charset.Charset
 
 /**
- * Missing javadoc!
+ * This test class holds the tests for the hashing functions defined in {@link Hash}
  */
 class HashTest extends Specification {
     public static final Charset charset = Charset.forName("UTF-8")

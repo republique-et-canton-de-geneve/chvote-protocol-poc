@@ -26,7 +26,7 @@ import ch.ge.ve.protopoc.service.support.BigIntegers;
 import java.math.BigInteger;
 
 /**
- * Missing javadoc!
+ * This interface holds the constants used for the simulation of the protocol
  */
 public interface SimulationConstants {
     int default_n_max = 1678;

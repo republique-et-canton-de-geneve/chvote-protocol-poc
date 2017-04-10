@@ -24,7 +24,7 @@ package ch.ge.ve.protopoc.service.support
 import spock.lang.Specification
 
 /**
- * Missing javadoc!
+ * This test class holds the tests for the utility methods defined in ByteArrayUtils
  */
 class ByteArrayUtilsTest extends Specification {
 

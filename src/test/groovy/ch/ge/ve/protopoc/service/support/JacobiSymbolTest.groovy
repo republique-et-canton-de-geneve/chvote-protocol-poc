@@ -24,7 +24,7 @@ package ch.ge.ve.protopoc.service.support
 import spock.lang.Specification
 
 /**
- * Missing javadoc!
+ * This test class holds the tests for the algorithm defined in {@link JacobiSymbol}
  */
 class JacobiSymbolTest extends Specification {
     JacobiSymbol jacobiSymbol

@@ -24,7 +24,7 @@ package ch.ge.ve.protopoc.service.model;
 import java.util.Objects;
 
 /**
- * Missing javadoc!
+ * This model class represents a candidate, along with their description
  */
 public class Candidate {
     private final String candidateDescription;

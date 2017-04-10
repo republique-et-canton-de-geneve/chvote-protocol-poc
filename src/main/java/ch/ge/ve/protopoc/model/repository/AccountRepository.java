@@ -26,7 +26,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 
 /**
- * Missing javadoc!
+ * Simple repository for the {@link Account} entities
  */
 public interface AccountRepository extends JpaRepository<Account, Long>, QueryDslPredicateExecutor<Account> {
     Account findByUsername(String username);

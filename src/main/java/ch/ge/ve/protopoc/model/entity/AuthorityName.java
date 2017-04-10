@@ -22,7 +22,7 @@
 package ch.ge.ve.protopoc.model.entity;
 
 /**
- * Missing javadoc!
+ * Enumeration of the known authorities
  */
 public enum AuthorityName {
     ROLE_USER, ROLE_ADMIN

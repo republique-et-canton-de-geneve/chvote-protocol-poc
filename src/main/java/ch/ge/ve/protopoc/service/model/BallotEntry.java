@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Missing javadoc!
+ * This model class holds the necessary data an entry in the ballot list held by the authorities
  */
 public class BallotEntry {
     private final Integer i;
