@@ -119,7 +119,7 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
 
         and: "a known challenge value"
         // t = g_hat ^ omega mod p_hat = 3 ^ 4 mod 11 = 4
-        generalAlgorithms.getNIZKPChallenge([NINE] as BigInteger[], [FOUR] as BigInteger[], 2) >> THREE
+        generalAlgorithms.getNIZKPChallenge([NINE] as BigInteger[], [FOUR] as BigInteger[], 1) >> ONE
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_hat(NINE) >> true
