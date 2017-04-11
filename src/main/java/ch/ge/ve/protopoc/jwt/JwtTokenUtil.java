@@ -36,9 +36,9 @@ import java.util.Map;
 @Component
 public class JwtTokenUtil implements Serializable {
 
-    static final String CLAIM_KEY_USERNAME = "sub";
-    static final String CLAIM_KEY_AUDIENCE = "audience";
-    static final String CLAIM_KEY_CREATED = "created";
+    private static final String CLAIM_KEY_USERNAME = "sub";
+    private static final String CLAIM_KEY_AUDIENCE = "audience";
+    private static final String CLAIM_KEY_CREATED = "created";
     private static final long serialVersionUID = -3301605591108950415L;
     @Value("${jwt.secret}")
     private String secret;

@@ -108,3 +108,9 @@ distributions {
         }
     }
 }
+
+idea {
+    module {
+        sourceDirs += file('/generated')
+    }
+}

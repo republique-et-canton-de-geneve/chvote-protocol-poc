@@ -43,13 +43,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 /**
  * This configuration class manages the spring-security configuration,
  * <ul>
- *     <li>request authorization (access to REST services for accounts is always denied)</li>
- *     <li>authentication mechanism (currently BASIC)</li>
+ * <li>request authorization (access to REST services for accounts is always denied)</li>
+ * <li>authentication mechanism (currently BASIC)</li>
  * </ul>
  */
 @EnableWebSecurity
 @Configuration
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private JwtAuthenticationEntryPoint unauthorizedHandler;
@@ -57,16 +57,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Bean
+    static public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Autowired
     public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         authenticationManagerBuilder
                 .userDetailsService(this.userDetailsService)
                 .passwordEncoder(passwordEncoder());
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean
