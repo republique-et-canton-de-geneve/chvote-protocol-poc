@@ -45,7 +45,6 @@ class VoteConfirmationClientAlgorithmsTest extends Specification {
             FIVE, defaultAlphabet, FIVE, defaultAlphabet,
             defaultAlphabet, 2, defaultAlphabet, 2, 4, 5
     )
-    SecurityParameters securityParameters = Mock()
     RandomGenerator randomGenerator = Mock()
     GeneralAlgorithms generalAlgorithms = Mock()
     Hash hash = Mock()

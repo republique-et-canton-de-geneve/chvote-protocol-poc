@@ -47,7 +47,6 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
             FIVE, defaultAlphabet, FIVE, defaultAlphabet,
             defaultAlphabet, 2, defaultAlphabet, 2, 2, 3
     )
-    SecurityParameters securityParameters = Mock()
 
     // Class under test
     DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms

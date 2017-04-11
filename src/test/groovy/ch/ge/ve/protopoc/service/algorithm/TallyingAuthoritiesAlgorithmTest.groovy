@@ -48,7 +48,6 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
             FIVE, defaultAlphabet, FIVE, defaultAlphabet,
             defaultAlphabet, 2, defaultAlphabet, 2, 2, 5
     )
-    SecurityParameters securityParameters = Mock()
 
     // Class under test
     TallyingAuthoritiesAlgorithm tallyingAuthoritiesAlgorithm
