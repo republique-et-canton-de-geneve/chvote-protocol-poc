@@ -198,14 +198,14 @@ public class GeneralAlgorithms {
     }
 
     /**
-     * Algorithm 7.5: GetChallenges
+     * Algorithm 7.5: GetNIZKPChallenges
      *
      * @param n     the number of challenges requested
      * @param y     the public values vector (domain unspecified)
      * @param kappa the soundness strength of the challenge
      * @return a list challenges, of length n
      */
-    public List<BigInteger> getChallenges(int n, Object[] y, int kappa) {
+    public List<BigInteger> getNIZKPChallenges(int n, Object[] y, int kappa) {
         byte[] upper_h = hash.recHash_L(y);
         BigInteger two_to_kappa = BigIntegers.TWO.pow(kappa);
         Map<Integer, BigInteger> challengesMap = IntStream.rangeClosed(1, n).parallel().boxed()

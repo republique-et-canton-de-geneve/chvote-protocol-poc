@@ -172,7 +172,7 @@ public class DecryptionAuthorityAlgorithms {
         Preconditions.checkArgument(generalAlgorithms.isMember(pk), "pk must be in G_q");
 
         List<BigInteger> bold_h = generalAlgorithms.getGenerators(N);
-        List<BigInteger> bold_u = generalAlgorithms.getChallenges(N, new List[]{bold_e, bold_e_prime, bold_c}, tau);
+        List<BigInteger> bold_u = generalAlgorithms.getNIZKPChallenges(N, new List[]{bold_e, bold_e_prime, bold_c}, tau);
         Object[] y = {bold_e, bold_e_prime, bold_c, bold_c_hat, pk};
         BigInteger c = generalAlgorithms.getNIZKPChallenge(y, pi.getT().elementsToHash(), tau);
 
