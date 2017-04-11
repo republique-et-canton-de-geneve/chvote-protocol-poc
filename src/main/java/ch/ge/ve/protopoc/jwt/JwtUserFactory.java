@@ -29,12 +29,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class JwtUserFactory {
+final class JwtUserFactory {
 
     private JwtUserFactory() {
     }
 
-    public static JwtUser create(Account account) {
+    static JwtUser create(Account account) {
         return new JwtUser(
                 account.getId(),
                 account.getUsername(),

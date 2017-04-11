@@ -37,7 +37,7 @@ public class JwtUser implements UserDetails {
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public JwtUser(
+    JwtUser(
             Long id,
             String username,
             String password,
