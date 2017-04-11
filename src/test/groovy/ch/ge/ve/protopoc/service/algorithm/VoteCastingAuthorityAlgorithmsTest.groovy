@@ -74,25 +74,25 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
 
     def "checkBallot should correctly check the ballot"() {
         given:
-        def encryptionKey = new EncryptionPublicKey(ONE, encryptionGroup)
+        def encryptionKey = new EncryptionPublicKey(THREE, encryptionGroup)
         def ballotList = [
                 new BallotEntry(3, new BallotAndQuery(null, [], null, new NonInteractiveZKP([], [])), []),
                 new BallotEntry(1, new BallotAndQuery(null, [], null, new NonInteractiveZKP([], [])), [])
         ]
-        List<BigInteger> publicCredentials = [THREE, FOUR, ONE, NINE]
-        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], t as BigInteger[], 2) >> c
+        List<BigInteger> publicCredentials = [ONE, FOUR, THREE, NINE]
+        generalAlgorithms.getNIZKPChallenge([ONE, NINE, THREE] as BigInteger[], t as BigInteger[], 1) >> c
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(THREE) >> true
         generalAlgorithms.isMember(FOUR) >> true
         generalAlgorithms.isMember(FIVE) >> true
         generalAlgorithms.isMember(NINE) >> true
-        generalAlgorithms.isMember_G_q_hat(FOUR) >> true
+        generalAlgorithms.isMember_G_q_hat(FIVE) >> true
         generalAlgorithms.isInZ_q(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < encryptionGroup.q }
         generalAlgorithms.isInZ_q_hat(_ as BigInteger) >> { BigInteger x -> 0 <= x && x < identificationGroup.q_hat }
 
         expect:
-        result == voteCastingAuthority.checkBallot(
+        voteCastingAuthority.checkBallot(
                 i,
                 new BallotAndQuery(
                         x_hat,
@@ -103,13 +103,13 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
                 encryptionKey,
                 publicCredentials,
                 ballotList
-        )
+        ) == result
 
-        where:
-        i | x_hat | bold_a        | c    | b    | t                   | s                    || result
-        0 | THREE | [THREE, FOUR] | FOUR | FIVE | [FOUR, FIVE, THREE] | [THREE, FIVE, THREE] || true
-        1 | THREE | [THREE, FOUR] | FOUR | FIVE | [FOUR, FIVE, THREE] | [THREE, FIVE, THREE] || false
-        0 | THREE | [THREE, FOUR] | FOUR | FIVE | [FOUR, FIVE, NINE]  | [THREE, FIVE, THREE] || false
+        where: "a valid dataset taken from VoteCastingClientAlgorithmsTest and some invalid ones"
+        i | x_hat | bold_a       | c   | b     | t                   | s                  || result
+        0 | ONE   | [FIVE, FOUR] | ONE | THREE | [FIVE, FOUR, THREE] | [THREE, FOUR, TWO] || true
+        1 | ONE   | [FIVE, FOUR] | ONE | THREE | [FIVE, FOUR, THREE] | [THREE, FOUR, TWO] || false
+        0 | ONE   | [FIVE, FOUR] | ONE | THREE | [FIVE, FOUR, NINE]  | [THREE, FOUR, TWO] || false
     }
 
     def "hasBallot should detect if a BallotEntry list contains a given voter index"() {
@@ -137,7 +137,7 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
     def "checkBallotProof should verify the validity of a provided proof"() {
         given: "a fixed encryption key and challenge"
         def encryptionKey = new EncryptionPublicKey(THREE, encryptionGroup)
-        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], t as BigInteger[], 2) >> c
+        generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], t as BigInteger[], 1) >> c
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(THREE) >> true

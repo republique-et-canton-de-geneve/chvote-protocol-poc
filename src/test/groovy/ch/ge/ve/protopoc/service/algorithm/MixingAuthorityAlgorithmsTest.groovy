@@ -201,9 +201,9 @@ class MixingAuthorityAlgorithmsTest extends Specification {
                 ONE, // omega_hat/prime_?
                 ONE, // omega_hat/prime_?
         ]
-        generalAlgorithms.getChallenges(3, _ as Object[], 2) >>
+        generalAlgorithms.getChallenges(3, _ as Object[], 1) >>
                 [TWO, ZERO, THREE]
-        generalAlgorithms.getNIZKPChallenge(_, _, 2) >> ZERO
+        generalAlgorithms.getNIZKPChallenge(_, _, 1) >> ZERO
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(ONE) >> true

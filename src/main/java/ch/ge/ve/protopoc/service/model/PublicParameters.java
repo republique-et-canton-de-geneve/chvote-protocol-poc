@@ -118,7 +118,8 @@ public final class PublicParameters {
         // Preconditions tested here are those that impact a combination of the properties of the lower level elements
         Preconditions.checkArgument(encryptionGroup.getH().compareTo(BigIntegers.TWO) >= 0,
                 "");
-        Preconditions.checkArgument(2 * securityParameters.getTau() <= identificationGroup.getQ_hat().bitLength());
+        Preconditions.checkArgument(2 * securityParameters.getTau() <= identificationGroup.getQ_hat().bitLength(),
+                "2 * tau must be smaller than the bit length of q_hat");
         Preconditions.checkArgument(s >= 1, "There must be at least one authority");
         Preconditions.checkArgument(q_hat_x.bitLength() >= 2 * securityParameters.getTau(),
                 "q_hat_x must be >= 2 * tau");
