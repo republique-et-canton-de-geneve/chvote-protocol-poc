@@ -206,7 +206,7 @@ public class MixingAuthorityAlgorithms {
         PermutationCommitment permutationCommitment = genPermutationCommitment(psy, bold_h);
         List<BigInteger> bold_c = permutationCommitment.getBold_c();
         List<BigInteger> bold_r = permutationCommitment.getBold_r();
-        List<BigInteger> bold_u = generalAlgorithms.getChallenges(upper_n,
+        List<BigInteger> bold_u = generalAlgorithms.getNIZKPChallenges(upper_n,
                 new List[]{bold_e, bold_e_prime, bold_c},
                 tau);
 

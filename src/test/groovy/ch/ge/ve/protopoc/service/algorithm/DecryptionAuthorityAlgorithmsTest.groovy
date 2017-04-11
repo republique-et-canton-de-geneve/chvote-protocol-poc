@@ -89,7 +89,7 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
 
         and: "some mocked collaborators"
         generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
-        generalAlgorithms.getChallenges(3, [e_0, e_1, [NINE, THREE, THREE]] as List[], 1) >>
+        generalAlgorithms.getNIZKPChallenges(3, [e_0, e_1, [NINE, THREE, THREE]] as List[], 1) >>
                 [TWO, ZERO, THREE]
         generalAlgorithms.getNIZKPChallenge(_, _, 1) >> ZERO
 
@@ -142,7 +142,7 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
 
         and: "some mocked collaborators"
         generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
-        generalAlgorithms.getChallenges(3, [e_0, e_1, [NINE, THREE, THREE]] as List[], 1) >>
+        generalAlgorithms.getNIZKPChallenges(3, [e_0, e_1, [NINE, THREE, THREE]] as List[], 1) >>
                 [TWO, ZERO, THREE]
         generalAlgorithms.getNIZKPChallenge(_, _, 1) >> ZERO
 
@@ -182,7 +182,7 @@ class DecryptionAuthorityAlgorithmsTest extends Specification {
 
         and: "some mocked collaborators"
         generalAlgorithms.getGenerators(3) >> [FOUR, THREE, FIVE]
-        generalAlgorithms.getChallenges(3, [bold_e, bold_e_prime, [NINE, THREE, THREE]] as List[], 1) >>
+        generalAlgorithms.getNIZKPChallenges(3, [bold_e, bold_e_prime, [NINE, THREE, THREE]] as List[], 1) >>
                 [TWO, ZERO, THREE]
         generalAlgorithms.getNIZKPChallenge(_, _, 1) >> ZERO
 

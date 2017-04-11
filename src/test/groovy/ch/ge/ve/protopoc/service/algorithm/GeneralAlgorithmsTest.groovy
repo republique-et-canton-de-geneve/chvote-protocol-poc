@@ -116,9 +116,9 @@ class GeneralAlgorithmsTest extends Specification {
         challenge == THREE
     }
 
-    def "getChallenges"() {
+    def "getNIZKPChallenges"() {
         when:
-        def challenges = generalAlgorithms.getChallenges(3, [] as Object[], 2)
+        def challenges = generalAlgorithms.getNIZKPChallenges(3, [] as Object[], 2)
 
         then:
         1 * hash.recHash_L([]) >> ([0x00] as byte[])
