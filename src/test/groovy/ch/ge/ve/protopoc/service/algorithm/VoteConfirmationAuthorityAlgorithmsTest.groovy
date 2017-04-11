@@ -73,7 +73,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
         voteCastingAuthority.hasBallot(2, ballotList) >> true
         voteCastingAuthority.hasBallot(3, ballotList) >> true
         and: "the following proof challenges"
-        generalAlgorithms.getNIZKPChallenge([y_hat] as BigInteger[], t as BigInteger[], 1) >> THREE
+        generalAlgorithms.getNIZKPChallenge([y_hat] as BigInteger[], t as BigInteger[], 1) >> ONE
 
         and: "the following constructed parameters"
         def pi = new NonInteractiveZKP(t, s)
@@ -120,7 +120,7 @@ class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
 
     def "checkConfirmationProof should correctly validate the confirmation proof"() {
         given:
-        generalAlgorithms.getNIZKPChallenge([y_hat] as BigInteger[], t as BigInteger[], 2) >> THREE
+        generalAlgorithms.getNIZKPChallenge([y_hat] as BigInteger[], t as BigInteger[], 1) >> ONE
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember_G_q_hat(t[0]) >> true

@@ -168,7 +168,6 @@ public class VoteCastingAuthorityAlgorithms {
         BigInteger q = publicParameters.getEncryptionGroup().getQ();
         BigInteger g = publicParameters.getEncryptionGroup().getG();
         BigInteger p_hat = publicParameters.getIdentificationGroup().getP_hat();
-        BigInteger q_hat = publicParameters.getIdentificationGroup().getQ_hat();
         BigInteger g_hat = publicParameters.getIdentificationGroup().getG_hat();
         int tau = publicParameters.getSecurityParameters().getTau();
 

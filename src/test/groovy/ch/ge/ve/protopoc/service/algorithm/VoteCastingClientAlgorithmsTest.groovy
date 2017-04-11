@@ -72,8 +72,8 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         generalAlgorithms.getNIZKPChallenge(
                 [ONE, NINE, THREE] as BigInteger[], // x_hat, a, b
                 [FIVE, FOUR, THREE] as BigInteger[],  // t_1, t_2, t_3
-                2 // tau
-        ) >> FOUR // c
+                1 // tau
+        ) >> ONE // c
 
         and: "the expected preconditions check"
         generalAlgorithms.isMember_G_q_hat(ONE) >> true
@@ -101,12 +101,12 @@ class VoteCastingClientAlgorithmsTest extends Specification {
 
         and: "pi has the expected value"
         // for values of t_1 to t_3 see above
-        // s_1 = omega_1 + c * x mod q_hat = 3 + 4 * 15 mod 5 = 3
-        // s_2 = omega_2 * m ^ c mod p = 5 * 3 ^ 4 mod 11 = 9
-        // s_3 = omega_3 + c * r mod q = 1 + 4 * 1 mod 5 = 0
+        // s_1 = omega_1 + c * x mod q_hat = 3 + 1 * 15 mod 5 = 3
+        // s_2 = omega_2 * m ^ c mod p = 5 * 3 ^ 1 mod 11 = 4
+        // s_3 = omega_3 + c * r mod q = 1 + 1 * 1 mod 5 = 2
         ballotQueryAndRand.alpha.pi == new NonInteractiveZKP(
                 [FIVE, FOUR, THREE],
-                [THREE, NINE, ZERO]
+                [THREE, FOUR, TWO]
         )
 
         and: "the provided randomness is returned"
@@ -153,8 +153,8 @@ class VoteCastingClientAlgorithmsTest extends Specification {
         generalAlgorithms.getNIZKPChallenge(
                 [ONE, NINE, THREE] as BigInteger[], // x_hat, a, b
                 [FIVE, FOUR, THREE] as BigInteger[],  // t_1, t_2, t_3
-                2 // tau
-        ) >> FOUR // c
+                1 // tau
+        ) >> ONE // c
         and: "the expected preconditions verifications"
         generalAlgorithms.isMember_G_q_hat(ONE) >> true
         generalAlgorithms.isMember(THREE) >> true
@@ -168,12 +168,12 @@ class VoteCastingClientAlgorithmsTest extends Specification {
 
         then:
         // for values of t_1 to t_3 see above
-        // s_1 = omega_1 + c * x mod q_hat = 3 + 4 * 5 mod 5 = 3
-        // s_2 = omega_2 * m ^ c mod p = 5 * 3 ^ 4 mod p = 9
-        // s_3 = omega_3 + c * r mod q = 1 + 4 * 1 mod 3 = 0
+        // s_1 = omega_1 + c * x mod q_hat = 3 + 1 * 5 mod 5 = 3
+        // s_2 = omega_2 * m ^ c mod p = 5 * 3 ^ 1 mod 11 = 4
+        // s_3 = omega_3 + c * r mod q = 1 + 1 * 1 mod 3 = 2
         pi == new NonInteractiveZKP(
                 [FIVE, FOUR, THREE],
-                [THREE, NINE, ZERO]
+                [THREE, FOUR, TWO]
         )
     }
 
