@@ -21,40 +21,45 @@
 
 package ch.ge.ve.protopoc.service.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Model class containing all of the data required for the tallying of the votes
  */
-public class TallyData {
+public final class TallyData {
     private final List<BigInteger> publicKeyShares;
     private final List<Encryption> finalShuffle;
     private final List<List<BigInteger>> partialDecryptions;
     private final List<DecryptionProof> decryptionProofs;
 
     public TallyData(List<BigInteger> publicKeyShares, List<Encryption> finalShuffle, List<List<BigInteger>> partialDecryptions, List<DecryptionProof> decryptionProofs) {
-        this.publicKeyShares = publicKeyShares;
-        this.finalShuffle = finalShuffle;
-        this.partialDecryptions = partialDecryptions;
-        this.decryptionProofs = decryptionProofs;
+        this.publicKeyShares = ImmutableList.copyOf(publicKeyShares);
+        this.finalShuffle = ImmutableList.copyOf(finalShuffle);
+        this.partialDecryptions = partialDecryptions.parallelStream().map(ImmutableList::copyOf)
+                .collect(Collectors.toList());
+        this.decryptionProofs = ImmutableList.copyOf(decryptionProofs);
     }
 
     public List<BigInteger> getPublicKeyShares() {
-        return publicKeyShares;
+        return ImmutableList.copyOf(publicKeyShares);
     }
 
     public List<Encryption> getFinalShuffle() {
-        return finalShuffle;
+        return ImmutableList.copyOf(finalShuffle);
     }
 
     public List<List<BigInteger>> getPartialDecryptions() {
-        return partialDecryptions;
+        return partialDecryptions.parallelStream().map(ImmutableList::copyOf)
+                .collect(Collectors.toList());
     }
 
     public List<DecryptionProof> getDecryptionProofs() {
-        return decryptionProofs;
+        return ImmutableList.copyOf(decryptionProofs);
     }
 
     @Override

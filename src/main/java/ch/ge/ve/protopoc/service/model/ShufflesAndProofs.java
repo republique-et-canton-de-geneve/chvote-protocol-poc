@@ -21,26 +21,29 @@
 
 package ch.ge.ve.protopoc.service.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Model class containing the shuffles (re-encrypted, shuffled ballots) and the shuffle proofs
  */
-public class ShufflesAndProofs {
+public final class ShufflesAndProofs {
     private final List<List<Encryption>> shuffles;
     private final List<ShuffleProof> shuffleProofs;
 
 
     public ShufflesAndProofs(List<List<Encryption>> shuffles, List<ShuffleProof> shuffleProofs) {
-        this.shuffles = shuffles;
-        this.shuffleProofs = shuffleProofs;
+        this.shuffles = shuffles.parallelStream().map(ImmutableList::copyOf).collect(Collectors.toList());
+        this.shuffleProofs = ImmutableList.copyOf(shuffleProofs);
     }
 
     public List<List<Encryption>> getShuffles() {
-        return shuffles;
+        return shuffles.parallelStream().map(ImmutableList::copyOf).collect(Collectors.toList());
     }
 
     public List<ShuffleProof> getShuffleProofs() {
-        return shuffleProofs;
+        return ImmutableList.copyOf(shuffleProofs);
     }
 }

@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * Model class used to represent a "re-encryption", i.e. the resulting encryption and the randomness used
  */
-public class ReEncryption {
+public final class ReEncryption {
     private final Encryption encryption;
     private final BigInteger randomness;
 

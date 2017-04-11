@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * This model class represents a candidate, along with their description
  */
-public class Candidate {
+public final class Candidate {
     private final String candidateDescription;
 
     public Candidate(String candidateDescription) {

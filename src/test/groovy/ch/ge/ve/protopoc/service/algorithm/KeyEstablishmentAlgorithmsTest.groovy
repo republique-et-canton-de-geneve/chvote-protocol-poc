@@ -34,16 +34,12 @@ import static ch.ge.ve.protopoc.service.support.BigIntegers.*
  */
 class KeyEstablishmentAlgorithmsTest extends Specification {
     RandomGenerator randomGenerator = Mock()
-    EncryptionGroup encryptionGroup = Mock()
+    EncryptionGroup encryptionGroup = new EncryptionGroup(ELEVEN, FIVE, THREE, FOUR)
 
     KeyEstablishmentAlgorithms keyEstablishment
 
     void setup() {
         keyEstablishment = new KeyEstablishmentAlgorithms(randomGenerator)
-        encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> FIVE
-        encryptionGroup.g >> THREE
-        encryptionGroup.h >> FIVE
     }
 
     def "generateKeyPair"() {

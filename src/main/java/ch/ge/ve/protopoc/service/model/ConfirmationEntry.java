@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * Model class for the entries of the confirmation list held by each authority
  */
-public class ConfirmationEntry {
+public final class ConfirmationEntry {
     private final Integer i;
     private final Confirmation gamma;
 

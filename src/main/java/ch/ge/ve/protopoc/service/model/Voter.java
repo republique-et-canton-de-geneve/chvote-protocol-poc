@@ -30,7 +30,7 @@ import java.util.Collection;
 /**
  * Model class for the voter
  */
-public class Voter {
+public final class Voter {
     private Collection<DomainOfInfluence> allowedDomainsOfInfluence = new ArrayList<>();
 
     public void addDomainsOfInfluence(DomainOfInfluence... domainsOfInfluence) {

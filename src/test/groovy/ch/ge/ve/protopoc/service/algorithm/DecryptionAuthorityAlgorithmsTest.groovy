@@ -34,25 +34,24 @@ import static java.math.BigInteger.ZERO
  */
 class DecryptionAuthorityAlgorithmsTest extends Specification {
     // Primary Mocks
-    PublicParameters publicParameters = Mock()
     GeneralAlgorithms generalAlgorithms = Mock()
     RandomGenerator randomGenerator = Mock()
 
-    // Secondary Mocks
-    EncryptionGroup encryptionGroup = Mock()
+    def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray() as List<Character>
+    EncryptionGroup encryptionGroup = new EncryptionGroup(ELEVEN, FIVE, THREE, FOUR)
+    IdentificationGroup identificationGroup = new IdentificationGroup(ELEVEN, FIVE, THREE)
+    SecurityParameters securityParameters = new SecurityParameters(1, 1, 2, 0.99)
+    PrimeField primeField = new PrimeField(ELEVEN)
+    PublicParameters publicParameters = new PublicParameters(
+            securityParameters, encryptionGroup, identificationGroup, primeField,
+            FIVE, defaultAlphabet, FIVE, defaultAlphabet,
+            defaultAlphabet, 2, defaultAlphabet, 2, 2, 3
+    )
 
     // Class under test
     DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms
 
     void setup() {
-        publicParameters.encryptionGroup >> encryptionGroup
-        publicParameters.s >> 2
-
-        encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> FIVE // G_q = (1, 3, 4, 5, 9)
-        encryptionGroup.g >> THREE
-        encryptionGroup.h >> FOUR
-
         decryptionAuthorityAlgorithms = new DecryptionAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator)
 
     }

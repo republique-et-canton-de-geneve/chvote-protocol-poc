@@ -21,6 +21,8 @@
 
 package ch.ge.ve.protopoc.service.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
@@ -28,21 +30,21 @@ import java.util.Objects;
 /**
  * A non-interactive ZKP
  */
-public class NonInteractiveZKP {
+public final class NonInteractiveZKP {
     private final List<BigInteger> t;
     private final List<BigInteger> s;
 
     public NonInteractiveZKP(List<BigInteger> t, List<BigInteger> s) {
-        this.t = t;
-        this.s = s;
+        this.t = ImmutableList.copyOf(t);
+        this.s = ImmutableList.copyOf(s);
     }
 
     public List<BigInteger> getT() {
-        return t;
+        return ImmutableList.copyOf(t);
     }
 
     public List<BigInteger> getS() {
-        return s;
+        return ImmutableList.copyOf(s);
     }
 
     @Override

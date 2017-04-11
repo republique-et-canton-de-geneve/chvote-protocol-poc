@@ -30,7 +30,7 @@ import java.util.Objects;
 /**
  * Model class combining a list of points and y-images of 0 for a set of polynomials
  */
-public class PointsAndZeroImages {
+public final class PointsAndZeroImages {
     private final List<Point> points;
     private final List<BigInteger> y0s;
 

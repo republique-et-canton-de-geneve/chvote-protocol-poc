@@ -21,6 +21,8 @@
 
 package ch.ge.ve.protopoc.service.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
@@ -28,7 +30,7 @@ import java.util.Objects;
 /**
  * This model class holds the necessary data an entry in the ballot list held by the authorities
  */
-public class BallotEntry {
+public final class BallotEntry {
     private final Integer i;
     private final BallotAndQuery alpha;
     private final List<BigInteger> bold_r;
@@ -36,7 +38,7 @@ public class BallotEntry {
     public BallotEntry(Integer i, BallotAndQuery alpha, List<BigInteger> bold_r) {
         this.i = i;
         this.alpha = alpha;
-        this.bold_r = bold_r;
+        this.bold_r = ImmutableList.copyOf(bold_r);
     }
 
     public Integer getI() {
@@ -48,7 +50,7 @@ public class BallotEntry {
     }
 
     public List<BigInteger> getBold_r() {
-        return bold_r;
+        return ImmutableList.copyOf(bold_r);
     }
 
     @Override

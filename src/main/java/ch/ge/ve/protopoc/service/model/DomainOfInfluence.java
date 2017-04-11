@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * Model class for the domain of influence (as per eCH-0155)
  */
-public class DomainOfInfluence {
+public final class DomainOfInfluence {
     private final String identifier;
 
     public DomainOfInfluence(String identifier) {
