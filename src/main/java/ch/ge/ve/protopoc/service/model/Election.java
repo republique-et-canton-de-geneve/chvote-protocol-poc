@@ -25,7 +25,7 @@ package ch.ge.ve.protopoc.service.model;
  * An election has a number of candidates and a number of allowed selections.
  * It is applicable to a domain of influence.
  */
-public class Election {
+public final class Election {
     private final int numberOfCandidates;
     private final int numberOfSelections;
     private final DomainOfInfluence applicableDomainofInfluence;

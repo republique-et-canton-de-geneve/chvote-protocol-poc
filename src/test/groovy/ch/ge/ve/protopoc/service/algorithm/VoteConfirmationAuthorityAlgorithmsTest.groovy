@@ -35,31 +35,25 @@ import static java.math.BigInteger.ZERO
  * Tests on the vote confirmation algorithms performed by the authorities
  */
 class VoteConfirmationAuthorityAlgorithmsTest extends Specification {
-    PublicParameters publicParameters = Mock()
-    EncryptionGroup encryptionGroup = Mock()
-    IdentificationGroup identificationGroup = Mock()
+    def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray() as List<Character>
+    EncryptionGroup encryptionGroup = new EncryptionGroup(ELEVEN, FIVE, THREE, FOUR)
+    IdentificationGroup identificationGroup = new IdentificationGroup(ELEVEN, FIVE, THREE)
+    SecurityParameters securityParameters = new SecurityParameters(1, 1, 2, 0.99)
+    PrimeField primeField = new PrimeField(SEVEN)
+    PublicParameters publicParameters = new PublicParameters(
+            securityParameters, encryptionGroup, identificationGroup, primeField,
+            FIVE, defaultAlphabet, FIVE, defaultAlphabet,
+            defaultAlphabet, 2, defaultAlphabet, 2, 4, 3
+    )
+
     GeneralAlgorithms generalAlgorithms = Mock()
     VoteCastingAuthorityAlgorithms voteCastingAuthority = Mock()
     Hash hash = Mock()
-    PrimeField primeField = Mock()
 
     VoteConfirmationAuthorityAlgorithms voteConfirmationAuthority
 
 
     void setup() {
-        publicParameters.encryptionGroup >> encryptionGroup
-        encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> FIVE
-        encryptionGroup.g >> THREE
-        publicParameters.identificationGroup >> identificationGroup
-        identificationGroup.p_hat >> ELEVEN
-        identificationGroup.q_hat >> FIVE
-        identificationGroup.g_hat >> THREE
-        publicParameters.primeField >> primeField
-        primeField.p_prime >> SEVEN
-        publicParameters.s >> 4
-        publicParameters.upper_l_f >> 2
-
         voteConfirmationAuthority =
                 new VoteConfirmationAuthorityAlgorithms(publicParameters, generalAlgorithms, voteCastingAuthority, hash)
     }

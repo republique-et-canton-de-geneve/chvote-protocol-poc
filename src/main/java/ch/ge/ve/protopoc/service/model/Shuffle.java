@@ -30,15 +30,15 @@ import java.util.Objects;
 /**
  * Model class representing the result of a shuffle
  */
-public class Shuffle {
+public final class Shuffle {
     private final List<Encryption> bold_e_prime;
     private final List<BigInteger> bold_r_prime;
     private final List<Integer> psy;
 
     public Shuffle(List<Encryption> bold_e_prime, List<BigInteger> bold_r_prime, List<Integer> psy) {
-        this.bold_e_prime = bold_e_prime;
-        this.bold_r_prime = bold_r_prime;
-        this.psy = psy;
+        this.bold_e_prime = ImmutableList.copyOf(bold_e_prime);
+        this.bold_r_prime = ImmutableList.copyOf(bold_r_prime);
+        this.psy = ImmutableList.copyOf(psy);
     }
 
     public List<Encryption> getBold_e_prime() {
@@ -50,7 +50,7 @@ public class Shuffle {
     }
 
     public List<Integer> getPsy() {
-        return psy;
+        return ImmutableList.copyOf(psy);
     }
 
     @Override

@@ -30,7 +30,7 @@ import java.util.Objects;
 /**
  * Model class for a geometric point
  */
-public class Point implements Hash.Hashable {
+public final class Point implements Hash.Hashable {
     public final BigInteger x;
     public final BigInteger y;
 

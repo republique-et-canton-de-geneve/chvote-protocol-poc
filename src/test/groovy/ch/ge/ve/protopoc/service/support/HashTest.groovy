@@ -37,7 +37,7 @@ class HashTest extends Specification {
     Conversion conversion = Mock()
 
     void setup() {
-        securityParameters = new SecurityParameters(80, 80, 512, 0.999)
+        securityParameters = new SecurityParameters(80, 80, 64, 0.999)
         hash = new Hash("SHA-512", "SUN", securityParameters, conversion)
     }
 

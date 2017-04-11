@@ -36,38 +36,22 @@ import static java.math.BigInteger.ZERO
  */
 class VoteCastingClientAlgorithmsTest extends Specification {
     Hash hash = Mock()
-    PublicParameters publicParameters = Mock()
-    EncryptionGroup encryptionGroup = Mock()
-    IdentificationGroup identificationGroup = Mock()
-    SecurityParameters securityParameters = Mock()
-    PrimeField primeField = Mock()
+    def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray() as List<Character>
+    EncryptionGroup encryptionGroup = new EncryptionGroup(ELEVEN, FIVE, THREE, FOUR)
+    IdentificationGroup identificationGroup = new IdentificationGroup(ELEVEN, FIVE, THREE)
+    SecurityParameters securityParameters = new SecurityParameters(1, 1, 2, 0.99)
+    PrimeField primeField = new PrimeField(FIVE)
+    PublicParameters publicParameters = new PublicParameters(
+            securityParameters, encryptionGroup, identificationGroup, primeField,
+            FIVE, defaultAlphabet, FIVE, defaultAlphabet,
+            defaultAlphabet, 2, defaultAlphabet, 2, 2, 5
+    )
     RandomGenerator randomGenerator = Mock()
     GeneralAlgorithms generalAlgorithms = Mock()
 
     VoteCastingClientAlgorithms voteCastingClient
 
     void setup() {
-        def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray()
-
-        publicParameters.encryptionGroup >> encryptionGroup
-        encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> FIVE
-        encryptionGroup.g >> THREE
-        publicParameters.identificationGroup >> identificationGroup
-        identificationGroup.p_hat >> ELEVEN
-        identificationGroup.q_hat >> FIVE
-        identificationGroup.g_hat >> THREE
-        publicParameters.primeField >> primeField
-        primeField.p_prime >> FIVE
-        publicParameters.securityParameters >> securityParameters
-        securityParameters.l >> 32
-        publicParameters.upper_l_m >> 4
-        publicParameters.upper_l_r >> 2
-        publicParameters.s >> 2
-        publicParameters.upper_a_x >> (defaultAlphabet as List<Character>)
-        publicParameters.upper_a_r >> (defaultAlphabet as List<Character>)
-        publicParameters.k_x >> 3
-
         voteCastingClient = new VoteCastingClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
     }
 
@@ -195,17 +179,18 @@ class VoteCastingClientAlgorithmsTest extends Specification {
 
     def "getPointMatrix should compute the point matrix according to spec"() {
         given:
-        ObliviousTransferResponse beta_1 = Mock()
-        beta_1.b >> [ONE]
-        beta_1.c >> [[0x01, 0x02, 0x03, 0x04], [0x05, 0x06, 0x07, 0x08], [0x0A, 0x0B, 0x0C, 0x0D]]
-        beta_1.d >> [THREE]
-        hash.recHash_L(ONE, ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-0 mod 11 = 1
+        def b1 = [ONE]
+        def c1 = [[0x01, 0x02], [0x05, 0x06], [0x0A, 0x0B]] as byte[][]
+        def d1 = [THREE]
+        ObliviousTransferResponse beta_1 = new ObliviousTransferResponse(b1, c1, d1)
 
-        ObliviousTransferResponse beta_2 = Mock()
-        beta_2.b >> [FIVE]
-        beta_2.c >> [[0x10, 0x20, 0x30, 0x40], [0x50, 0x60, 0x70, 0x80], [0xA0, 0xB0, 0xC0, 0xD0]]
-        beta_2.d >> [FOUR]
-        hash.recHash_L(FIVE, ONE) >> ([0xA0, 0xB3, 0xC0, 0xD0] as byte[])
+        hash.recHash_L(ONE, ONE) >> ([0x0E, 0x0A] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-0 mod 11 = 1
+
+        def b2 = [FIVE]
+        def c2 = [[0x10, 0x20], [0x50, 0x60], [0xA0, 0xB0]] as byte[][]
+        def d2 = [FOUR]
+        ObliviousTransferResponse beta_2 = new ObliviousTransferResponse(b2, c2, d2)
+        hash.recHash_L(FIVE, ONE) >> ([0xA3, 0xB0] as byte[])
         // b_i * d_j^{-r_i} mod p = 5 * 4^-0 mod 11 = 5
 
         and: "the expected preconditions checks"
@@ -217,6 +202,7 @@ class VoteCastingClientAlgorithmsTest extends Specification {
 
         when:
         def pointMatrix = voteCastingClient.getPointMatrix([beta_1, beta_2], [1], [3], [ZERO])
+        println pointMatrix
 
         then:
         pointMatrix == [
@@ -227,11 +213,11 @@ class VoteCastingClientAlgorithmsTest extends Specification {
 
     def "getPoints should compute the points correctly from the authority's reply"() {
         given:
-        ObliviousTransferResponse beta = Mock()
-        beta.b >> [ONE]
-        beta.c >> [[0x01, 0x02, 0x03, 0x04], [0x05, 0x06, 0x07, 0x08], [0x0A, 0x0B, 0x0C, 0x0D]]
-        beta.d >> [THREE]
-        hash.recHash_L(ONE, ONE) >> ([0x0A, 0x0F, 0x0C, 0x0C] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 11 = 1
+        def b = [ONE]
+        def c = [[0x01, 0x02], [0x05, 0x06], [0x0A, 0x0B]] as byte[][]
+        def d = [THREE]
+        ObliviousTransferResponse beta = new ObliviousTransferResponse(b, c, d)
+        hash.recHash_L(ONE, ONE) >> ([0x0E, 0x0A] as byte[]) // b_i * d_j^{-r_i} mod p = 1 * 3^-5 mod 11 = 1
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(ONE) >> true

@@ -265,8 +265,8 @@ public class VoteCastingAuthorityAlgorithms {
                 log.debug(String.format("Encoding point %s as %s", point_iv, Arrays.toString(M_v)));
                 BigInteger k = modExp(bold_p.get(v), r_j, p);
                 byte[] bold_upper_k = new byte[0];
-                int upperbound = (int) Math.ceil((double) upper_l_m / (publicParameters.getSecurityParameters().getL() / 8.0));
-                for (int z = 1; z <= upperbound; z++) {
+                int l_m = (int) Math.ceil((double) upper_l_m / publicParameters.getSecurityParameters().getUpper_l());
+                for (int z = 1; z <= l_m; z++) {
                     bold_upper_k = ByteArrayUtils.concatenate(bold_upper_k, hash.recHash_L(k, BigInteger.valueOf(z)));
                 }
                 bold_upper_k = ByteArrayUtils.truncate(bold_upper_k, upper_l_m);

@@ -28,7 +28,7 @@ import java.math.BigInteger;
 /**
  * The model class representing the identification group
  */
-public class IdentificationGroup {
+public final class IdentificationGroup {
     private final BigInteger p_hat;
     private final BigInteger q_hat;
     private final BigInteger g_hat;

@@ -26,7 +26,7 @@ import java.math.BigInteger;
 /**
  * The model class representing the prime field
  */
-public class PrimeField {
+public final class PrimeField {
     private final BigInteger p_prime;
 
     public PrimeField(BigInteger p_prime) {

@@ -29,10 +29,10 @@ import java.security.PrivateKey;
 /**
  * This model class holds the value of an encryption private key
  */
-public class EncryptionPrivateKey implements PrivateKey {
+public final class EncryptionPrivateKey implements PrivateKey {
     private final BigInteger privateKey;
     private final EncryptionGroup encryptionGroup;
-    private transient final Conversion conversion = new Conversion();
+    private final transient Conversion conversion = new Conversion();
 
     public EncryptionPrivateKey(BigInteger privateKey, EncryptionGroup encryptionGroup) {
         this.privateKey = privateKey;

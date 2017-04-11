@@ -21,25 +21,27 @@
 
 package ch.ge.ve.protopoc.service.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 
 /**
  * Model class containing the data necessary for presenting the voting page to the voter
  */
-public class VotingPageData {
+public final class VotingPageData {
     private final List<Integer> selectionCounts;
     private final List<Integer> candidateCounts;
 
     public VotingPageData(List<Integer> selectionCounts, List<Integer> candidateCounts) {
-        this.selectionCounts = selectionCounts;
-        this.candidateCounts = candidateCounts;
+        this.selectionCounts = ImmutableList.copyOf(selectionCounts);
+        this.candidateCounts = ImmutableList.copyOf(candidateCounts);
     }
 
     public List<Integer> getSelectionCounts() {
-        return selectionCounts;
+        return ImmutableList.copyOf(selectionCounts);
     }
 
     public List<Integer> getCandidateCounts() {
-        return candidateCounts;
+        return ImmutableList.copyOf(candidateCounts);
     }
 }

@@ -28,7 +28,7 @@ import java.math.BigInteger;
 /**
  * The model class representing the encryption group
  */
-public class EncryptionGroup {
+public final class EncryptionGroup {
     /**
      * Safe prime modulus p
      */

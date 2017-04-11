@@ -21,19 +21,21 @@
 
 package ch.ge.ve.protopoc.service.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.math.BigInteger;
 import java.util.List;
 
 /**
  * Model class combining a ballot, the corresponding OT query and the vector of random elements used
  */
-public class BallotQueryAndRand {
+public final class BallotQueryAndRand {
     private final BallotAndQuery alpha;
     private final List<BigInteger> bold_r;
 
     public BallotQueryAndRand(BallotAndQuery alpha, List<BigInteger> bold_r) {
         this.alpha = alpha;
-        this.bold_r = bold_r;
+        this.bold_r = ImmutableList.copyOf(bold_r);
     }
 
     public BallotAndQuery getAlpha() {
@@ -41,6 +43,6 @@ public class BallotQueryAndRand {
     }
 
     public List<BigInteger> getBold_r() {
-        return bold_r;
+        return ImmutableList.copyOf(bold_r);
     }
 }

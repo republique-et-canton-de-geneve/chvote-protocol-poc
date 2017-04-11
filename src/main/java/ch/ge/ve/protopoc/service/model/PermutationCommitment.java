@@ -21,6 +21,8 @@
 
 package ch.ge.ve.protopoc.service.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
@@ -28,21 +30,21 @@ import java.util.Objects;
 /**
  * Model class representing a permutation commitment
  */
-public class PermutationCommitment {
+public final class PermutationCommitment {
     private final List<BigInteger> bold_c;
     private final List<BigInteger> bold_r;
 
     public PermutationCommitment(List<BigInteger> bold_c, List<BigInteger> bold_r) {
-        this.bold_c = bold_c;
-        this.bold_r = bold_r;
+        this.bold_c = ImmutableList.copyOf(bold_c);
+        this.bold_r = ImmutableList.copyOf(bold_r);
     }
 
     public List<BigInteger> getBold_c() {
-        return bold_c;
+        return ImmutableList.copyOf(bold_c);
     }
 
     public List<BigInteger> getBold_r() {
-        return bold_r;
+        return ImmutableList.copyOf(bold_r);
     }
 
     @Override

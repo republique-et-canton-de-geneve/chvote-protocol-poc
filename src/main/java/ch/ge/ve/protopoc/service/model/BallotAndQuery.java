@@ -21,13 +21,15 @@
 
 package ch.ge.ve.protopoc.service.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.math.BigInteger;
 import java.util.List;
 
 /**
  * Model class combining a ballot and a OT query
  */
-public class BallotAndQuery {
+public final class BallotAndQuery {
 
     private final BigInteger x_hat;
     private final List<BigInteger> bold_a;
@@ -36,7 +38,7 @@ public class BallotAndQuery {
 
     public BallotAndQuery(BigInteger x_hat, List<BigInteger> bold_a, BigInteger b, NonInteractiveZKP pi) {
         this.x_hat = x_hat;
-        this.bold_a = bold_a;
+        this.bold_a = ImmutableList.copyOf(bold_a);
         this.b = b;
         this.pi = pi;
     }

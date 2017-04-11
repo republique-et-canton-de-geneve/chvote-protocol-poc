@@ -43,12 +43,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * underlying authentication is performed using the {@link AccountRepository}
  */
 @Configuration
-public class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfiguration.class);
+public class WebSecurityAuthenticationConfigurer extends GlobalAuthenticationConfigurerAdapter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityAuthenticationConfigurer.class);
     private AccountRepository accountRepository;
 
     @Autowired
-    public WebSecurityConfiguration(AccountRepository accountRepository) {
+    public WebSecurityAuthenticationConfigurer(AccountRepository accountRepository) {
         Preconditions.checkNotNull(accountRepository, "AccountRepository is required");
         this.accountRepository = accountRepository;
     }

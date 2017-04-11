@@ -35,35 +35,23 @@ import static java.math.BigInteger.ZERO
  * Tests on the vote confirmation algorithms performed by the voting client
  */
 class VoteConfirmationClientAlgorithmsTest extends Specification {
-    PublicParameters publicParameters = Mock()
-    EncryptionGroup encryptionGroup = Mock()
-    IdentificationGroup identificationGroup = Mock()
+    def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray() as List<Character>
+    EncryptionGroup encryptionGroup = new EncryptionGroup(ELEVEN, FIVE, THREE, FOUR)
+    IdentificationGroup identificationGroup = new IdentificationGroup(ELEVEN, FIVE, THREE)
+    SecurityParameters securityParameters = new SecurityParameters(1, 1, 2, 0.99)
+    PrimeField primeField = new PrimeField(SEVEN)
+    PublicParameters publicParameters = new PublicParameters(
+            securityParameters, encryptionGroup, identificationGroup, primeField,
+            FIVE, defaultAlphabet, FIVE, defaultAlphabet,
+            defaultAlphabet, 2, defaultAlphabet, 2, 4, 5
+    )
     RandomGenerator randomGenerator = Mock()
     GeneralAlgorithms generalAlgorithms = Mock()
     Hash hash = Mock()
-    PrimeField primeField = Mock()
 
     VoteConfirmationClientAlgorithms voteConfirmationClient
 
     void setup() {
-        def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray()
-
-        publicParameters.encryptionGroup >> encryptionGroup
-        encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> FIVE
-        encryptionGroup.g >> THREE
-        publicParameters.identificationGroup >> identificationGroup
-        identificationGroup.p_hat >> ELEVEN
-        identificationGroup.q_hat >> FIVE
-        identificationGroup.g_hat >> THREE
-        publicParameters.primeField >> primeField
-        primeField.p_prime >> SEVEN
-        publicParameters.s >> 4
-
-        publicParameters.upper_a_y >> (defaultAlphabet as List<Character>)
-        publicParameters.k_y >> 2
-        publicParameters.upper_a_f >> (defaultAlphabet as List<Character>)
-
         voteConfirmationClient = new VoteConfirmationClientAlgorithms(publicParameters, generalAlgorithms, randomGenerator, hash)
     }
 

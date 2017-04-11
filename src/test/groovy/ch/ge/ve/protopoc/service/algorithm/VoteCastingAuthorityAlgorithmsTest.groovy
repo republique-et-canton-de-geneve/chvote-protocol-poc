@@ -37,32 +37,37 @@ import static java.math.BigInteger.ZERO
  * Tests on the vote casting algorithms on the authority side
  */
 class VoteCastingAuthorityAlgorithmsTest extends Specification {
-    PublicParameters publicParameters = Mock()
-    EncryptionGroup encryptionGroup = Mock()
-    IdentificationGroup identificationGroup = Mock()
-    SecurityParameters securityParameters = Mock()
-    PrimeField primeField = Mock()
+    def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray() as List<Character>
+    EncryptionGroup encryptionGroup = new EncryptionGroup(ELEVEN, FIVE, THREE, FOUR)
+    IdentificationGroup identificationGroup = new IdentificationGroup(ELEVEN, FIVE, THREE)
+    SecurityParameters securityParameters = new SecurityParameters(1, 1, 2, 0.99)
+    PrimeField primeField = new PrimeField(ELEVEN)
+    PublicParameters publicParameters = new PublicParameters(
+            securityParameters, encryptionGroup, identificationGroup, primeField,
+            FIVE, defaultAlphabet, FIVE, defaultAlphabet,
+            defaultAlphabet, 2, defaultAlphabet, 2, 4, 5
+    )
     GeneralAlgorithms generalAlgorithms = Mock()
     RandomGenerator randomGenerator = Mock()
     Hash hash = Mock()
-    ElectionSet electionSet = Mock()
 
     VoteCastingAuthorityAlgorithms voteCastingAuthority
 
     void setup() {
-        publicParameters.encryptionGroup >> encryptionGroup
-        encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> FIVE
-        encryptionGroup.g >> THREE
-        publicParameters.identificationGroup >> identificationGroup
-        identificationGroup.p_hat >> ELEVEN
-        identificationGroup.q_hat >> FIVE
-        identificationGroup.g_hat >> THREE
-        publicParameters.primeField >> primeField
-        primeField.p_prime >> ELEVEN
-        publicParameters.upper_l_m >> 2
-        publicParameters.securityParameters >> securityParameters
-        securityParameters.l >> 16
+        def domainOfInfluence = new DomainOfInfluence("test")
+        Voter voter0 = new Voter()
+        Voter voter1 = new Voter()
+        def voters = [voter0, voter1]
+        Election election = new Election(4, 2, domainOfInfluence)
+        def candidates = [
+                new Candidate(""),
+                new Candidate(""),
+                new Candidate(""),
+                new Candidate("")
+        ]
+        def electionSet = new ElectionSet(voters, candidates, [election])
+        voter0.addDomainsOfInfluence(domainOfInfluence)
+        voter1.addDomainsOfInfluence(domainOfInfluence)
 
         voteCastingAuthority = new VoteCastingAuthorityAlgorithms(publicParameters, electionSet, generalAlgorithms, randomGenerator, hash)
     }
@@ -71,18 +76,11 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
         given:
         def encryptionKey = new EncryptionPublicKey(ONE, encryptionGroup)
         def ballotList = [
-                new BallotEntry(3, null, null),
-                new BallotEntry(1, null, null)
+                new BallotEntry(3, new BallotAndQuery(null, [], null, new NonInteractiveZKP([], [])), []),
+                new BallotEntry(1, new BallotAndQuery(null, [], null, new NonInteractiveZKP([], [])), [])
         ]
         List<BigInteger> publicCredentials = [THREE, FOUR, ONE, NINE]
         generalAlgorithms.getNIZKPChallenge(_ as BigInteger[], t as BigInteger[], FIVE) >> c
-        Voter voter0 = Mock()
-        Voter voter1 = Mock()
-        electionSet.voters >> [voter0, voter1]
-        Election election = Mock()
-        electionSet.elections >> [election]
-        electionSet.isEligible(_ as Voter, election) >> true
-        election.numberOfSelections >> 2
 
         and: "the expected preconditions checks"
         generalAlgorithms.isMember(THREE) >> true
@@ -117,9 +115,9 @@ class VoteCastingAuthorityAlgorithmsTest extends Specification {
     def "hasBallot should detect if a BallotEntry list contains a given voter index"() {
         given: "a ballot list"
         def ballotList = [
-                new BallotEntry(3, null, null),
-                new BallotEntry(1, null, null),
-                new BallotEntry(45, null, null)
+                new BallotEntry(3, new BallotAndQuery(ONE, [ONE], ONE, new NonInteractiveZKP([ONE], [ONE])), [ONE]),
+                new BallotEntry(1, new BallotAndQuery(ONE, [ONE], ONE, new NonInteractiveZKP([ONE], [ONE])), [ONE]),
+                new BallotEntry(45, new BallotAndQuery(ONE, [ONE], ONE, new NonInteractiveZKP([ONE], [ONE])), [ONE])
         ]
 
         expect: "the call to hasBallot to have the expected result"

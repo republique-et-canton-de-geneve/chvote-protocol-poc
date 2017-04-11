@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * Model class containing the definition of a set of elections
  */
-public class ElectionSet {
+public final class ElectionSet {
     private final List<Voter> voters;
     private final List<Candidate> candidates;
     private final List<Election> elections;
@@ -38,9 +38,9 @@ public class ElectionSet {
     public ElectionSet(List<Voter> voters, List<Candidate> candidates, List<Election> elections) {
         Preconditions.checkArgument(candidates.size() ==
                 elections.stream().map(Election::getNumberOfCandidates).reduce((a, b) -> a + b).orElse(0));
-        this.voters = voters;
-        this.candidates = candidates;
-        this.elections = elections;
+        this.voters = ImmutableList.copyOf(voters);
+        this.candidates = ImmutableList.copyOf(candidates);
+        this.elections = ImmutableList.copyOf(elections);
     }
 
     public boolean isEligible(Voter voter, Election election) {
