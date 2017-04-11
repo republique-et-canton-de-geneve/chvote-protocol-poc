@@ -351,7 +351,7 @@ public class Simulation {
     }
 
     private void createSecurityLevel0Parameters() {
-        SecurityParameters securityParameters = new SecurityParameters(3, 3, 8, 0.9);
+        SecurityParameters securityParameters = new SecurityParameters(3, 3, 1, 0.9);
 
         EncryptionGroup encryptionGroup = new EncryptionGroup(SimulationConstants.p_RC0e, SimulationConstants.q_RC0e,
                 SimulationConstants.g_RC0e, SimulationConstants.h_RC0e);
@@ -368,7 +368,7 @@ public class Simulation {
     }
 
     private void createSecurityLevel1Parameters() {
-        SecurityParameters securityParameters = new SecurityParameters(80, 80, 160, 0.999);
+        SecurityParameters securityParameters = new SecurityParameters(80, 80, 20, 0.999);
 
         EncryptionGroup encryptionGroup = createEncryptionGroup(SimulationConstants.p_RC1e);
         IdentificationGroup identificationGroup = new IdentificationGroup(SimulationConstants.p_hat_RC1s,
@@ -384,7 +384,7 @@ public class Simulation {
     }
 
     private void createSecurityLevel2Parameters() {
-        SecurityParameters securityParameters = new SecurityParameters(112, 112, 256, 0.999);
+        SecurityParameters securityParameters = new SecurityParameters(112, 112, 32, 0.999);
 
         EncryptionGroup encryptionGroup = createEncryptionGroup(SimulationConstants.p2048);
         IdentificationGroup identificationGroup = createIdentificationGroup(SimulationConstants.p_hat_2048, securityParameters);

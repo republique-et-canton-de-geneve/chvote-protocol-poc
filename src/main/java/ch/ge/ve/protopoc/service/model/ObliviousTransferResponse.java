@@ -31,15 +31,15 @@ import java.util.Objects;
 /**
  * Model class for an Oblivious Transfer response
  */
-public class ObliviousTransferResponse {
+public final class ObliviousTransferResponse {
     private final List<BigInteger> b;
     private final byte[][] c;
     private final List<BigInteger> d;
 
     public ObliviousTransferResponse(List<BigInteger> b, byte[][] c, List<BigInteger> d) {
-        this.b = b;
+        this.b = ImmutableList.copyOf(b);
         this.c = c;
-        this.d = d;
+        this.d = ImmutableList.copyOf(d);
     }
 
     public List<BigInteger> getB() {

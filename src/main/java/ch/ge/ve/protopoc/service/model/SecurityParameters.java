@@ -26,7 +26,7 @@ import com.google.common.base.Preconditions;
 /**
  * This class defines the security parameters to be used
  */
-public class SecurityParameters {
+public final class SecurityParameters {
     /**
      * Minimal privacy security level &sigma;
      */
@@ -38,22 +38,21 @@ public class SecurityParameters {
     private final int tau;
 
     /**
-     * Output length of collision-resistant hash-function l (in bits)
+     * Output length of collision-resistant hash-function upper_l (in bytes)
      */
-    private final int l;
+    private final int upper_l;
 
     /**
      * Deterrence factor &epsilon; (with 0 &lt; &epsilon; &le; 1)
      */
     private final double epsilon;
 
-    public SecurityParameters(int sigma, int tau, int l, double epsilon) {
-        Preconditions.checkArgument(l % 8 == 0, "l should be a multiple of 8, so that l = 8L");
-        Preconditions.checkArgument(l >= 2 * Math.max(sigma, tau));
+    public SecurityParameters(int sigma, int tau, int upper_l, double epsilon) {
+        Preconditions.checkArgument(upper_l >= Math.max(sigma, tau) / 4.0);
         Preconditions.checkArgument(0.0 < epsilon && epsilon <= 1.0);
         this.sigma = sigma;
         this.tau = tau;
-        this.l = l;
+        this.upper_l = upper_l;
         this.epsilon = epsilon;
     }
 
@@ -65,8 +64,8 @@ public class SecurityParameters {
         return tau;
     }
 
-    public int getL() {
-        return l;
+    public int getUpper_l() {
+        return upper_l;
     }
 
     public double getEpsilon() {

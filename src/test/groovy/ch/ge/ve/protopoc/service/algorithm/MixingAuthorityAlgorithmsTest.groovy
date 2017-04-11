@@ -34,31 +34,25 @@ import static java.math.BigInteger.ZERO
  * Tests on the mixing algorithms
  */
 class MixingAuthorityAlgorithmsTest extends Specification {
-    PublicParameters publicParameters = Mock()
+    def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray() as List<Character>
+    EncryptionGroup encryptionGroup = new EncryptionGroup(ELEVEN, FIVE, THREE, FOUR)
+    IdentificationGroup identificationGroup = new IdentificationGroup(ELEVEN, FIVE, THREE)
+    SecurityParameters securityParameters = new SecurityParameters(1, 1, 2, 0.99)
+    PrimeField primeField = new PrimeField(ELEVEN)
+    PublicParameters publicParameters = new PublicParameters(
+            securityParameters, encryptionGroup, identificationGroup, primeField,
+            FIVE, defaultAlphabet, FIVE, defaultAlphabet,
+            defaultAlphabet, 2, defaultAlphabet, 2, 2, 3
+    )
+
     GeneralAlgorithms generalAlgorithms = Mock()
     VoteConfirmationAuthorityAlgorithms voteConfirmationAuthorityAlgorithms = Mock()
     RandomGenerator randomGenerator = Mock()
-
-    EncryptionGroup encryptionGroup = Mock()
-    IdentificationGroup identificationGroup = Mock()
-    SecurityParameters securityParameters = Mock()
 
     MixingAuthorityAlgorithms mixingAuthorityAlgorithms
     DecryptionAuthorityAlgorithms decryptionAuthorityAlgorithms
 
     void setup() {
-        publicParameters.encryptionGroup >> encryptionGroup
-        encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> FIVE // G_q = (1, 3, 4, 5, 9)
-        encryptionGroup.g >> THREE
-        encryptionGroup.h >> FOUR
-
-        publicParameters.identificationGroup >> identificationGroup
-        identificationGroup.q_hat >> FIVE
-
-        publicParameters.securityParameters >> securityParameters
-        securityParameters.tau >> 2
-
         mixingAuthorityAlgorithms = new MixingAuthorityAlgorithms(publicParameters, generalAlgorithms, voteConfirmationAuthorityAlgorithms, randomGenerator)
         decryptionAuthorityAlgorithms = new DecryptionAuthorityAlgorithms(publicParameters, generalAlgorithms, randomGenerator)
     }
@@ -66,10 +60,14 @@ class MixingAuthorityAlgorithmsTest extends Specification {
     def "getEncryptions should retrieve a list of valid, confirmed encryptions"() {
         given:
         def B = [
-                new BallotEntry(1, new BallotAndQuery(null, [ONE, FOUR, NINE], ONE, null), null),
-                new BallotEntry(2, new BallotAndQuery(null, [THREE, FIVE, ONE], THREE, null), null),
-                new BallotEntry(3, new BallotAndQuery(null, [FOUR, FIVE, THREE], FOUR, null), null),
-                new BallotEntry(6, new BallotAndQuery(null, [ONE, NINE, FIVE], NINE, null), null)
+                new BallotEntry(1,
+                        new BallotAndQuery(null, [ONE, FOUR, NINE], ONE, new NonInteractiveZKP([], [])), []),
+                new BallotEntry(2,
+                        new BallotAndQuery(null, [THREE, FIVE, ONE], THREE, new NonInteractiveZKP([], [])), []),
+                new BallotEntry(3,
+                        new BallotAndQuery(null, [FOUR, FIVE, THREE], FOUR, new NonInteractiveZKP([], [])), []),
+                new BallotEntry(6,
+                        new BallotAndQuery(null, [ONE, NINE, FIVE], NINE, new NonInteractiveZKP([], [])), [])
         ]
         def C = [
                 new ConfirmationEntry(1, null),

@@ -21,12 +21,14 @@
 
 package ch.ge.ve.protopoc.service.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 
 /**
  * Contains all the information needed for the printing of a code sheet
  */
-public class VotingCard {
+public final class VotingCard {
     private final Integer i;
     private final Voter voter;
     private final ElectionSet electionSet;
@@ -41,7 +43,7 @@ public class VotingCard {
         this.i = i;
         voter = upper_v;
         this.electionSet = electionSet;
-        this.bold_k = bold_k;
+        this.bold_k = ImmutableList.copyOf(bold_k);
         this.upper_x = upper_x;
         this.upper_y = upper_y;
         this.upper_fc = upper_fc;
@@ -61,7 +63,7 @@ public class VotingCard {
     }
 
     public List<Integer> getBold_k() {
-        return bold_k;
+        return ImmutableList.copyOf(bold_k);
     }
 
     public String getUpper_x() {

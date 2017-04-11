@@ -33,7 +33,7 @@ import static ch.ge.ve.protopoc.service.support.MoreMath.log2;
 /**
  * The model class grouping all public parameters
  */
-public class PublicParameters {
+public final class PublicParameters {
     private final SecurityParameters securityParameters;
     private final EncryptionGroup encryptionGroup;
     private final IdentificationGroup identificationGroup;
@@ -141,15 +141,15 @@ public class PublicParameters {
         this.identificationGroup = identificationGroup;
         this.primeField = primeField;
         this.q_hat_x = q_hat_x;
-        this.upper_a_x = upper_a_x;
+        this.upper_a_x = ImmutableList.copyOf(upper_a_x);
         this.l_x = (int) Math.ceil(q_hat_x.bitLength() / log2(upper_a_x.size()));
         this.q_hat_y = q_hat_y;
-        this.upper_a_y = upper_a_y;
+        this.upper_a_y = ImmutableList.copyOf(upper_a_y);
         this.l_y = (int) Math.ceil(q_hat_y.bitLength() / log2(upper_a_y.size()));
-        this.upper_a_r = upper_a_r;
+        this.upper_a_r = ImmutableList.copyOf(upper_a_r);
         this.upper_l_r = upper_l_r;
         this.l_r = (int) Math.ceil((8.0 * upper_l_r) / log2(upper_a_r.size()));
-        this.upper_a_f = upper_a_f;
+        this.upper_a_f = ImmutableList.copyOf(upper_a_f);
         this.upper_l_f = upper_l_f;
         this.l_f = (int) Math.ceil((8.0 * upper_l_f) / log2(upper_a_f.size()));
         this.upper_l_m = 2 * ((int) Math.ceil(primeField.getP_prime().bitLength() / 8.0));

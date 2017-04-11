@@ -30,7 +30,7 @@ import java.util.Objects;
 /**
  * Model class containing one encryption of one ballot
  */
-public class Encryption implements Hash.Hashable, Comparable<Encryption> {
+public final class Encryption implements Hash.Hashable, Comparable<Encryption> {
     private final BigInteger a;
     private final BigInteger b;
 

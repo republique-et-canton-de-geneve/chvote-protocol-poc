@@ -24,6 +24,7 @@ package ch.ge.ve.protopoc.service.algorithm
 import ch.ge.ve.protopoc.service.exception.NotEnoughPrimesInGroupException
 import ch.ge.ve.protopoc.service.exception.TallyingRuntimeException
 import ch.ge.ve.protopoc.service.model.*
+import ch.ge.ve.protopoc.service.simulation.SimulationConstants
 import spock.lang.Specification
 
 import static ch.ge.ve.protopoc.service.support.BigIntegers.*
@@ -35,33 +36,29 @@ import static java.math.BigInteger.ZERO
  */
 class TallyingAuthoritiesAlgorithmTest extends Specification {
     // Primary Mocks
-    PublicParameters publicParameters = Mock()
     GeneralAlgorithms generalAlgorithms = Mock()
 
-    // Secondary Mocks
-    EncryptionGroup encryptionGroup = Mock()
+    def defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_".toCharArray() as List<Character>
+    EncryptionGroup encryptionGroup = new EncryptionGroup(ELEVEN, FIVE, THREE, FOUR)
+    IdentificationGroup identificationGroup = new IdentificationGroup(ELEVEN, FIVE, THREE)
+    SecurityParameters securityParameters = new SecurityParameters(1, 1, 2, 0.99)
+    PrimeField primeField = new PrimeField(SEVEN)
+    PublicParameters publicParameters = new PublicParameters(
+            securityParameters, encryptionGroup, identificationGroup, primeField,
+            FIVE, defaultAlphabet, FIVE, defaultAlphabet,
+            defaultAlphabet, 2, defaultAlphabet, 2, 2, 5
+    )
     SecurityParameters securityParameters = Mock()
 
     // Class under test
     TallyingAuthoritiesAlgorithm tallyingAuthoritiesAlgorithm
 
     void setup() {
-        publicParameters.encryptionGroup >> encryptionGroup
-        publicParameters.s >> 2
-
-        publicParameters.securityParameters >> securityParameters
-        securityParameters.tau >> 2
-
         tallyingAuthoritiesAlgorithm = new TallyingAuthoritiesAlgorithm(publicParameters, generalAlgorithms)
     }
 
     def "checkDecryptionProofs should validate the proofs for all authorities"() {
-        given: "A very small encryption group"
-        encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> FIVE // G_q = (1, 3, 4, 5, 9)
-        encryptionGroup.g >> THREE
-
-        and: "Some input data"
+        given: "Some input data"
         def bold_pi_prime = [
                 new DecryptionProof([NINE, THREE, NINE, FIVE, FOUR], ZERO),
                 new DecryptionProof([FOUR, NINE, FOUR, THREE, FIVE], ONE)
@@ -91,12 +88,7 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
     }
 
     def "checkDecryptionProof should correctly validate an authority's partial decryption proof"() {
-        given: "A very small encryption group"
-        encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> FIVE // G_q = (1, 3, 4, 5, 9)
-        encryptionGroup.g >> THREE
-
-        and: "Some input data"
+        given: "Some input data"
         def pi_prime = new DecryptionProof([NINE, THREE, NINE, FIVE, FOUR], ZERO)
         def pk_j = FIVE
         def bold_e = [
@@ -120,12 +112,7 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
     }
 
     def "getDecryptions should properly retrieve the original plaintext messages"() {
-        given: "A very small encryption group"
-        encryptionGroup.p >> ELEVEN
-        encryptionGroup.q >> FIVE // G_q = (1, 3, 4, 5, 9)
-        encryptionGroup.g >> THREE
-
-        and: "Some input data"
+        given: "Some input data"
         def bold_e = [
                 new Encryption(ONE, FIVE),
                 new Encryption(NINE, THREE),
@@ -149,8 +136,16 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
     }
 
     def "getTally should get a valid tally count"() {
-        given: "A small encryption group"
-        encryptionGroup.p >> BigInteger.valueOf(167L)
+        given: "A slightly larger encryption group"
+        def otherEncryptionGroup = new EncryptionGroup(SimulationConstants.p_RC0e, SimulationConstants.q_RC0e,
+                SimulationConstants.g_RC0e, SimulationConstants.h_RC0e)
+        def otherPublicParameters = new PublicParameters(
+                securityParameters, otherEncryptionGroup, identificationGroup, primeField,
+                FIVE, defaultAlphabet, FIVE, defaultAlphabet,
+                defaultAlphabet, 2, defaultAlphabet, 2, 4, 5
+        )
+        def otherTallyingAuthoritiesAlgorithm = new TallyingAuthoritiesAlgorithm(otherPublicParameters,
+                generalAlgorithms)
 
         and: "Some primes"
         // The primes in G_83 : [2, 3, 7, 11, 19, 29, 31, 47, 61, 89, 97, 107, 127, 137, 157]
@@ -168,7 +163,7 @@ class TallyingAuthoritiesAlgorithmTest extends Specification {
         generalAlgorithms.isMember(BigInteger.valueOf(7 * 11)) >> true
 
         expect:
-        tallyingAuthoritiesAlgorithm.getVotes(m, 6) == [
+        otherTallyingAuthoritiesAlgorithm.getVotes(m, 6) == [
                 [true, false, false, true, false, false],
                 [true, false, false, false, true, false],
                 [true, false, false, false, false, true],

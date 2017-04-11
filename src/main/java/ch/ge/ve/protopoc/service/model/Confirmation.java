@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * Model class containing the necessary information for confirmation of the vote
  */
-public class Confirmation {
+public final class Confirmation {
     private final BigInteger y_hat;
     private final NonInteractiveZKP pi;
 

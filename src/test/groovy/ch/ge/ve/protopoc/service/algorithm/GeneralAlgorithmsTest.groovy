@@ -43,16 +43,11 @@ class GeneralAlgorithmsTest extends Specification {
 
     static ELEVEN = BigInteger.valueOf(11L)
 
-    EncryptionGroup eg = Mock()
-    IdentificationGroup ig = Mock()
+    EncryptionGroup eg = new EncryptionGroup(ELEVEN, FIVE, THREE, FIVE)
+    IdentificationGroup ig = new IdentificationGroup(ELEVEN, FIVE, THREE)
 
     void setup() {
         generalAlgorithms = new GeneralAlgorithms(hash, conversion, eg, ig)
-
-        eg.p >> ELEVEN
-        eg.q >> FIVE
-        eg.g >> THREE
-        eg.h >> FIVE
     }
 
     def "isMember"() {

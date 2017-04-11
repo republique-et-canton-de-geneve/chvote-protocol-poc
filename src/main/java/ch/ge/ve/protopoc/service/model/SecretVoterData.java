@@ -30,17 +30,20 @@ import java.util.Objects;
 /**
  * Model class holding the secret data for a voter
  */
-public class SecretVoterData {
+public final class SecretVoterData {
     private final BigInteger x;
     private final BigInteger y;
-    private final byte[] F;
+    private final byte[] f;
     private final byte[][] rc;
 
     public SecretVoterData(BigInteger x, BigInteger y, byte[] f, byte[][] rc) {
         this.x = x;
         this.y = y;
-        F = f;
-        this.rc = rc;
+        this.f = Arrays.copyOf(f, f.length);
+        this.rc = new byte[rc.length][];
+        for (int i = 0; i < rc.length; i++) {
+            this.rc[i] = Arrays.copyOf(rc[i], rc[i].length);
+        }
     }
 
     public BigInteger getX() {
@@ -52,11 +55,15 @@ public class SecretVoterData {
     }
 
     public byte[] getF() {
-        return F;
+        return Arrays.copyOf(f, f.length);
     }
 
     public byte[][] getRc() {
-        return rc;
+        byte[][] value = new byte[rc.length][];
+        for (int i = 0; i < rc.length; i++) {
+            value[i] = Arrays.copyOf(rc[i], rc[i].length);
+        }
+        return value;
     }
 
     @Override
@@ -66,13 +73,13 @@ public class SecretVoterData {
         SecretVoterData that = (SecretVoterData) o;
         return Objects.equals(x, that.x) &&
                 Objects.equals(y, that.y) &&
-                Arrays.equals(F, that.F) &&
+                Arrays.equals(f, that.f) &&
                 Arrays.deepEquals(rc, that.rc);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y, F, rc);
+        return Objects.hash(x, y, f, rc);
     }
 
     @Override
@@ -80,7 +87,7 @@ public class SecretVoterData {
         return MoreObjects.toStringHelper(this)
                 .add("x", x)
                 .add("y", y)
-                .add("F", F)
+                .add("f", f)
                 .add("rc", rc)
                 .toString();
     }

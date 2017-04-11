@@ -38,57 +38,72 @@ class ElectionPreparationAlgorithmsTest extends Specification {
     // Mocks
     Hash hash = Mock()
     RandomGenerator randomGenerator = Mock()
-    PublicParameters publicParameters = Mock()
-    IdentificationGroup identificationGroup = Mock()
-    PrimeField primeField = Mock()
+    IdentificationGroup identificationGroup = new IdentificationGroup(SEVEN, THREE, THREE)
+    PrimeField primeField = new PrimeField(SEVEN)
+    PublicParameters publicParameters = new PublicParameters(
+            new SecurityParameters(1, 1, 1, 0.9),
+            new EncryptionGroup(ELEVEN, FIVE, THREE, FOUR),
+            identificationGroup,
+            primeField,
+            THREE,
+            ['a', 'b'] as List<Character>,
+            THREE,
+            ['a', 'b'] as List<Character>,
+            ['a', 'b'] as List<Character>,
+            1,
+            ['a', 'b'] as List<Character>,
+            1,
+            4,
+            4
+    )
 
     ElectionPreparationAlgorithms electionPreparation
 
     void setup() {
-        publicParameters.getS() >> 4
-        publicParameters.q_hat_x >> THREE
-        publicParameters.l_x >> 2
-        publicParameters.q_hat_y >> THREE
-        publicParameters.l_y >> 2
-        publicParameters.upper_l_f >> 1
-        publicParameters.upper_l_r >> 1
-        publicParameters.upper_l_m >> 2
-        publicParameters.identificationGroup >> identificationGroup
-        publicParameters.primeField >> primeField
-
-        identificationGroup.getG_hat() >> THREE
-        identificationGroup.getQ_hat() >> THREE
-        identificationGroup.getP_hat() >> SEVEN
-
-        primeField.p_prime >> SEVEN
-
         electionPreparation = new ElectionPreparationAlgorithms(publicParameters, randomGenerator, hash)
     }
 
     def "genElectorateData should generate the expected electorate data"() {
-        given: "an election set with two elections and two voters"
-        ElectionSet electionSet = Mock()
-        Voter voter1 = Mock()
-        Voter voter2 = Mock()
-        Election election1 = Mock()
-        Election election2 = Mock()
-        electionSet.voters >> [voter1, voter2]
-        electionSet.elections >> [election1, election2]
+        given: "two elections and two voters"
+        DomainOfInfluence doi1 = new DomainOfInfluence("test 1")
+        DomainOfInfluence doi2 = new DomainOfInfluence("test 2")
+        Voter voter1 = new Voter()
+        Voter voter2 = new Voter()
+        and: "the first election is a 1-out-of-3 election (typical referendum)"
+        Election election1 = new Election(3, 1, doi1)
+        and: "the second election is a 2-out-of-4 election"
+        Election election2 = new Election(4, 2, doi2)
 
         and: "both voters are eligible for the first election"
-        electionSet.isEligible(_ as Voter, election1) >> true
+        def voters = [voter1, voter2]
+        voters.forEach { it.addDomainsOfInfluence(doi1) }
+
 
         and: "only the first voter is eligible for the second election"
-        electionSet.isEligible(voter1, election2) >> true
-        electionSet.isEligible(voter2, election2) >> false
+        voter1.addDomainsOfInfluence(doi2)
 
-        and: "the first election is a 1-out-of-3 election (typical referendum)"
-        election1.numberOfCandidates >> 3
-        election1.numberOfSelections >> 1
 
-        and: "the second election is a 2-out-of-4 election"
-        election2.numberOfCandidates >> 4
-        election2.numberOfSelections >> 2
+        and: "the matching number of candidates"
+        Candidate candidate1 = new Candidate("e1 c1")
+        Candidate candidate2 = new Candidate("e1 c2")
+        Candidate candidate3 = new Candidate("e1 c3")
+        Candidate candidate4 = new Candidate("e2 c1")
+        Candidate candidate5 = new Candidate("e2 c2")
+        Candidate candidate6 = new Candidate("e2 c3")
+        Candidate candidate7 = new Candidate("e2 c4")
+        def candidates = [
+                candidate1,
+                candidate2,
+                candidate3,
+                candidate4,
+                candidate5,
+                candidate6,
+                candidate7
+        ]
+        def elections = [election1, election2]
+
+        and: "the corresponding election set"
+        ElectionSet electionSet = new ElectionSet(voters, candidates, elections)
 
         and: "the following pre-established 'random' values"
         randomGenerator.randomInZq(_) >>> [
@@ -170,8 +185,8 @@ class ElectionPreparationAlgorithmsTest extends Specification {
 
     def "genSecretVoterData should generate the expected private voter data"() {
         given:
-        Point point1 = Mock()
-        Point point2 = Mock()
+        Point point1 = new Point(ONE, ZERO)
+        Point point2 = new Point(ZERO, ONE)
         hash.recHash_L([point1, point2] as Object[]) >> ([0x03] as byte[])
         hash.recHash_L(point1) >> ([0x05] as byte[])
         hash.recHash_L(point2) >> ([0x07] as byte[])

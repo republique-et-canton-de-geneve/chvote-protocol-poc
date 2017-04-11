@@ -32,7 +32,7 @@ import java.util.Objects;
 /**
  * Model class representing a shuffle proof, as provided in algorithm 5.44
  */
-public class ShuffleProof {
+public final class ShuffleProof {
     private final T t;
     private final S s;
     private final List<BigInteger> bold_c;
@@ -41,8 +41,8 @@ public class ShuffleProof {
     public ShuffleProof(T t, S s, List<BigInteger> bold_c, List<BigInteger> bold_c_hat) {
         this.t = t;
         this.s = s;
-        this.bold_c = bold_c;
-        this.bold_c_hat = bold_c_hat;
+        this.bold_c = ImmutableList.copyOf(bold_c);
+        this.bold_c_hat = ImmutableList.copyOf(bold_c_hat);
     }
 
     public T getT() {
@@ -54,11 +54,11 @@ public class ShuffleProof {
     }
 
     public List<BigInteger> getBold_c() {
-        return bold_c;
+        return ImmutableList.copyOf(bold_c);
     }
 
     public List<BigInteger> getBold_c_hat() {
-        return bold_c_hat;
+        return ImmutableList.copyOf(bold_c_hat);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ShuffleProof {
         return Objects.hash(t, s, bold_c, bold_c_hat);
     }
 
-    public static class T implements Hash.Hashable {
+    public static final class T implements Hash.Hashable {
         private final BigInteger t_1;
         private final BigInteger t_2;
         private final BigInteger t_3;
@@ -96,13 +96,13 @@ public class ShuffleProof {
             this.t_1 = t_1;
             this.t_2 = t_2;
             this.t_3 = t_3;
-            this.t_4 = t_4;
-            this.t_hat = t_hat;
+            this.t_4 = ImmutableList.copyOf(t_4);
+            this.t_hat = ImmutableList.copyOf(t_hat);
         }
 
         @Override
         public Object[] elementsToHash() {
-            return new Object[]{t_1, t_2, t_3, t_4, t_hat};
+            return new Object[]{t_1, t_2, t_3, ImmutableList.copyOf(t_4), ImmutableList.copyOf(t_hat)};
         }
 
         public BigInteger getT_1() {
@@ -143,7 +143,7 @@ public class ShuffleProof {
         }
     }
 
-    public static class S {
+    public static final class S {
         private final BigInteger s_1;
         private final BigInteger s_2;
         private final BigInteger s_3;
@@ -166,8 +166,8 @@ public class ShuffleProof {
             this.s_2 = s_2;
             this.s_3 = s_3;
             this.s_4 = s_4;
-            this.s_hat = s_hat;
-            this.s_prime = s_prime;
+            this.s_hat = ImmutableList.copyOf(s_hat);
+            this.s_prime = ImmutableList.copyOf(s_prime);
         }
 
         public BigInteger getS_1() {
