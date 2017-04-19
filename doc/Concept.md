@@ -62,7 +62,7 @@ The protocol used in this prototype relies on the following primitives:
   some constant value c &gt; 0
 - The _minimal integrity_ &tau; defines the amount of computational work for breaking the
   integrity of a vote in the same way as &sigma; for breaking the privacy of the vote. In
-  other words, the actual choice of  determines the risk that an adversary succeeds in
+  other words, the actual choice of &tau; determines the risk that an adversary succeeds in
   manipulating an election.
 - The deterrence factor 0 &lt; &epsilon; &le; 1 defines a lower bound for the probability that an
   attempt to cheat by an adversary is detected by some honest party.

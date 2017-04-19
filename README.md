@@ -2,18 +2,18 @@
 
 # Table of contents
 
-- [Overview](#Overview)
-    - [Context](#Context)
-    - [Components](#Components)
-    - [Concept](#Concept)
+- [Overview](#overview)
+    - [Context](#context)
+    - [Components](#components)
+    - [Concept](#concept)
 - [Project status](#project-status)
     - [Implementation status](#implementation-status)
     - [Performance measurements](#performance-measurements)
 - [Compiling and running the simulation](#compiling-and-running-the-simulation)
-    - [Prerequisites](#Prerequisites)
-    - [Compiling](#Compiling)
-    - [Running](#Running)
-- [Contributing](#Contributing)
+    - [Prerequisites](#prerequisites)
+    - [Compiling](#compiling)
+    - [Running](#running)
+- [Contributing](#contributing)
     - [Pull request policies](#pull-request-policies)
 	- [Security](#security)
 - [License](#license)
@@ -136,7 +136,7 @@ security-chvote@etat.ge.ch, so that we can analyze impact before taking the disc
 We would appreciate getting two weeks notice to discuss the issue in-house and with our partners before taking the issue
 to the public.
 
-# Licence
+# License
 CHVote components are released under [AGPL 3.0](https://www.gnu.org/licenses/agpl.txt).
 
 # Future

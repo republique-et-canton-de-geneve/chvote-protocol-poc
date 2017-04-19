@@ -40,13 +40,13 @@ The table below contains information on the progress of the project for the _bac
 
 All the elements required by the protocol can be found in the [service](src/main/java/ch/ge/ve/protopoc/service) 
 package.
-- The [algorithm](src/main/java/ch/ge/ve/protopoc/service/algorithm) package covers the algorithms defined in section 5 
+- The [algorithm](../src/main/java/ch/ge/ve/protopoc/service/algorithm) package covers the algorithms defined in section 5 
 of the specification
-- The [support](src/main/java/ch/ge/ve/protopoc/service/support) package covers the prerequisites discussed in section 2
-- The [service/model](src/main/java/ch/ge/ve/protopoc/service/model) package holds the model classes used to represent 
+- The [support](../src/main/java/ch/ge/ve/protopoc/service/support) package covers the prerequisites discussed in section 2
+- The [service/model](../src/main/java/ch/ge/ve/protopoc/service/model) package holds the model classes used to represent 
 the tuples and values returned by the algorithms
 
 ## Simulation
 
 The simulation can be run by executing the 
-[Simulation](src/main/java/ch/ge/ve/protopoc/service/simulation/Simulation.java) class.
+[Simulation](../src/main/java/ch/ge/ve/protopoc/service/simulation/Simulation.java) class.
