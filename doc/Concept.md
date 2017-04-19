@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The elements outlined in this document are detailed in the specification document provided at [TODO](link).
+The elements outlined in this document are detailed in the specification document provided at the [Cryptology ePrint Archive](https://eprint.iacr.org/2017/325).
 This document aims to provide a faster overview, which entails some simplification.
 The reference document should be used for a better understanding, for clarification of some details or as a reference
 when challenging the security of this project.
