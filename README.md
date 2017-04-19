@@ -3,14 +3,14 @@
 # Table of contents
 
 - [Overview](#overview)
-    - [Context](#context)
+    - [Context](#project-context)
     - [Components](#components)
     - [Concept](#concept)
 - [Project status](#project-status)
     - [Implementation status](#implementation-status)
     - [Performance measurements](#performance-measurements)
-- [Compiling and running the simulation](#compiling-and-running-the-simulation)
-    - [Prerequisites](#prerequisites)
+- [Compiling and running the simulation](#compiling-and-running)
+    - [Preconditions](#preconditions)
     - [Compiling](#compiling)
     - [Running](#running)
 - [Contributing](#contributing)
