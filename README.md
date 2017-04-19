@@ -1,4 +1,4 @@
-# Prototype of an e-Voting protocol [![CircleCI](https://circleci.com/gh/dgsi-ve-test-organization/chvote-protocol-poc.svg?style=svg&circle-token=d326afa989c268fe5958e3388729d15149130d3c)](https://circleci.com/gh/dgsi-ve-test-organization/chvote-protocol-poc)
+# Prototype of an e-Voting protocol
 
 # Table of contents
 
