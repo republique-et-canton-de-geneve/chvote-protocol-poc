@@ -27,7 +27,7 @@ This prototype is being developed as a Proof of Concept for the protocol the eVo
 of the BFH (Berner Fachhochschule) is working on, in partnership with Canton Geneva.
 
 The detailed specifications of the prototype are published along with this code.
-They are available on the [Cryptology ePrint Archive](https://eprint.iacr.org/2017/325).
+They are available on the [Cryptology ePrint Archive](https://ia.cr/2017/325).
 
 ## Components
 
