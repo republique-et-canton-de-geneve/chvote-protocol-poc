@@ -1,4 +1,4 @@
-# Prototype of an e-Voting protocol
+# Prototype of an e-Voting protocol [![Build Status](https://travis-ci.org/republique-et-canton-de-geneve/chvote-protocol-poc.svg?branch=development&style=flat)](https://travis-ci.org/republique-et-canton-de-geneve/chvote-protocol-poc)
 
 # Table of contents
 
