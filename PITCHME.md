@@ -147,7 +147,7 @@ In current version:
 * Allows re-encryptions
   
 `$$e = Enc_{pk}(m, r)$$` 
-`$$ReEnc_{pk}(e, r') = e \circ Enc_{pk}(1, r') = Enc_{pk}(m, r + r')$$`
+`$$ReEnc_{pk}(e, r') = e \cdot Enc_{pk}(1, r') = Enc_{pk}(m, r + r')$$`
   
 * Useful for anonymizing when shuffling
 
