@@ -1,0 +1,6 @@
+theme : moon
+mousewheel : true
+logo : doc/assets/logogeneve.png
+highlight : solarized-dark
+mathjax : TeX-AMS_HTML-full
+
