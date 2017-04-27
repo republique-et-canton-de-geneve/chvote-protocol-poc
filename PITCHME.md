@@ -234,11 +234,11 @@ In current version:
   * 
   * @param y     the public values vector (domain unspecified)
   * @param t     the commitments vector (domain unspecified)
-  * @param kappa the soundness strength of the challenge 
-  * @return the computed challenge 
+  * @param kappa the soundness strength of the challenge
+  * @return the computed challenge
   */
-public BigInteger getNIZKPChallenge(Object[] y, Object[] t, int kappa) {    
-    return conversion.toInteger(hash.recHash_L(y, t)).mod(BigIntegers.TWO.pow(kappa));
+public BigInteger getNIZKPChallenge(Object[] y, Object[] t, int kappa) {
+    return conversion.toInteger(hash.recHash_L(y, t)).mod(BigIntegers.TWO.pow(kappa));
 }
 ```
 
