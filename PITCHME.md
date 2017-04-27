@@ -286,8 +286,8 @@ public BigInteger getNIZKPChallenge(Object[] y, Object[] t, int kappa) {
 * Distribution <!-- .element: class="fragment" -->
   * Real infrastructure for Control Components
 * Resilience & Availability <!-- .element: class="fragment" -->
-* Custom rules for layout, specific elections, …
-* Back-office, test zone, …
+* Custom rules for layout, specific elections, … <!-- .element: class="fragment" -->
+* Back-office, test zone, … <!-- .element: class="fragment" -->
 * Cantonal interoperability <!-- .element: class="fragment" -->
 
 ---
