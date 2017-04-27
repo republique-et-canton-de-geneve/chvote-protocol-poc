@@ -145,9 +145,11 @@ In current version:
 ## Homomorphic encryption
 
 * Allows re-encryptions
-  * `$$e = Enc_{pk}(m, r)$$` 
-  * `$$ReEnc_{pk}(e, r') = e \dot Enc_{pk}(1, r') = Enc_{pk}(m, r + r')$$`
-  * Useful for anonymizing when shuffling
+  
+  `$$e = Enc_{pk}(m, r)$$` 
+  `$$ReEnc_{pk}(e, r') = e \circ Enc_{pk}(1, r') = Enc_{pk}(m, r + r')$$`
+  
+* Useful for anonymizing when shuffling
 
 +++ 
 
