@@ -27,8 +27,7 @@ import ch.ge.ve.protopoc.service.support.Conversion;
 import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -80,6 +79,7 @@ public class VotingCardPreparationAlgorithms {
 
             votingCards.add(getVotingCard(i, electionSet, bold_k_i, upper_x, upper_y, upper_fc, bold_rc));
         }
+        votingCards.sort(Comparator.comparing(VotingCard::getI));
         return votingCards;
     }
 
