@@ -56,7 +56,7 @@ public class VoterSimulator {
     public void sendCodeSheet(VotingCard votingCard) {
         Preconditions.checkState(this.votingCard == null,
                 String.format("The code sheet may not be updated once set (at voter %d)", voterIndex));
-        Preconditions.checkArgument(Objects.equals(votingCard.getI(), voterIndex), "Voter received the wrong code list.é");
+        Preconditions.checkArgument(Objects.equals(votingCard.getI(), voterIndex), "Voter received the wrong code list.");
         this.votingCard = votingCard;
     }
 
