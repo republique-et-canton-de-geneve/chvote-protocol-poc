@@ -2,9 +2,7 @@
 
 # Disclaimer
 
-This project is deprecated, it has been used to test and design some elements of the new CHVote 2.0 system.
-The development of this CHVote 2.0 system as been halted in november 2018 in an unfinished state. Nevertheless,
-the complete source code and documentation is published at [https://chvote2.gitlab.io](https://chvote2.gitlab.io).
+**This project is deprecated, it has been used to test and design some elements of the new CHVote 2.0 system. The development of this CHVote 2.0 system as been halted in november 2018 in an unfinished state. Nevertheless, the complete source code and documentation is published at [https://chvote2.gitlab.io](https://chvote2.gitlab.io).**
 
 # Table of contents
 
