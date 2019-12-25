@@ -28,12 +28,10 @@ import ch.ge.ve.protopoc.service.model.VotingCard;
 import ch.ge.ve.protopoc.service.model.VotingPageData;
 import ch.ge.ve.protopoc.service.protocol.VotingClientService;
 import com.google.common.base.Preconditions;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -58,7 +56,7 @@ public class VoterSimulator {
     public void sendCodeSheet(VotingCard votingCard) {
         Preconditions.checkState(this.votingCard == null,
                 String.format("The code sheet may not be updated once set (at voter %d)", voterIndex));
-        Preconditions.checkArgument(votingCard.getI() == voterIndex, "Voter received the wrong code list.é");
+        Preconditions.checkArgument(Objects.equals(votingCard.getI(), voterIndex), "Voter received the wrong code list.");
         this.votingCard = votingCard;
     }
 
